@@ -1,0 +1,5 @@
+
+#ifndef WORDBRUSH_MAIN_H
+#define WORDBRUSH_MAIN_H
+
+#endif //WORDBRUSH_MAIN_H
