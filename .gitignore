@@ -54,3 +54,7 @@ dkms.conf
 # Intellij Stuff
 .idea
 bin
+
+
+# Node stuff
+package-lock.json

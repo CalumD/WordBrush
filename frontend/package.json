@@ -1,0 +1,24 @@
+{
+  "name": "wordbrush",
+  "version": "0.1.0",
+  "description": "A frontend for the WordBrush C application to graphically trace an equivelant swipe-to-type line on a keyboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CalumD/WordBrush.git"
+  },
+  "keywords": [
+    "Learning",
+    "C",
+    "Node"
+  ],
+  "author": "Calum Duff",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/CalumD/WordBrush/issues"
+  },
+  "homepage": "https://github.com/CalumD/WordBrush#readme"
+}
