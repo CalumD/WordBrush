@@ -3,8 +3,8 @@
 
 all: clean build run
 
-build:
-	gcc --pedantic -Wall -Wextra ./src/main.c -o ./bin/TEST
+build: ./src/main.c ./src/wordbrush.c
+	gcc --pedantic -Wall -Wextra ./src/main.c ./src/wordbrush.c -o ./bin/TEST
 
 clean:
 	rm ./bin/*
@@ -14,4 +14,4 @@ run:
 
 
 test: clean build
-	./bin/TEST 'hello world test content'
+	./bin/TEST -i 'filename.com' hello world
