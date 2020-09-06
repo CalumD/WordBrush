@@ -14,4 +14,4 @@ run:
 
 
 test: clean build
-	./bin/TEST -i 'filename.com' hello world
+	./bin/TEST -i 'filename.com' -o "../resources" hello world
