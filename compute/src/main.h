@@ -8,6 +8,8 @@ typedef struct Config {
     bool multiFileOutput;
     char* inputFilePath;
     char* outputFilePath;
+    int width;
+    int height;
 } Config;
 
 

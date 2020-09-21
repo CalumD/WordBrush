@@ -5,6 +5,7 @@
 
 #include "main.h"
 #include "wordbrush.h"
+#include "fileUtils.h"
 
 /**
  * Parse the program arguments in preparation to run.
@@ -22,13 +23,12 @@ Config* getProgramArguments(int argc, char* argv[]) {
 
     // put ':' in the starting of the string so that program can distinguish between '?' and ':'
     int opt;
-    while((opt = getopt(argc, argv, ":i:o:mhH")) != -1)
+    while((opt = getopt(argc, argv, ":i:o:mhW:H:")) != -1)
     {
         switch(opt)
         {
             // print help output
             case 'h':
-            case 'H':
                 printf("HERE IS SOME HELP, THIS SHOULD BE IMPROVED AT SOME POINT!\n");
                 return config;
             // Create Multiple outputs (1 per word)
@@ -38,10 +38,26 @@ Config* getProgramArguments(int argc, char* argv[]) {
             // Input filename
             case 'i':
                 config->inputFilePath = optarg;
+                if (!canReadFile(optarg)) {
+                    printf("Failed because of input file name.\n");
+                    errored = true;
+                }
                 break;
             // Output directory (will output files to here with name ~/output_<X>.svg)
             case 'o':
                 config->outputFilePath = optarg;
+                if (!canWriteDirectory(optarg)) {
+                    printf("Failed because of output directory.\n");
+                    errored = true;
+                }
+                break;
+            // Width of the virtual keyboard (aka output width scale)
+            case 'W':
+                sscanf(optarg, "%d", &config->width);
+                break;
+            // Height of the virtual keyboard (aka output height scale)
+            case 'H':
+                sscanf(optarg, "%d", &config->height);
                 break;
             // Covering when the user makes a mistake in input.
             case ':':

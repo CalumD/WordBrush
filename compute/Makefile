@@ -3,8 +3,8 @@
 
 all: clean build run
 
-build: ./src/main.c ./src/wordbrush.c
-	gcc --pedantic -Wall -Wextra ./src/main.c ./src/wordbrush.c -o ./bin/TEST
+build: ./src/main.c ./src/wordbrush.c ./src/fileUtils.c
+	gcc --pedantic -Wall -Wextra -Werror $^ -o ./bin/TEST
 
 clean:
 	rm ./bin/*
@@ -14,4 +14,4 @@ run:
 
 
 test: clean build
-	./bin/TEST -i 'filename.com' -o "../resources" hello world
+	./bin/TEST -i '../resources/input.txt' -o "../resources" hello world -W 150 -H 200
