@@ -14,4 +14,4 @@ run:
 
 
 test: clean build
-	./bin/TEST -i '../resources/input.txt' -o "../resources" hello world -W 300 -H 120
+	./bin/TEST -i '../resources/input.txt' -o "../resources" -W 300 -H 120 hello world

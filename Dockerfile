@@ -16,4 +16,8 @@ COPY compute $WORK_DIR/compute
 COPY frontend/src $WORK_DIR/frontend/src
 COPY frontend/package.json $WORK_DIR/frontend/src/package.json
 
+# REMOVE THIS BEFORE SHIPPING
+COPY resources $WORK_DIR/resources
+
+
 ENTRYPOINT ["./dockerRunner.sh"]
