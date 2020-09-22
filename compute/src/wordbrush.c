@@ -98,18 +98,22 @@ void computeCurves(Config *config) {
 
 
 
-    const char *sentence = "hello";
+    const char *sentence = "clum";
 
-    for (const char* index = sentence; *index; index++) {
-        if (index == sentence) {
-            printf("<path d=\"M %f %f",
-                   getRandomPointOnKey(getCharacterOffset(config, 'h')).x,
-                   getRandomPointOnKey(getCharacterOffset(config, 'h')).y);
-            continue;
-        }
-        printf("L %f %f ",
+    Point fst = getRandomPointOnKey(getCharacterOffset(config, sentence[0]));
+    Point snd = getRandomPointOnKey(getCharacterOffset(config, sentence[1]));
+
+    printf("<path d=\"M%f,%f Q%f,%f %f,%f T",
+		    fst.x, fst.y,
+		    fst.x, fst.y,
+		    snd.x, snd.y);
+
+    for (const char* index = sentence + 2; *index; index++) {
+        printf("%f,%f",
                getRandomPointOnKey(getCharacterOffset(config, *index)).x,
                getRandomPointOnKey(getCharacterOffset(config, *index)).y);
+
+	printf(" ");
     }
 
     printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
