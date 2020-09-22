@@ -6,6 +6,7 @@
 #include "main.h"
 #include "wordbrush.h"
 #include "fileUtils.h"
+#include "debug.h"
 
 /**
  * Parse the program arguments in preparation to run.
@@ -74,7 +75,7 @@ Config* getProgramArguments(int argc, char* argv[]) {
     // optind is for the extra arguments
     // which are not parsed
     for(; optind < argc; optind++){
-        printf("extra arguments: %s\n", argv[optind]);
+        debug("extra arguments: %s\n", argv[optind]);
     }
 
     // Verify we either have an input/output file, or that there are additional arguments to use as input.
