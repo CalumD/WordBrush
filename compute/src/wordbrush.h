@@ -3,19 +3,27 @@
 #ifndef WORDBRUSH_WORDBRUSH_H
 #define WORDBRUSH_WORDBRUSH_H
 
-typedef struct KeyOffset {
-    float width_offset;
-    float width_percentage;
-    float height_offset;
-    float height_percentage;
-} KeyOffset;
-
 #define KEY_WIDTH_PERCENTAGE 0.1
 #define KEY_HEIGHT_PERCENTAGE 0.25
 
-KeyOffset getCharacterOffset(char character);
+typedef struct KeyBounds {
+    float x;
+    float y;
+    float width;
+    float height;
+} KeyBounds;
 
+typedef struct Point {
+    float x;
+    float y;
+} Point;
+
+KeyBounds getCharacterOffset(Config* config, char character);
+
+Point getRandomPointOnKey(Config *config, KeyBounds key);
 
 void computeCurves(Config *config);
+
+
 
 #endif //WORDBRUSH_WORDBRUSH_H

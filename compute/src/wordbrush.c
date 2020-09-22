@@ -92,6 +92,19 @@ KeyOffset getCharacterOffset(char character) {
             ret;
 }
 
+Point getRandomPointOnKey(Config *config, KeyBounds key) {
+    // Find the centre point of key
+    Point ret = {.x=(key.x + ((key.width * config->width) / 2)),
+            .y=(key.y + ((key.height * config->height) / 2))};
+
+    // Choose direction to move in
+
+    // Move some percentage of the size of the key in that direction
+    // Return the resultant point.
+    printf("<circle cx=\"%f\" cy=\"%f\" r=\"1\" stroke=\"red\" fill=\"black\" stroke-width=\"2\"/>", ret.x, ret.y);
+    return ret;
+}
+
 void computeCurves(Config *config) {
     printf("In the compute curves method------------\n");
 
