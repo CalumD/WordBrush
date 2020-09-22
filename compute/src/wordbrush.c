@@ -2,16 +2,16 @@
 
 #include "wordbrush.h"
 
-#define key(c, wo, ho) \
-	case c: \
-    	    return (KeyOffset) { \
-    	        .width_offset = wo, \
-	        .width_percentage = KEY_WIDTH_PERCENTAGE, \
-	        .height_offset = ho, \
-    	        .height_percentage = KEY_HEIGHT_PERCENTAGE \
-    	    }
+#define key(character, x_point, y_point) \
+    case character:\
+        return (KeyBounds) {\
+            .x = (x_point * KEY_WIDTH_PERCENTAGE * config->width),\
+            .y = (y_point * KEY_HEIGHT_PERCENTAGE * config->height),\
+            .width = KEY_WIDTH_PERCENTAGE * config->width,\
+            .height = KEY_HEIGHT_PERCENTAGE * config->height\
+        }
 
-KeyOffset getCharacterOffset(char character) {
+KeyBounds getCharacterOffset(Config *config, char character) {
     switch (character) {
         key('q', 0, 0);
         key('w', 1, 0);
@@ -40,28 +40,30 @@ KeyOffset getCharacterOffset(char character) {
         key('n', 6.5, 2);
         key('m', 7.5, 2);
         case ' ':
-            return (KeyOffset) {
-                .width_offset = 2.5,
-                .width_percentage = (KEY_WIDTH_PERCENTAGE * 5),
-                .height_offset = 3,
-                .height_percentage = KEY_HEIGHT_PERCENTAGE
+            return (KeyBounds) {
+                    .x = (2.5 * KEY_WIDTH_PERCENTAGE * config->width),
+                    .y = (3 * KEY_HEIGHT_PERCENTAGE * config->height),
+                    .width = (KEY_WIDTH_PERCENTAGE * 5) * config->width,
+                    .height = KEY_HEIGHT_PERCENTAGE * config->height
             };
 
         default:
-            return (KeyOffset) {0, 0, 0, 0};
+            return (KeyBounds) {0, 0, 0, 0};
     }
 }
 
-Point getRandomPointOnKey(Config *config, KeyBounds key) {
+Point getRandomPointOnKey(KeyBounds key) {
     // Find the centre point of key
-    Point ret = {.x=(key.x + ((key.width * config->width) / 2)),
-            .y=(key.y + ((key.height * config->height) / 2))};
+    Point ret = {
+            .x=(key.x + (key.width / 2)),
+            .y=(key.y + (key.height / 2))
+    };
 
-    // Choose direction to move in
+    // TODO Choose direction to move in
 
-    // Move some percentage of the size of the key in that direction
+    // TODO Move some percentage of the size of the key in that direction
+
     // Return the resultant point.
-    printf("<circle cx=\"%f\" cy=\"%f\" r=\"1\" stroke=\"red\" fill=\"black\" stroke-width=\"2\"/>", ret.x, ret.y);
     return ret;
 }
 
@@ -76,28 +78,23 @@ void computeCurves(Config *config) {
 
     printf("\n\n");
 
-
     printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
            " width=\"%dpx\""
            " height=\"%dpx\""
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
     for (int i = 0; i < 26; i++) {
-        KeyOffset offset = getCharacterOffset('a' + i);
+        KeyBounds bounds = getCharacterOffset(config, 'a' + i);
         printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-               (offset.width_offset * offset.width_percentage * config->width),
-               (offset.height_offset * offset.height_percentage) * config->height,
-               offset.width_percentage * config->width,
-               offset.height_percentage * config->height,
-              500000 * i);
+               bounds.x, bounds.y, bounds.width, bounds.height,
+               500000 * i);
+        getRandomPointOnKey(bounds);
     }
-    KeyOffset offset = getCharacterOffset(' ');
+    KeyBounds bounds = getCharacterOffset(config, ' ');
     printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-           (offset.width_offset * 0.1 * config->width),
-           (offset.height_offset * offset.height_percentage) * config->height,
-           offset.width_percentage * config->width,
-           offset.height_percentage * config->height,
+           bounds.x, bounds.y, bounds.width, bounds.height,
            27 * 500000);
+    getRandomPointOnKey(bounds);
 
     printf("</svg>\n");
 }

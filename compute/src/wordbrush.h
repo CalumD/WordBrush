@@ -20,7 +20,7 @@ typedef struct Point {
 
 KeyBounds getCharacterOffset(Config* config, char character);
 
-Point getRandomPointOnKey(Config *config, KeyBounds key);
+Point getRandomPointOnKey(KeyBounds key);
 
 void computeCurves(Config *config);
 
