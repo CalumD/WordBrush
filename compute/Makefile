@@ -1,17 +1,28 @@
+TRGT = bin/wordbrush
+SRCS = $(wildcard src/*.c)
+OBJS = $(patsubst src/%.c,bin/%.o, $(SRCS))
 
-.PHONY: all clean build run test
+CFLAGS = --pedantic -Wall -Wextra -Werror
 
-all: clean build run
+.PHONY: default all clean run test
 
-build: ./src/main.c ./src/wordbrush.c ./src/fileUtils.c
-	gcc --pedantic -Wall -Wextra -Werror $^ -o ./bin/TEST
+.INTERMEDIATE: $(OBJS)
 
+default: all
+
+all: $(TRGT)
+
+$(TRGT): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LOADLIBES) $(LDLIBS)
+
+bin/%.o: src/%.c
+	$(CC) $(CFLAGS) $(OUTPUT_OPTION) -c $<
+	
 clean:
-	rm -f ./bin/*
+	$(RM) $(TRGT) $(OBJS)
 
 run:
-	./bin/TEST
+	./$(TRGT)
 
-
-test: clean build
-	./bin/TEST -i '../resources/input.txt' -o "../resources" -W 300 -H 120 hello world
+test: all
+	$(TRGT) -i '../resources/input.txt' -o "../resources" -W 300 -H 120 hello world
