@@ -7,11 +7,11 @@ build: ./src/main.c ./src/wordbrush.c ./src/fileUtils.c
 	gcc --pedantic -Wall -Wextra -Werror $^ -o ./bin/TEST
 
 clean:
-	rm ./bin/*
+	rm -f ./bin/*
 
 run:
 	./bin/TEST
 
 
 test: clean build
-	./bin/TEST -i '../resources/input.txt' -o "../resources" hello world -W 150 -H 200
+	./bin/TEST -i '../resources/input.txt' -o "../resources" hello world -W 300 -H 120
