@@ -96,5 +96,21 @@ void computeCurves(Config *config) {
            27 * 500000);
     getRandomPointOnKey(bounds);
 
-    printf("</svg>\n");
+
+
+    const char *sentence = "hello";
+
+    for (const char* index = sentence; *index; index++) {
+        if (index == sentence) {
+            printf("<path d=\"M %f %f",
+                   getRandomPointOnKey(getCharacterOffset(config, 'h')).x,
+                   getRandomPointOnKey(getCharacterOffset(config, 'h')).y);
+            continue;
+        }
+        printf("L %f %f ",
+               getRandomPointOnKey(getCharacterOffset(config, *index)).x,
+               getRandomPointOnKey(getCharacterOffset(config, *index)).y);
+    }
+
+    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
 }
