@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "fileUtils.h"
+#include "file_utils.h"
 
 bool canWriteDirectory(char* pathToDirectory) {
     return access(pathToDirectory, W_OK) == 0 ? true : false;

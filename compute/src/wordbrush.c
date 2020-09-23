@@ -4,6 +4,7 @@
 
 #include "wordbrush.h"
 #include "debug.h"
+#include "math_utils.h"
 
 #define key(character, x_point, y_point) \
     case character:\
@@ -14,7 +15,7 @@
             .height = KEY_HEIGHT_PERCENTAGE * config->height\
         }
 
-KeyBounds getCharacterOffset(Config *config, char character) {
+KeyBounds get_key_bounds(Config *config, char character) {
     switch (character) {
         key('q', 0, 0);
         key('w', 1, 0);
@@ -55,7 +56,7 @@ KeyBounds getCharacterOffset(Config *config, char character) {
     }
 }
 
-Point getRandomPointOnKey(KeyBounds key) {
+Point get_random_point_on_key(KeyBounds key) {
     // Find the centre point of key
     Point ret = {
             .x=(key.x + (key.width / 2)),
@@ -70,42 +71,7 @@ Point getRandomPointOnKey(KeyBounds key) {
     return ret;
 }
 
-Point magnify(Point p, float a) {
-    return (Point) {
-        .x = p.x * a,
-        .y = p.y * a
-    };
-}
-
-Point add_points(Point a, Point b) {
-    return (Point) {
-        .x = a.x + b.x,
-        .y = a.y + b.y
-    };
-}
-
-Point reflect_control_point(Point cp, Point p) {
-    return (Point) {
-        .x = (2 * p.x) - cp.x,
-        .y = (2 * p.y) - cp.y
-    };
-}
-
-Point interpolate(Point a, Point b, float a_weight) {
-    float b_weight = 1. - a_weight;
-
-    Point a_weighted = magnify(a, a_weight);
-    Point b_weighted = magnify(b, b_weight);
-
-    return add_points(a_weighted, b_weighted);
-}
-
-Point find_next_control_point(Point prev_cp, Point cur_p) {
-    Point reflected_cp = reflect_control_point(prev_cp, cur_p);
-    return interpolate(cur_p, reflected_cp, 0.8);
-}
-
-void computeCurves(Config *config) {
+void compute_curves(Config *config) {
     debug("In the compute curves method -------------\n");
     debug("Input Path: %s\n", config->inputFilePath);
     debug("Output Path: %s\n", config->outputFilePath);
@@ -118,24 +84,24 @@ void computeCurves(Config *config) {
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
     for (int i = 0; i < 26; i++) {
-        KeyBounds bounds = getCharacterOffset(config, 'a' + i);
+        KeyBounds bounds = get_key_bounds(config, 'a' + i);
         printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
                bounds.x, bounds.y, bounds.width, bounds.height,
                500000 * i);
-        getRandomPointOnKey(bounds);
+        get_random_point_on_key(bounds);
     }
-    KeyBounds bounds = getCharacterOffset(config, ' ');
+    KeyBounds bounds = get_key_bounds(config, ' ');
     printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
            bounds.x, bounds.y, bounds.width, bounds.height,
            27 * 500000);
-    getRandomPointOnKey(bounds);
+    get_random_point_on_key(bounds);
 
     const char *sentence = "gittable";
 
     int l = strlen(sentence);
     Point *key_locations = malloc(sizeof(Point) * l);
     for (int i = 0; i < l; i++) {
-        key_locations[i] = getRandomPointOnKey(getCharacterOffset(config, sentence[i]));
+        key_locations[i] = get_random_point_on_key(get_key_bounds(config, sentence[i]));
     }
 
     Point fst = key_locations[0];
