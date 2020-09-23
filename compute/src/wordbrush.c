@@ -15,7 +15,7 @@
             .height = KEY_HEIGHT_PERCENTAGE * config->height\
         }
 
-KeyBounds get_key_bounds(Config *config, char character) {
+KeyBounds get_key_bounds(Config* config, char character) {
     switch (character) {
         key('q', 0, 0);
         key('w', 1, 0);
@@ -56,22 +56,100 @@ KeyBounds get_key_bounds(Config *config, char character) {
     }
 }
 
-Point get_random_point_on_key(KeyBounds key) {
-    // Find the centre point of key
-    Point ret = {
-            .x=(key.x + (key.width / 2)),
-            .y=(key.y + (key.height / 2))
+Point get_random_point_on_current_key(KeyBounds current_key) {
+    Point scale = {
+            .x = current_key.width * KEY_ACTIVE_ZONE_PERCENTAGE,
+            .y = current_key.height * KEY_ACTIVE_ZONE_PERCENTAGE
     };
-
-    // TODO Choose direction to move in
-
-    // TODO Move some percentage of the size of the key in that direction
-
-    // Return the resultant point.
-    return ret;
+    KeyBounds subdivision_bound = (KeyBounds) {
+            .x = (current_key.x + (current_key.width / 2)) - (scale.x / 2),
+            .y = (current_key.y + (current_key.height / 2)) - (scale.y / 2),
+            .width = scale.x,
+            .height = scale.y
+    };
+//    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:none;stroke:black;stroke-width:1;\"/>\n",
+//           subdivision_bound.x, subdivision_bound.y, subdivision_bound.width, subdivision_bound.height);
+    Point p = get_random_point_in_bounds(subdivision_bound);
+//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"3\" style=\"fill:red\"/>\n", p.x, p.y);
+    return p;
 }
 
-void compute_curves(Config *config) {
+Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
+    // Find the centre point of current Key
+    Point current = {
+            .x = (current_key.x + (current_key.width / 2)),
+            .y = (current_key.y + (current_key.height / 2))
+    };
+//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"2\"/>\n", current.x, current.y);
+
+    // Find the centre point of next key
+    Point next = {
+            .x=(next_key.x + (next_key.width / 2)),
+            .y=(next_key.y + (next_key.height / 2))
+    };
+//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"2\"/>\n", next.x, next.y);
+    Point scale = {.x = next_key.width * KEY_ACTIVE_ZONE_PERCENTAGE, .y = next_key.height * KEY_ACTIVE_ZONE_PERCENTAGE};
+
+    /*
+     * Figure out which compass direction the old key is to the new one... using:
+     *
+     * 0 1 2
+     * 7 8 3
+     * 6 5 4
+     */
+    KeyBounds sub_division_bound;
+
+    debug("Xc: %f, Yc: %f\n", current.x, current.y);
+    debug("Xn: %f, Yn: %f\n", next.x, next.y);
+
+    if (current.x < next.x && current.y < next.y) {             // 0
+        debug("Choose 0\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x == next.x && current.y < next.y) {     // 1
+        debug("Choose 1\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y < next.y) {      // 2
+        debug("Choose 2\n");
+        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y == next.y) {     // 3
+        debug("Choose 3\n");
+        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y > next.y) {      // 4
+        debug("Choose 4\n");
+        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x == next.x && current.y > next.y) {  // 5
+        debug("Choose 5\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x < next.x && current.y > next.y) {     // 6
+        debug("Choose 6\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x < next.x && current.y == next.y) {      // 7
+        debug("Choose 7\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    } else {
+        debug("Choose 8\n");
+        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    }
+//    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:none;stroke:black;stroke-width:1;\"/>\n",
+//           sub_division_bound.x, sub_division_bound.y, sub_division_bound.width, sub_division_bound.height);
+
+
+    // Find then return a random point in the sub division bounds.
+    Point p = get_random_point_in_bounds(sub_division_bound);
+//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"3\" style=\"fill:red\"/>\n", p.x, p.y);
+    return p;
+}
+
+void compute_curves(Config* config) {
     debug("In the compute curves method -------------\n");
     debug("Input Path: %s\n", config->inputFilePath);
     debug("Output Path: %s\n", config->outputFilePath);
@@ -83,43 +161,52 @@ void compute_curves(Config *config) {
            " height=\"%dpx\""
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
-    char *KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+    char* KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
 
     for (int i = 0; i < 26; i++) {
         KeyBounds bounds = get_key_bounds(config, 'a' + i);
         printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
-                "height=\"%f\" style=\"%s\"/>\n",
+               "height=\"%f\" style=\"%s\"/>\n",
                bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-        get_random_point_on_key(bounds);
     }
     KeyBounds bounds = get_key_bounds(config, ' ');
     printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
            bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-    get_random_point_on_key(bounds);
 
-    const char *sentence = "gittable";
+    const char* sentence = "hello";
 
     int l = strlen(sentence);
-    Point *key_locations = malloc(sizeof(Point) * l);
+    Point* key_locations = malloc(sizeof(Point) * l);
     for (int i = 0; i < l; i++) {
-        key_locations[i] = get_random_point_on_key(get_key_bounds(config, sentence[i]));
+        if (l == 1) {
+            break;
+        }
+        if ((i == 0 && l > 1)) {
+            get_random_point_on_current_key(get_key_bounds(config, sentence[i]));
+        }
+        key_locations[i] = get_random_point_on_next_key(
+                get_key_bounds(config, sentence[i]),
+                get_key_bounds(config, sentence[i + 1])
+        );
     }
+//
+//    Point fst = key_locations[0];
+//    Point snd = key_locations[1];
+//
+//    Point cp = fst;
+//
+//    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
+//           fst.x, fst.y,
+//           cp.x, cp.y,
+//           snd.x, snd.y);
+//
+//    for (int i = 2; i < l; i++) {
+//        Point cur_p = key_locations[i];
+//        cp = find_next_control_point(cp, key_locations[i - 1]);
+//        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
+//    }
 
-    Point fst = key_locations[0];
-    Point snd = key_locations[1];
-
-    Point cp = fst;
-
-    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
-            fst.x, fst.y,
-            cp.x, cp.y,
-            snd.x, snd.y);
-
-    for (int i = 2; i < l; i++) {
-        Point cur_p = key_locations[i];
-        cp = find_next_control_point(cp, key_locations[i-1]);
-        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
-    }
-
-    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
+    free(key_locations);
+//    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
+    printf("</svg>\n");
 }

@@ -4,7 +4,6 @@
 
 #include "math_utils.h"
 
-
 Point magnify(Point point, float amount) {
     return (Point) {
             .x = point.x * amount,
@@ -38,4 +37,16 @@ Point interpolate(Point point_a, Point point_b, float weighting) {
 Point find_next_control_point(Point previous_control_point, Point current_control_point) {
     Point reflected_cp = reflect_control_point(previous_control_point, current_control_point);
     return interpolate(current_control_point, reflected_cp, NEXT_CONTROL_POINT_DRIFT_WEIGHT);
+}
+
+float random_number_between(float min, float max) {
+    float scale = rand() / (float) RAND_MAX;
+    return min + scale * (max - min);
+}
+
+Point get_random_point_in_bounds(KeyBounds bounds) {
+    return (Point) {
+            .x = random_number_between(bounds.x, bounds.x + bounds.width),
+            .y = random_number_between(bounds.y, bounds.y + bounds.height)
+    };
 }
