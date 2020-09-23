@@ -18,11 +18,11 @@ typedef struct Point {
     float y;
 } Point;
 
-KeyBounds getCharacterOffset(Config* config, char character);
+KeyBounds get_key_bounds(Config* config, char character);
 
-Point getRandomPointOnKey(KeyBounds key);
+Point get_random_point_on_key(KeyBounds key);
 
-void computeCurves(Config *config);
+void compute_curves(Config *config);
 
 
 

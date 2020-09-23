@@ -1,6 +1,10 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "wordbrush.h"
+#include "debug.h"
+#include "math_utils.h"
 
 #define key(character, x_point, y_point) \
     case character:\
@@ -11,7 +15,7 @@
             .height = KEY_HEIGHT_PERCENTAGE * config->height\
         }
 
-KeyBounds getCharacterOffset(Config *config, char character) {
+KeyBounds get_key_bounds(Config *config, char character) {
     switch (character) {
         key('q', 0, 0);
         key('w', 1, 0);
@@ -52,7 +56,7 @@ KeyBounds getCharacterOffset(Config *config, char character) {
     }
 }
 
-Point getRandomPointOnKey(KeyBounds key) {
+Point get_random_point_on_key(KeyBounds key) {
     // Find the centre point of key
     Point ret = {
             .x=(key.x + (key.width / 2)),
@@ -67,49 +71,54 @@ Point getRandomPointOnKey(KeyBounds key) {
     return ret;
 }
 
-void computeCurves(Config *config) {
-    printf("In the compute curves method------------\n");
-
-    printf("Found inputPath: %s\n", config->inputFilePath);
-    printf("Found outputDirectory: %s\n", config->outputFilePath);
-    printf("Multi-file output: %d\n", config->multiFileOutput);
-    printf("Width Used: %d\n", config->width);
-    printf("Height Used: %d\n", config->height);
-
-    printf("\n\n");
+void compute_curves(Config *config) {
+    debug("In the compute curves method -------------\n");
+    debug("Input Path: %s\n", config->inputFilePath);
+    debug("Output Path: %s\n", config->outputFilePath);
+    debug("Multi-file Output: %s\n", config->multiFileOutput ? "true" : "false");
+    debug("\n\n");
 
     printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
            " width=\"%dpx\""
            " height=\"%dpx\""
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
+    char *KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+
     for (int i = 0; i < 26; i++) {
-        KeyBounds bounds = getCharacterOffset(config, 'a' + i);
-        printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-               bounds.x, bounds.y, bounds.width, bounds.height,
-               500000 * i);
-        getRandomPointOnKey(bounds);
+        KeyBounds bounds = get_key_bounds(config, 'a' + i);
+        printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
+                "height=\"%f\" style=\"%s\"/>\n",
+               bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
+        get_random_point_on_key(bounds);
     }
-    KeyBounds bounds = getCharacterOffset(config, ' ');
-    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-           bounds.x, bounds.y, bounds.width, bounds.height,
-           27 * 500000);
-    getRandomPointOnKey(bounds);
+    KeyBounds bounds = get_key_bounds(config, ' ');
+    printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
+           bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
+    get_random_point_on_key(bounds);
 
+    const char *sentence = "gittable";
 
+    int l = strlen(sentence);
+    Point *key_locations = malloc(sizeof(Point) * l);
+    for (int i = 0; i < l; i++) {
+        key_locations[i] = get_random_point_on_key(get_key_bounds(config, sentence[i]));
+    }
 
-    const char *sentence = "hello";
+    Point fst = key_locations[0];
+    Point snd = key_locations[1];
 
-    for (const char* index = sentence; *index; index++) {
-        if (index == sentence) {
-            printf("<path d=\"M %f %f",
-                   getRandomPointOnKey(getCharacterOffset(config, 'h')).x,
-                   getRandomPointOnKey(getCharacterOffset(config, 'h')).y);
-            continue;
-        }
-        printf("L %f %f ",
-               getRandomPointOnKey(getCharacterOffset(config, *index)).x,
-               getRandomPointOnKey(getCharacterOffset(config, *index)).y);
+    Point cp = fst;
+
+    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
+            fst.x, fst.y,
+            cp.x, cp.y,
+            snd.x, snd.y);
+
+    for (int i = 2; i < l; i++) {
+        Point cur_p = key_locations[i];
+        cp = find_next_control_point(cp, key_locations[i-1]);
+        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
     }
 
     printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");

@@ -5,7 +5,8 @@
 
 #include "main.h"
 #include "wordbrush.h"
-#include "fileUtils.h"
+#include "file_utils.h"
+#include "debug.h"
 
 /**
  * Parse the program arguments in preparation to run.
@@ -14,7 +15,7 @@
  * @param argv The arguments provided to the application.
  * @return A Struct representing the configuration for the program to work on.
  */
-Config* getProgramArguments(int argc, char* argv[]) {
+Config* get_program_arguments(int argc, char* argv[]) {
     Config* config = malloc(sizeof(Config));
     config->successfullyInitialised = false;
     config->multiFileOutput = false;
@@ -74,7 +75,7 @@ Config* getProgramArguments(int argc, char* argv[]) {
     // optind is for the extra arguments
     // which are not parsed
     for(; optind < argc; optind++){
-        printf("extra arguments: %s\n", argv[optind]);
+        debug("extra arguments: %s\n", argv[optind]);
     }
 
     // Verify we either have an input/output file, or that there are additional arguments to use as input.
@@ -95,7 +96,7 @@ Config* getProgramArguments(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
     // Check command line arguments
-    Config* config = getProgramArguments(argc, argv);
+    Config* config = get_program_arguments(argc, argv);
 
     // If program arguments are not suitable, then shutdown.
     if (!config->successfullyInitialised) {
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Execute the main purpose of the program.
-    computeCurves(config);
+    compute_curves(config);
 
     return 0;
 }
