@@ -83,17 +83,18 @@ void compute_curves(Config *config) {
            " height=\"%dpx\""
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
+    char *KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+
     for (int i = 0; i < 26; i++) {
         KeyBounds bounds = get_key_bounds(config, 'a' + i);
-        printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-               bounds.x, bounds.y, bounds.width, bounds.height,
-               500000 * i);
+        printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
+                "height=\"%f\" style=\"%s\"/>\n",
+               bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
         get_random_point_on_key(bounds);
     }
     KeyBounds bounds = get_key_bounds(config, ' ');
-    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:#%X;\"/>\n",
-           bounds.x, bounds.y, bounds.width, bounds.height,
-           27 * 500000);
+    printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
+           bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
     get_random_point_on_key(bounds);
 
     const char *sentence = "gittable";
