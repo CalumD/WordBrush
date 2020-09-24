@@ -105,6 +105,11 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    debug("Input Path: %s\n", config->inputFilePath);
+    debug("Output Path: %s\n", config->outputFilePath);
+    debug("Multi-file Output: %s\n", config->multiFileOutput ? "true" : "false");
+    debug("\n\n");
+
     //Execute the main purpose of the program.
     compute_curves(config);
 

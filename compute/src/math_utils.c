@@ -50,3 +50,43 @@ Point get_random_point_in_bounds(KeyBounds bounds) {
             .y = random_number_between(bounds.y, bounds.y + bounds.height)
     };
 }
+
+/**
+ * Figure out which compass direction the old key is to the new one using the following layout:
+ *
+ * 0 1 2
+ * 7 8 3
+ * 6 5 4
+ */
+KeyBounds calculate_directional_key_subdivision(Point current, Point next, Point scale) {
+    KeyBounds ret;
+    if (current.x < next.x && current.y < next.y) {             // 0
+        ret = (KeyBounds) {.x = next.x - scale.x, .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x == next.x && current.y < next.y) {     // 1
+        ret = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y < next.y) {      // 2
+        ret = (KeyBounds) {.x = next.x, .y = next.y - scale.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y == next.y) {     // 3
+        ret = (KeyBounds) {.x = next.x, .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    } else if (current.x > next.x && current.y > next.y) {      // 4
+        ret = (KeyBounds) {.x = next.x, .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x == next.x && current.y > next.y) {     // 5
+        ret = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x < next.x && current.y > next.y) {      // 6
+        ret = (KeyBounds) {.x = next.x - scale.x, .y = next.y,
+                .width = scale.x, .height = scale.y};
+    } else if (current.x < next.x && current.y == next.y) {     // 7
+        ret = (KeyBounds) {.x = next.x - scale.x, .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    } else {                                                    // 8
+        ret = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - (scale.y / 2),
+                .width = scale.x, .height = scale.y};
+    }
+    return ret;
+}

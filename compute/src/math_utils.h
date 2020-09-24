@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "wordbrush.h"
 
+
 #define NEXT_CONTROL_POINT_DRIFT_WEIGHT 0.8
 
 
@@ -24,5 +25,7 @@ Point find_next_control_point(Point previous_control_point, Point current_contro
 float random_number_between(float min, float max);
 
 Point get_random_point_in_bounds(KeyBounds bounds);
+
+KeyBounds calculate_directional_key_subdivision(Point current, Point next, Point scale);
 
 #endif //WORDBRUSH_MATH_UTILS_H

@@ -61,17 +61,12 @@ Point get_random_point_on_current_key(KeyBounds current_key) {
             .x = current_key.width * KEY_ACTIVE_ZONE_PERCENTAGE,
             .y = current_key.height * KEY_ACTIVE_ZONE_PERCENTAGE
     };
-    KeyBounds subdivision_bound = (KeyBounds) {
+    return get_random_point_in_bounds((KeyBounds) {
             .x = (current_key.x + (current_key.width / 2)) - (scale.x / 2),
             .y = (current_key.y + (current_key.height / 2)) - (scale.y / 2),
             .width = scale.x,
             .height = scale.y
-    };
-//    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:none;stroke:black;stroke-width:1;\"/>\n",
-//           subdivision_bound.x, subdivision_bound.y, subdivision_bound.width, subdivision_bound.height);
-    Point p = get_random_point_in_bounds(subdivision_bound);
-//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"3\" style=\"fill:red\"/>\n", p.x, p.y);
-    return p;
+    });
 }
 
 Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
@@ -80,82 +75,21 @@ Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
             .x = (current_key.x + (current_key.width / 2)),
             .y = (current_key.y + (current_key.height / 2))
     };
-//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"2\"/>\n", current.x, current.y);
 
     // Find the centre point of next key
     Point next = {
             .x=(next_key.x + (next_key.width / 2)),
             .y=(next_key.y + (next_key.height / 2))
     };
-//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"2\"/>\n", next.x, next.y);
     Point scale = {.x = next_key.width * KEY_ACTIVE_ZONE_PERCENTAGE, .y = next_key.height * KEY_ACTIVE_ZONE_PERCENTAGE};
 
-    /*
-     * Figure out which compass direction the old key is to the new one... using:
-     *
-     * 0 1 2
-     * 7 8 3
-     * 6 5 4
-     */
-    KeyBounds sub_division_bound;
-
-    debug("Xc: %f, Yc: %f\n", current.x, current.y);
-    debug("Xn: %f, Yn: %f\n", next.x, next.y);
-
-    if (current.x < next.x && current.y < next.y) {             // 0
-        debug("Choose 0\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y - scale.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x == next.x && current.y < next.y) {     // 1
-        debug("Choose 1\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - scale.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x > next.x && current.y < next.y) {      // 2
-        debug("Choose 2\n");
-        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y - scale.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x > next.x && current.y == next.y) {     // 3
-        debug("Choose 3\n");
-        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y - (scale.y / 2),
-                .width = scale.x, .height = scale.y};
-    } else if (current.x > next.x && current.y > next.y) {      // 4
-        debug("Choose 4\n");
-        sub_division_bound = (KeyBounds) {.x = next.x, .y = next.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x == next.x && current.y > next.y) {  // 5
-        debug("Choose 5\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x < next.x && current.y > next.y) {     // 6
-        debug("Choose 6\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y,
-                .width = scale.x, .height = scale.y};
-    } else if (current.x < next.x && current.y == next.y) {      // 7
-        debug("Choose 7\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - scale.x, .y = next.y - (scale.y / 2),
-                .width = scale.x, .height = scale.y};
-    } else {
-        debug("Choose 8\n");
-        sub_division_bound = (KeyBounds) {.x = next.x - (scale.x / 2), .y = next.y - (scale.y / 2),
-                .width = scale.x, .height = scale.y};
-    }
-//    printf("<rect x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" style=\"fill:none;stroke:black;stroke-width:1;\"/>\n",
-//           sub_division_bound.x, sub_division_bound.y, sub_division_bound.width, sub_division_bound.height);
-
-
     // Find then return a random point in the sub division bounds.
-    Point p = get_random_point_in_bounds(sub_division_bound);
-//    printf("<circle cx=\"%f\" cy=\"%f\" r=\"3\" style=\"fill:red\"/>\n", p.x, p.y);
-    return p;
+    KeyBounds sub_division_bound = calculate_directional_key_subdivision(current, next, scale);
+    return get_random_point_in_bounds(sub_division_bound);
 }
 
-void compute_curves(Config* config) {
-    debug("In the compute curves method -------------\n");
-    debug("Input Path: %s\n", config->inputFilePath);
-    debug("Output Path: %s\n", config->outputFilePath);
-    debug("Multi-file Output: %s\n", config->multiFileOutput ? "true" : "false");
-    debug("\n\n");
 
+void compute_curves(Config* config) {
     printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
            " width=\"%dpx\""
            " height=\"%dpx\""
