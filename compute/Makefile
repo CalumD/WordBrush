@@ -25,5 +25,4 @@ run:
 	./$(TRGT)
 
 test: all
-	@$(TRGT) -i '../resources/input.txt' -o "../resources" -W 600 -H 240 hello world > "../resources/out.svg"
-	xdg-open ../resources/out.svg
+	@$(TRGT) -i '../resources/input.txt' -o "../resources/test-out" -W 600 -H 240 hello world

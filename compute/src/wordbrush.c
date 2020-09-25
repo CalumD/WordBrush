@@ -45,10 +45,10 @@ KeyBounds get_key_bounds(Config *config, char character) {
         key('m', 7.5, 2);
         case ' ':
             return (KeyBounds) {
-                    .x = (2.5 * KEY_WIDTH_PERCENTAGE * config->width),
-                    .y = (3 * KEY_HEIGHT_PERCENTAGE * config->height),
-                    .width = (KEY_WIDTH_PERCENTAGE * 5) * config->width,
-                    .height = KEY_HEIGHT_PERCENTAGE * config->height
+                .x = (2.5 * KEY_WIDTH_PERCENTAGE * config->width),
+                .y = (3 * KEY_HEIGHT_PERCENTAGE * config->height),
+                .width = (KEY_WIDTH_PERCENTAGE * 5) * config->width,
+                .height = KEY_HEIGHT_PERCENTAGE * config->height
             };
 
         default:
@@ -71,55 +71,138 @@ Point get_random_point_on_key(KeyBounds key) {
     return ret;
 }
 
-void compute_curves(Config *config) {
+typedef struct {
+    size_t size;
+    size_t size_remaining;
+    char *buf;
+    char *cur;
+} svg;
+
+#define add_to_svg(svg, ...) do { \
+    do { \
+        size_t req = snprintf(svg->cur, svg->size_remaining, __VA_ARGS__); \
+        if (req > svg->size_remaining) { \
+            char* new_buf = realloc(svg->buf, svg->size * 2); \
+            svg->cur += new_buf - svg->buf; \
+            svg->buf = new_buf; \
+            svg->size_remaining += svg->size; \
+            svg->size += svg->size; \
+        } else { \
+            svg->size_remaining -= req; \
+            svg->cur += req; \
+            break; \
+        } \
+    } while (1); \
+} while (0)
+
+void svg_start(svg *svg, int width, int height) {
+    char *format =
+        "<svg xmlns='%s' width='%dpx' height='%dpx'"
+        " viewBox='0 0 %d %d'>\n";
+
+    char *XML_NAMESPACE = "http://www.w3.org/2000/svg";
+
+    add_to_svg(svg, format, XML_NAMESPACE, width, height, width, height);
+}
+
+void svg_rect(svg *svg, float x, float y, float rx, float ry, float width,
+              float height, char *style) {
+
+    char *format =
+        "<rect x='%f' y='%f' rx='%f' ry='%f' width='%f' height='%f'"
+        " style='%s'/>\n";
+
+    add_to_svg(svg, format, x, y, rx, ry, width, height, style ? style : "");
+}
+
+void svg_key(svg *svg, Config *cfg, char c) {
+    char *KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+    float KEY_ROUNDEDNESS = 10.;
+
+    KeyBounds bounds = get_key_bounds(cfg, c);
+    svg_rect(svg, bounds.x, bounds.y, KEY_ROUNDEDNESS, KEY_ROUNDEDNESS,
+             bounds.width, bounds.height, KEY_STYLE);
+}
+
+void svg_quadratic_bezier(svg *svg, int n, Point *ps) {
+    char *PATH_START = "<path d='M%f,%f Q%f,%f %f,%f";
+    char *PATH_REPEAT = " Q%f,%f %f,%f";
+    char *PATH_END = "' stroke='%s' stroke-width='%i' fill='%s' />";
+
+    char *PATH_STROKE = "black";
+    int PATH_STROKE_WIDTH = 5;
+    char *PATH_FILL = "none";
+
+    Point ctrl_p = ps[0];
+
+    add_to_svg(svg, PATH_START,
+               ps[0].x, ps[0].y,
+               ctrl_p.x, ctrl_p.y,
+               ps[1].x, ps[1].y);
+
+    for (int i = 2; i < n; i++) {
+        Point cur_p = ps[i];
+        ctrl_p = find_next_control_point(ctrl_p, ps[i - 1]);
+
+        add_to_svg(svg, PATH_REPEAT,
+                   ctrl_p.x, ctrl_p.y,
+                   cur_p.x, cur_p.y);
+    }
+
+    add_to_svg(svg, PATH_END, PATH_STROKE, PATH_STROKE_WIDTH, PATH_FILL);
+}
+
+void svg_write_to_file(svg *svg, FILE *fp) {
+    fwrite(svg->buf, 1, svg->size - svg->size_remaining, fp);
+}
+
+void svg_end(svg *svg) {
+    add_to_svg(svg, "</svg>");
+}
+
+void compute_curves(Config* config, char* word, FILE* out_fp) {
     debug("In the compute curves method -------------\n");
     debug("Input Path: %s\n", config->inputFilePath);
-    debug("Output Path: %s\n", config->outputFilePath);
+    debug("Output Dir: %s\n", config->outputFilePath);
     debug("Multi-file Output: %s\n", config->multiFileOutput ? "true" : "false");
     debug("\n\n");
 
-    printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
-           " width=\"%dpx\""
-           " height=\"%dpx\""
-           " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
+    size_t SVG_BUF_START_SIZE = 1024;
+    char *svg_buf = malloc(SVG_BUF_START_SIZE);
+    svg svg = {
+        .size = SVG_BUF_START_SIZE,
+        .size_remaining = SVG_BUF_START_SIZE,
+        .buf = svg_buf,
+        .cur = svg_buf
+    };
 
-    char *KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+    svg_start(&svg, config->width, config->height);
 
-    for (int i = 0; i < 26; i++) {
-        KeyBounds bounds = get_key_bounds(config, 'a' + i);
-        printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
-                "height=\"%f\" style=\"%s\"/>\n",
-               bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-        get_random_point_on_key(bounds);
+    int key_count = 26;
+
+    for (int i = 0; i < key_count; i++) {
+
+        /*
+         * TODO
+         * I can't remember if modern C standards guarantee that
+         * sequential characters are adjacent in terms of integer
+         * value (i.e. that 'a' + 1 == 'b'). Should probably double-
+         * check this.
+         */
+        svg_key(&svg, config, 'a' + i);
     }
-    KeyBounds bounds = get_key_bounds(config, ' ');
-    printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
-           bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-    get_random_point_on_key(bounds);
 
-    const char *sentence = "gittable";
+    svg_key(&svg, config, ' ');
 
-    int l = strlen(sentence);
+    int l = strlen(word);
     Point *key_locations = malloc(sizeof(Point) * l);
     for (int i = 0; i < l; i++) {
-        key_locations[i] = get_random_point_on_key(get_key_bounds(config, sentence[i]));
+        key_locations[i] =
+            get_random_point_on_key(get_key_bounds(config, word[i]));
     }
 
-    Point fst = key_locations[0];
-    Point snd = key_locations[1];
+    svg_quadratic_bezier(&svg, l, key_locations);
 
-    Point cp = fst;
-
-    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
-            fst.x, fst.y,
-            cp.x, cp.y,
-            snd.x, snd.y);
-
-    for (int i = 2; i < l; i++) {
-        Point cur_p = key_locations[i];
-        cp = find_next_control_point(cp, key_locations[i-1]);
-        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
-    }
-
-    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
+    svg_end(&svg);
+    svg_write_to_file(&svg, out_fp);
 }

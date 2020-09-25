@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "main.h"
 
 #ifndef WORDBRUSH_WORDBRUSH_H
@@ -22,7 +24,7 @@ KeyBounds get_key_bounds(Config* config, char character);
 
 Point get_random_point_on_key(KeyBounds key);
 
-void compute_curves(Config *config);
+void compute_curves(Config* config, char* word, FILE* output_file);
 
 
 

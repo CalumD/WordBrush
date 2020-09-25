@@ -2,6 +2,9 @@
 #include <malloc.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "main.h"
 #include "wordbrush.h"
@@ -18,7 +21,12 @@
 Config* get_program_arguments(int argc, char* argv[]) {
     Config* config = malloc(sizeof(Config));
     config->successfullyInitialised = false;
-    config->multiFileOutput = false;
+
+    /*
+     * Until we figure out a nice way to combine squiggles,
+     * multi-file output should be the default.
+     */
+    config->multiFileOutput = true;
 
     bool errored = false;
 
@@ -39,18 +47,10 @@ Config* get_program_arguments(int argc, char* argv[]) {
             // Input filename
             case 'i':
                 config->inputFilePath = optarg;
-                if (!canReadFile(optarg)) {
-                    printf("Failed because of input file name.\n");
-                    errored = true;
-                }
                 break;
             // Output directory (will output files to here with name ~/output_<X>.svg)
             case 'o':
                 config->outputFilePath = optarg;
-                if (!canWriteDirectory(optarg)) {
-                    printf("Failed because of output directory.\n");
-                    errored = true;
-                }
                 break;
             // Width of the virtual keyboard (aka output width scale)
             case 'W':
@@ -74,6 +74,8 @@ Config* get_program_arguments(int argc, char* argv[]) {
 
     // optind is for the extra arguments
     // which are not parsed
+    config->extra_args = argv + optind;
+
     for(; optind < argc; optind++){
         debug("extra arguments: %s\n", argv[optind]);
     }
@@ -84,6 +86,44 @@ Config* get_program_arguments(int argc, char* argv[]) {
     }
 
     return config;
+}
+
+void word_loop(Config *cfg) {
+    FILE *cur_output_file = NULL;
+    unsigned long file_index = 0;
+    char *buf;
+    size_t bufsize;
+
+    if (cfg->multiFileOutput) {
+        mkdir(cfg->outputFilePath, 0700);
+
+        /*
+         * This buffer should be at least as large as the longest possible
+         * filename, which can be calculated as the length of the directory's
+         * path, plus a /, plus the most digits a long can have (20 assuming
+         * a long is 8 bytes wide), plus ".svg", plus a zero terminator.
+         */
+        bufsize = strlen(cfg->outputFilePath) + 26;
+        buf = malloc(bufsize);
+    } else {
+        cur_output_file = fopen(cfg->outputFilePath, "w");
+    }
+
+    for (char** word = cfg->extra_args; *word; word++) {
+        if (cfg->multiFileOutput) {
+            if (cur_output_file) {
+                fclose(cur_output_file);
+            }
+
+            snprintf(buf, bufsize, "%s/%lu.svg", cfg->outputFilePath,
+                file_index);
+            cur_output_file = fopen(buf, "w");
+        }
+
+        compute_curves(cfg, *word, cur_output_file);
+
+        file_index++;
+    }
 }
 
 /**
@@ -106,7 +146,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Execute the main purpose of the program.
-    compute_curves(config);
+    word_loop(config);
 
     return 0;
 }
