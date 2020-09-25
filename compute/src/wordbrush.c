@@ -160,6 +160,10 @@ void svg_end(svg *svg) {
     add_to_svg(svg, "</svg>");
 }
 
+void svg_free(svg *svg) {
+    free(svg->buf);
+}
+
 void compute_curves(Config* config, char* word, FILE* out_fp) {
     debug("In the compute curves method -------------\n");
     debug("Input Path: %s\n", config->inputFilePath);
@@ -205,4 +209,7 @@ void compute_curves(Config* config, char* word, FILE* out_fp) {
 
     svg_end(&svg);
     svg_write_to_file(&svg, out_fp);
+
+    free(svg_buf);
+    free(key_locations);
 }
