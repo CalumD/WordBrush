@@ -15,6 +15,23 @@
             .height = KEY_HEIGHT_PERCENTAGE * config->height\
         }
 
+#define add_to_svg(svg, ...) do { \
+    do { \
+        size_t req = snprintf(svg->cur, svg->size_remaining, __VA_ARGS__); \
+        if (req > svg->size_remaining) { \
+            char* new_buf = realloc(svg->buf, svg->size * 2); \
+            svg->cur += new_buf - svg->buf; \
+            svg->buf = new_buf; \
+            svg->size_remaining += svg->size; \
+            svg->size += svg->size; \
+        } else { \
+            svg->size_remaining -= req; \
+            svg->cur += req; \
+            break; \
+        } \
+    } while (1); \
+} while (0)
+
 KeyBounds get_key_bounds(Config* config, char character) {
     switch (character) {
         key('q', 0, 0);
@@ -45,10 +62,10 @@ KeyBounds get_key_bounds(Config* config, char character) {
         key('m', 7.5, 2);
         case ' ':
             return (KeyBounds) {
-                    .x = (2.5 * KEY_WIDTH_PERCENTAGE * config->width),
-                    .y = (3 * KEY_HEIGHT_PERCENTAGE * config->height),
-                    .width = (KEY_WIDTH_PERCENTAGE * 5) * config->width,
-                    .height = KEY_HEIGHT_PERCENTAGE * config->height
+                .x = (2.5 * KEY_WIDTH_PERCENTAGE * config->width),
+                .y = (3 * KEY_HEIGHT_PERCENTAGE * config->height),
+                .width = (KEY_WIDTH_PERCENTAGE * 5) * config->width,
+                .height = KEY_HEIGHT_PERCENTAGE * config->height
             };
 
         default:
@@ -88,6 +105,12 @@ Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
     return get_random_point_in_bounds(sub_division_bound);
 }
 
+typedef struct {
+    size_t size;
+    size_t size_remaining;
+    char *buf;
+    char *cur;
+} svg;
 
 void compute_curves(Config* config) {
     printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
@@ -96,21 +119,24 @@ void compute_curves(Config* config) {
            " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
 
     char* KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
+    int key_count = 26;
 
-    for (int i = 0; i < 26; i++) {
-        KeyBounds bounds = get_key_bounds(config, 'a' + i);
-        printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
-               "height=\"%f\" style=\"%s\"/>\n",
-               bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
+    for (int i = 0; i < key_count; i++) {
+
+        /*
+         * TODO
+         * I can't remember if modern C standards guarantee that
+         * sequential characters are adjacent in terms of integer
+         * value (i.e. that 'a' + 1 == 'b'). Should probably double-
+         * check this.
+         */
+        svg_key(&svg, config, 'a' + i);
     }
-    KeyBounds bounds = get_key_bounds(config, ' ');
-    printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
-           bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
+    svg_key(&svg, config, ' ');
 
-    const char* sentence = "hello";
-
-    int l = strlen(sentence);
+    int l = strlen(word);
     Point* key_locations = malloc(sizeof(Point) * l);
+
     for (int i = 0; i < l; i++) {
         if (l == 1) {
             break;
@@ -123,24 +149,12 @@ void compute_curves(Config* config) {
                 get_key_bounds(config, sentence[i + 1])
         );
     }
-//
-//    Point fst = key_locations[0];
-//    Point snd = key_locations[1];
-//
-//    Point cp = fst;
-//
-//    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
-//           fst.x, fst.y,
-//           cp.x, cp.y,
-//           snd.x, snd.y);
-//
-//    for (int i = 2; i < l; i++) {
-//        Point cur_p = key_locations[i];
-//        cp = find_next_control_point(cp, key_locations[i - 1]);
-//        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
-//    }
 
+    svg_quadratic_bezier(&svg, l, key_locations);
+
+    svg_end(&svg);
+    svg_write_to_file(&svg, out_fp);
+
+    free(svg_buf);
     free(key_locations);
-//    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
-    printf("</svg>\n");
 }
