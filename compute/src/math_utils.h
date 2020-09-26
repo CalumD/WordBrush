@@ -5,6 +5,7 @@
 #ifndef WORDBRUSH_MATH_UTILS_H
 #define WORDBRUSH_MATH_UTILS_H
 
+#include <stdlib.h>
 #include "wordbrush.h"
 
 
@@ -21,5 +22,10 @@ Point interpolate(Point point_a, Point point_b, float weighting);
 
 Point find_next_control_point(Point previous_control_point, Point current_control_point);
 
+float random_number_between(float min, float max);
+
+Point get_random_point_in_bounds(KeyBounds bounds);
+
+KeyBounds calculate_directional_key_subdivision(Point current, Point next, Point scale);
 
 #endif //WORDBRUSH_MATH_UTILS_H

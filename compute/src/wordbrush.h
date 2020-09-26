@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "main.h"
 
 #ifndef WORDBRUSH_WORDBRUSH_H
@@ -5,6 +7,7 @@
 
 #define KEY_WIDTH_PERCENTAGE 0.1
 #define KEY_HEIGHT_PERCENTAGE 0.25
+#define KEY_ACTIVE_ZONE_PERCENTAGE 0.33
 
 typedef struct KeyBounds {
     float x;
@@ -18,11 +21,19 @@ typedef struct Point {
     float y;
 } Point;
 
+typedef struct {
+    size_t size;
+    size_t size_remaining;
+    char* buf;
+    char* cur;
+} svg;
+
 KeyBounds get_key_bounds(Config* config, char character);
 
-Point get_random_point_on_key(KeyBounds key);
+Point get_random_point_on_next_key(svg* svg, KeyBounds previous_key, KeyBounds next_key);
+Point get_random_point_on_current_key(svg* svg, KeyBounds current_key);
 
-void compute_curves(Config *config);
+void compute_curves(Config* config, char* word, FILE* output_file);
 
 
 

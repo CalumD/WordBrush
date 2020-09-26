@@ -25,5 +25,6 @@ run:
 	./$(TRGT)
 
 test: all
-	@$(TRGT) -i '../resources/input.txt' -o "../resources" -W 600 -H 240 hello world > "../resources/out.svg"
-	xdg-open ../resources/out.svg
+	rm ../resources/*.svg
+	@$(TRGT) -i '../resources/input.txt' -o "../resources" -W 900 -H 360 the quick brown fox jumps over the lazy dog
+	xdg-open ../resources/0.svg
