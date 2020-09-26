@@ -25,5 +25,6 @@ run:
 	./$(TRGT)
 
 test: all
+	rm ../resources/*.svg
 	@$(TRGT) -i '../resources/input.txt' -o "../resources" -W 900 -H 360 hello world
-	xdg-open ../resources/out.svg
+	xdg-open ../resources/0.svg
