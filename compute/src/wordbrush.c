@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include "wordbrush.h"
-#include "debug.h"
-#include "math_utils.h"
 
 #define key(character, x_point, y_point) \
     case character:\
@@ -14,23 +8,6 @@
             .width = KEY_WIDTH_PERCENTAGE * config->width,\
             .height = KEY_HEIGHT_PERCENTAGE * config->height\
         }
-
-#define add_to_svg(svg, ...) do { \
-    do { \
-        size_t req = snprintf((svg)->cur, (svg)->size_remaining, __VA_ARGS__); \
-        if (req > (svg)->size_remaining) { \
-            char* new_buf = realloc((svg)->buf, (svg)->size * 2); \
-            (svg)->cur += new_buf - (svg)->buf; \
-            (svg)->buf = new_buf; \
-            (svg)->size_remaining += (svg)->size; \
-            (svg)->size += (svg)->size; \
-        } else { \
-            (svg)->size_remaining -= req; \
-            (svg)->cur += req; \
-            break; \
-        } \
-    } while (1); \
-} while (0)
 
 KeyBounds get_key_bounds(Config* config, char character) {
     switch (character) {
@@ -73,8 +50,6 @@ KeyBounds get_key_bounds(Config* config, char character) {
     }
 }
 
-void svg_rect(svg* svg, float x, float y, float rx, float ry, float width, float height, char* style);
-
 Point get_random_point_on_current_key(svg* svg, KeyBounds current_key) {
     Point scale = {
             .x = current_key.width * KEY_ACTIVE_ZONE_PERCENTAGE,
@@ -110,81 +85,12 @@ Point get_random_point_on_next_key(svg* svg, KeyBounds current_key, KeyBounds ne
     return get_random_point_in_bounds(sub_division_bound);
 }
 
-void svg_start(svg* svg, int width, int height) {
-    char* format =
-            "<svg xmlns='%s' width='%dpx' height='%dpx'"
-            " viewBox='0 0 %d %d'>\n";
-
-    char* XML_NAMESPACE = "http://www.w3.org/2000/svg";
-
-    add_to_svg(svg, format, XML_NAMESPACE, width, height, width, height);
-}
-
-void svg_rect(svg* svg, float x, float y, float rx, float ry, float width,
-              float height, char* style) {
-
-    char* format =
-            "<rect x='%f' y='%f' rx='%f' ry='%f' width='%f' height='%f'"
-            " style='%s'/>\n";
-
-    add_to_svg(svg, format, x, y, rx, ry, width, height, style ? style : "");
-}
-
-void svg_key(svg* svg, Config* cfg, char c) {
-    char* KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
-    float KEY_ROUNDEDNESS = 10.;
-
-    KeyBounds bounds = get_key_bounds(cfg, c);
-    svg_rect(svg, bounds.x, bounds.y, KEY_ROUNDEDNESS, KEY_ROUNDEDNESS,
-             bounds.width, bounds.height, KEY_STYLE);
-}
-
-void svg_quadratic_bezier(svg* svg, int n, Point* ps) {
-    char* PATH_START = "<path d='M%f,%f Q%f,%f %f,%f";
-    char* PATH_REPEAT = " Q%f,%f %f,%f";
-    char* PATH_END = "' stroke='%s' stroke-width='%i' fill='%s' stroke-linecap='round'/>";
-
-    char* PATH_STROKE = "black";
-    int PATH_STROKE_WIDTH = 5;
-    char* PATH_FILL = "none";
-
-    Point ctrl_p = ps[0];
-
-    add_to_svg(svg, PATH_START,
-               ps[0].x, ps[0].y,
-               ctrl_p.x, ctrl_p.y,
-               ps[1].x, ps[1].y);
-
-    for (int i = 2; i < n; i++) {
-        Point cur_p = ps[i];
-        ctrl_p = find_next_control_point(ctrl_p, ps[i - 1]);
-
-        add_to_svg(svg, PATH_REPEAT,
-                   ctrl_p.x, ctrl_p.y,
-                   cur_p.x, cur_p.y);
-    }
-
-    add_to_svg(svg, PATH_END, PATH_STROKE, PATH_STROKE_WIDTH, PATH_FILL);
-}
-
-void svg_write_to_file(svg* svg, FILE* fp) {
-    fwrite(svg->buf, 1, svg->size - svg->size_remaining, fp);
-}
-
-void svg_end(svg* svg) {
-    add_to_svg(svg, "</svg>");
-}
-
-void svg_free(svg* svg) {
-    free(svg->buf);
-}
-
 void compute_curves(Config* config, char* word, FILE* output_file) {
 
     size_t SVG_BUF_START_SIZE = 1024;
     char *svg_buf = malloc(SVG_BUF_START_SIZE);
     svg svg = {
-            .size = SVG_BUF_START_SIZE,
+            .size_available = SVG_BUF_START_SIZE,
             .size_remaining = SVG_BUF_START_SIZE,
             .buf = svg_buf,
             .cur = svg_buf

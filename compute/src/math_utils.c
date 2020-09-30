@@ -1,7 +1,3 @@
-//
-// Created by calum on 23/09/2020.
-//
-
 #include "math_utils.h"
 
 Point magnify(Point point, float amount) {

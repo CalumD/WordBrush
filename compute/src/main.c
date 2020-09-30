@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <malloc.h>
-#include <getopt.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #include "main.h"
-#include "wordbrush.h"
-#include "file_utils.h"
-#include "debug.h"
 
 /**
  * Parse the program arguments in preparation to run.

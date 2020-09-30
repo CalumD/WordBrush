@@ -1,7 +1,3 @@
-#include <stdbool.h>
-#include <unistd.h>
-#include <stdio.h>
-
 #include "file_utils.h"
 
 bool canWriteDirectory(char* pathToDirectory) {

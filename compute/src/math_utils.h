@@ -1,13 +1,19 @@
-//
-// Created by calum on 23/09/2020.
-//
-
 #ifndef WORDBRUSH_MATH_UTILS_H
 #define WORDBRUSH_MATH_UTILS_H
 
-#include <stdlib.h>
-#include "wordbrush.h"
+typedef struct Point {
+    float x;
+    float y;
+} Point;
 
+typedef struct KeyBounds {
+    float x;
+    float y;
+    float width;
+    float height;
+} KeyBounds;
+
+#include "stdlib.h"
 
 #define NEXT_CONTROL_POINT_DRIFT_WEIGHT 0.8
 
