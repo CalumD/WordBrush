@@ -11,9 +11,9 @@
 
 KeyBounds get_key_bounds(Config* config, char character);
 
-Point get_random_point_on_next_key(svg* svg, KeyBounds previous_key, KeyBounds next_key);
-Point get_random_point_on_current_key(svg* svg, KeyBounds current_key);
+Point get_random_point_on_next_key(KeyBounds previous_key, KeyBounds next_key);
+Point get_random_point_on_current_key(KeyBounds current_key);
 
-void compute_curves(Config* config, char* word, FILE* output_file);
+void compute_curves(Config* config, svg* svg, char* word);
 
 #endif //WORDBRUSH_WORDBRUSH_H

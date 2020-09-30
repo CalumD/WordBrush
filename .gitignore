@@ -54,7 +54,13 @@ dkms.conf
 # Intellij Stuff
 .idea
 bin
+CMakeLists.txt
+cmake-build-debug
 
 
 # Node stuff
 package-lock.json
+
+
+#Misc
+resources/*.svg

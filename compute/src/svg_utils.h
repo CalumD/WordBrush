@@ -6,30 +6,32 @@
 typedef struct svg{
     size_t size_available;
     size_t size_remaining;
-    char* buf;
-    char* cur;
+    char* start_of_svg;
+    char* current_point_in_svg;
 } svg;
 
 #include "main.h"
 
+#define SVG_BUF_START_SIZE 1024
+
 #define add_to_svg(svg, ...) do { \
     do { \
-        size_t req = snprintf((svg)->cur, (svg)->size_remaining, __VA_ARGS__); \
+        size_t req = snprintf((svg)->current_point_in_svg, (svg)->size_remaining, __VA_ARGS__); \
         if (req > (svg)->size_remaining) { \
-            char* new_buf = realloc((svg)->buf, (svg)->size_available * 2); \
-            (svg)->cur += new_buf - (svg)->buf; \
-            (svg)->buf = new_buf; \
+            char* new_buf = realloc((svg)->start_of_svg, (svg)->size_available * 2); \
+            (svg)->current_point_in_svg += new_buf - (svg)->start_of_svg; \
+            (svg)->start_of_svg = new_buf; \
             (svg)->size_remaining += (svg)->size_available; \
             (svg)->size_available += (svg)->size_available; \
         } else { \
             (svg)->size_remaining -= req; \
-            (svg)->cur += req; \
+            (svg)->current_point_in_svg += req; \
             break; \
         } \
     } while (1); \
-} while (0);
+} while (0)
 
-void svg_start(svg* svg, int width, int height);
+svg* svg_start(long width, long height);
 
 void svg_rect(svg* svg, float x, float y, float rx, float ry, float width,float height, char* style);
 

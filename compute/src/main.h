@@ -9,8 +9,8 @@ typedef struct Config {
     char* inputFilePath;
     char* outputFilePath;
     char** extra_args;
-    int width;
-    int height;
+    long width;
+    long height;
 } Config;
 
 #include <stdio.h>

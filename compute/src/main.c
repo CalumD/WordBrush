@@ -1,5 +1,9 @@
 #include "main.h"
 
+void display_help() {
+    printf("TODO: FILL ME IN\n");
+}
+
 /**
  * Parse the program arguments in preparation to run.
  *
@@ -21,35 +25,38 @@ Config* get_program_arguments(int argc, char* argv[]) {
 
     // put ':' in the starting of the string so that program can distinguish between '?' and ':'
     int opt;
-    while((opt = getopt(argc, argv, ":i:o:mhW:H:")) != -1)
-    {
-        switch(opt)
-        {
+    while ((opt = getopt(argc, argv, ":i:o:mhW:H:")) != -1) {
+        switch (opt) {
             // print help output
             case 'h':
-                printf("HERE IS SOME HELP, THIS SHOULD BE IMPROVED AT SOME POINT!\n");
+                display_help();
                 return config;
-            // Create Multiple outputs (1 per word)
+                // Create Multiple outputs (1 per word)
             case 'm':
+                /* TODO: change this to a number
+                 * - Default behaviour should write one file per word,
+                 * if this option is found, we should stitch together this number
+                 * of images per ROW.
+                */
                 config->multiFileOutput = true;
                 break;
-            // Input filename
+                // Input filename
             case 'i':
                 config->inputFilePath = optarg;
                 break;
-            // Output directory (will output files to here with name ~/output_<X>.svg)
+                // Output directory (will output files to here with name ~/output_<X>.svg)
             case 'o':
                 config->outputFilePath = optarg;
                 break;
-            // Width of the virtual keyboard (aka output width scale)
+                // Width of the virtual keyboard (aka output width scale)
             case 'W':
-                sscanf(optarg, "%d", &config->width);
+                config->width = strtol(optarg, NULL, 10);
                 break;
-            // Height of the virtual keyboard (aka output height scale)
+                // Height of the virtual keyboard (aka output height scale)
             case 'H':
-                sscanf(optarg, "%d", &config->height);
+                config->height = strtol(optarg, NULL, 10);
                 break;
-            // Covering when the user makes a mistake in input.
+                // Covering when the user makes a mistake in input.
             case ':':
                 fprintf(stderr, "option needs a value\n");
                 errored = true;
@@ -65,7 +72,7 @@ Config* get_program_arguments(int argc, char* argv[]) {
     // which are not parsed
     config->extra_args = argv + optind;
 
-    for(; optind < argc; optind++){
+    for (; optind < argc; optind++) {
         debug("extra arguments: %s\n", argv[optind]);
     }
 
@@ -77,43 +84,48 @@ Config* get_program_arguments(int argc, char* argv[]) {
     return config;
 }
 
-void word_loop(Config *cfg) {
-    FILE *cur_output_file = NULL;
+void multi_file_output_wordbrush(Config* cfg) {
+
+    /*
+     * This buffer should be at least as large as the longest possible
+     * filename, which can be calculated as the length of the directory's
+     * path, plus a /, plus the most digits a long can have (20 assuming
+     * a long is 8 bytes wide), plus ".svg", plus a zero terminator.
+     */
+    size_t filename_length = strlen(cfg->outputFilePath) + 26;
+
+    mkdir(cfg->outputFilePath, 0700);
+    char* filename = malloc(filename_length);
+
+    FILE* current_output_file = NULL;
     unsigned long file_index = 0;
-    char *buf;
-    size_t bufsize;
 
-    if (cfg->multiFileOutput) {
-        mkdir(cfg->outputFilePath, 0700);
-
-        /*
-         * This buffer should be at least as large as the longest possible
-         * filename, which can be calculated as the length of the directory's
-         * path, plus a /, plus the most digits a long can have (20 assuming
-         * a long is 8 bytes wide), plus ".svg", plus a zero terminator.
-         */
-        bufsize = strlen(cfg->outputFilePath) + 26;
-        buf = malloc(bufsize);
-    } else {
-        cur_output_file = fopen(cfg->outputFilePath, "w");
-    }
-
-    for (char** word = cfg->extra_args; *word; word++) {
-        if (cfg->multiFileOutput) {
-            if (cur_output_file) {
-                fclose(cur_output_file);
-            }
-
-            snprintf(buf, bufsize, "%s/%lu.svg", cfg->outputFilePath,
-                file_index);
-            cur_output_file = fopen(buf, "w");
+    // Do work for each 'word' (additional param not in command line arguments)
+    for (char** word = cfg->extra_args; *word; word++, file_index++) {
+        if (current_output_file) {
+            fclose(current_output_file);
         }
 
-        compute_curves(cfg, *word, cur_output_file);
+        snprintf(filename, filename_length, "%s/%lu.svg", cfg->outputFilePath, file_index);
+        current_output_file = fopen(filename, "w");
 
-        file_index++;
+
+        svg* svg = svg_start(cfg->width, cfg->height);
+
+        compute_curves(cfg, svg, *word);
+
+        svg_end(svg);
+        svg_write_to_file(svg, current_output_file);
+        svg_free(svg);
     }
 }
+
+
+void single_file_output_wordbrush(Config* cfg) {
+    // TODO Implement this...
+    printf("%s\n", cfg->outputFilePath);
+}
+
 
 /**
  * Main Entry point which delegates out the rest of the application functionality.
@@ -140,7 +152,12 @@ int main(int argc, char* argv[]) {
     debug("\n\n");
 
     //Execute the main purpose of the program.
-    word_loop(config);
+    if (config->multiFileOutput) {
+        multi_file_output_wordbrush(config);
+    } else {
+        single_file_output_wordbrush(config);
+    }
 
+    free(config);
     return 0;
 }

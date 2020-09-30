@@ -50,7 +50,7 @@ KeyBounds get_key_bounds(Config* config, char character) {
     }
 }
 
-Point get_random_point_on_current_key(svg* svg, KeyBounds current_key) {
+Point get_random_point_on_current_key(KeyBounds current_key) {
     Point scale = {
             .x = current_key.width * KEY_ACTIVE_ZONE_PERCENTAGE,
             .y = current_key.height * KEY_ACTIVE_ZONE_PERCENTAGE
@@ -61,11 +61,10 @@ Point get_random_point_on_current_key(svg* svg, KeyBounds current_key) {
             .width = scale.x,
             .height = scale.y
     };
-    svg_rect(svg, sub_division.x, sub_division.y, 0, 0, sub_division.width, sub_division.height, "fill:none;stroke:black;stroke-width:1;");
     return get_random_point_in_bounds(sub_division);
 }
 
-Point get_random_point_on_next_key(svg* svg, KeyBounds current_key, KeyBounds next_key) {
+Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
     // Find the centre point of current Key
     Point current = {
             .x = (current_key.x + (current_key.width / 2)),
@@ -81,59 +80,49 @@ Point get_random_point_on_next_key(svg* svg, KeyBounds current_key, KeyBounds ne
 
     // Find then return a random point in the sub division bounds.
     KeyBounds sub_division_bound = calculate_directional_key_subdivision(current, next, scale);
-    svg_rect(svg, sub_division_bound.x, sub_division_bound.y, 0, 0, sub_division_bound.width, sub_division_bound.height, "fill:none;stroke:black;stroke-width:1;");
     return get_random_point_in_bounds(sub_division_bound);
 }
 
-void compute_curves(Config* config, char* word, FILE* output_file) {
+Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
+    Point* points = malloc(sizeof(Point) * word_length);
+    points[0] = get_random_point_on_current_key(get_key_bounds(config, word[0]));
 
-    size_t SVG_BUF_START_SIZE = 1024;
-    char *svg_buf = malloc(SVG_BUF_START_SIZE);
-    svg svg = {
-            .size_available = SVG_BUF_START_SIZE,
-            .size_remaining = SVG_BUF_START_SIZE,
-            .buf = svg_buf,
-            .cur = svg_buf
-    };
-
-    svg_start(&svg, config->width, config->height);
-
-    int key_count = 26;
-
-    for (int i = 0; i < key_count; i++) {
-
-        /*
-         * TODO
-         * I can't remember if modern C standards guarantee that
-         * sequential characters are adjacent in terms of integer
-         * value (i.e. that 'a' + 1 == 'b'). Should probably double-
-         * check this.
-         */
-        svg_key(&svg, config, 'a' + i);
-    }
-    svg_key(&svg, config, ' ');
-
-    int l = strlen(word);
-    Point* key_locations = malloc(sizeof(Point) * (l + 1));
-
-    key_locations[0] = get_random_point_on_current_key(&svg, get_key_bounds(config, word[0]));
-
-    for (int i = 1; i < l; i++) {
-        key_locations[i] = get_random_point_on_next_key(&svg,
-                get_key_bounds(config, word[i-1]),
+    for (int i = 1; i < word_length; i++) {
+        points[i] = get_random_point_on_next_key(
+                get_key_bounds(config, word[i - 1]),
                 get_key_bounds(config, word[i])
         );
     }
 
+    return points;
+}
 
-    svg_quadratic_bezier(&svg, l, key_locations);
+void compute_curves(Config* config, svg* svg, char* word) {
 
-    for (int i = 0; i < l; i++) {
-        add_to_svg(&svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x, key_locations[i].y);
+    int key_count = 26;
+
+    debug_only(
+            for (int i = 0; i < key_count; i++) {
+                /*
+                 * TODO
+                 * I can't remember if modern C standards guarantee that
+                 * sequential characters are adjacent in terms of integer
+                 * value (i.e. that 'a' + 1 == 'b'). Should probably double-
+                 * check this.
+                 */
+                svg_key(svg, config, 'a' + i);
+            }
+            svg_key(svg, config, ' ')
+    );
+
+    int word_length = (int) strlen(word);
+    Point* key_locations = get_random_points_on_keys(config, word_length, word);
+
+    svg_quadratic_bezier(svg, word_length, key_locations);
+
+    for (int i = 0; i < word_length; i++) {
+        add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
+                   key_locations[i].y);
     }
-    svg_end(&svg);
-    svg_write_to_file(&svg, output_file);
-
-    free(svg_buf);
     free(key_locations);
 }
