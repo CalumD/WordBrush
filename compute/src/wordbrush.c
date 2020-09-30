@@ -99,9 +99,9 @@ Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
 
 void compute_curves(Config* config, svg* svg, char* word) {
 
-    int key_count = 26;
 
     debug_only(
+            int key_count = 26;
             for (int i = 0; i < key_count; i++) {
                 /*
                  * TODO
@@ -120,9 +120,10 @@ void compute_curves(Config* config, svg* svg, char* word) {
 
     svg_quadratic_bezier(svg, word_length, key_locations);
 
-    for (int i = 0; i < word_length; i++) {
+
+    debug_only(for (int i = 0; i < word_length; i++) {
         add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
                    key_locations[i].y);
-    }
+    });
     free(key_locations);
 }

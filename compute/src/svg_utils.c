@@ -39,7 +39,7 @@ void svg_key(svg* svg, Config* cfg, char c) {
 
 void svg_quadratic_bezier(svg* svg, int n, Point* ps) {
     char* PATH_START = "<path d='M%f,%f Q%f,%f %f,%f";
-    char* PATH_REPEAT = " Q%f,%f %f,%f";
+    char* PATH_REPEAT = " %f,%f %f,%f";
     char* PATH_END = "' stroke='%s' stroke-width='%i' fill='%s' stroke-linecap='round'/>";
 
     char* PATH_STROKE = "black";
