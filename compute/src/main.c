@@ -102,13 +102,8 @@ void multi_file_output_wordbrush(Config* cfg) {
 
     // Do work for each 'word' (additional param not in command line arguments)
     for (char** word = cfg->extra_args; *word; word++, file_index++) {
-        if (current_output_file) {
-            fclose(current_output_file);
-        }
-
         snprintf(filename, filename_length, "%s/%lu.svg", cfg->outputFilePath, file_index);
         current_output_file = fopen(filename, "w");
-
 
         svg* svg = svg_start(cfg->width, cfg->height);
 
@@ -117,7 +112,11 @@ void multi_file_output_wordbrush(Config* cfg) {
         svg_end(svg);
         svg_write_to_file(svg, current_output_file);
         svg_free(svg);
+        fclose(current_output_file);
     }
+
+
+    free(filename);
 }
 
 
