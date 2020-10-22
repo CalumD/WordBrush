@@ -4,6 +4,17 @@ void display_help() {
     printf("TODO: FILL ME IN\n");
 }
 
+Config* initialiseConfig() {
+    Config* config = malloc(sizeof(Config));
+    config->successfullyInitialised = false;
+    config->multiFileOutput = 0;
+    config->width = 450;
+    config->height = 180;
+
+    return config;
+}
+
+
 /**
  * Parse the program arguments in preparation to run.
  *
@@ -12,20 +23,13 @@ void display_help() {
  * @return A Struct representing the configuration for the program to work on.
  */
 Config* get_program_arguments(int argc, char* argv[]) {
-    Config* config = malloc(sizeof(Config));
-    config->successfullyInitialised = false;
-
-    /*
-     * Until we figure out a nice way to combine squiggles,
-     * multi-file output should be the default.
-     */
-    config->multiFileOutput = true;
+    Config* config = initialiseConfig();
 
     bool errored = false;
 
     // put ':' in the starting of the string so that program can distinguish between '?' and ':'
     int opt;
-    while ((opt = getopt(argc, argv, ":i:o:mhW:H:")) != -1) {
+    while ((opt = getopt(argc, argv, ":i:o:m:hW:H:")) != -1) {
         switch (opt) {
             // print help output
             case 'h':
@@ -33,12 +37,7 @@ Config* get_program_arguments(int argc, char* argv[]) {
                 return config;
                 // Create Multiple outputs (1 per word)
             case 'm':
-                /* TODO: change this to a number
-                 * - Default behaviour should write one file per word,
-                 * if this option is found, we should stitch together this number
-                 * of images per ROW.
-                */
-                config->multiFileOutput = true;
+                config->multiFileOutput = strtol(optarg, NULL, 10);
                 break;
                 // Input filename
             case 'i':
@@ -68,15 +67,9 @@ Config* get_program_arguments(int argc, char* argv[]) {
         }
     }
 
-    // optind is for the extra arguments
-    // which are not parsed
+    // optind is for the extra arguments which are not parsed
     config->extra_args = argv + optind;
 
-    for (; optind < argc; optind++) {
-        debug("extra arguments: %s\n", argv[optind]);
-    }
-
-    // Verify we either have an input/output file, or that there are additional arguments to use as input.
     if (!errored) {
         config->successfullyInitialised = true;
     }
@@ -105,7 +98,7 @@ void multi_file_output_wordbrush(Config* cfg) {
         snprintf(filename, filename_length, "%s/%lu.svg", cfg->outputFilePath, file_index);
         current_output_file = fopen(filename, "w");
 
-        svg* svg = svg_start(cfg->width, cfg->height);
+        svg* svg = svg_start(0, 0, cfg->width, cfg->height);
 
         compute_curves(cfg, svg, *word);
 
@@ -121,8 +114,23 @@ void multi_file_output_wordbrush(Config* cfg) {
 
 
 void single_file_output_wordbrush(Config* cfg) {
-    // TODO Implement this...
-    printf("%s\n", cfg->outputFilePath);
+    //create directory
+    printf("HALLO: ");
+    FILE* current_output_file = NULL;
+    current_output_file = fopen(cfg->outputFilePath, "w");
+    fclose(current_output_file);
+
+
+    //create the file
+
+    //write the start of the wrapper SVG
+
+    //Do some maths to figure out how long each 'row' of words should be before wrapping
+
+    //Do a loop to get each individual "word's" SVG image and APPEND to the file as we go to now blow memory up
+
+    //Write the closing of the wrapper SVG
+
 }
 
 
@@ -147,14 +155,19 @@ int main(int argc, char* argv[]) {
 
     debug("Input Path: %s\n", config->inputFilePath);
     debug("Output Path: %s\n", config->outputFilePath);
-    debug("Multi-file Output: %s\n", config->multiFileOutput ? "true" : "false");
+    debug("Multi-file Output: %ld\n", config->multiFileOutput);
+    debug("Keyboard Width: %ld\n", config->width);
+    debug("Keyboard Height: %ld\n", config->height);
+    for (int i = sizeof(config->extra_args); i < argc; i++) {
+        debug("extra argument: %s\n", argv[i]);
+    }
     debug("\n\n");
 
     //Execute the main purpose of the program.
-    if (config->multiFileOutput) {
-        multi_file_output_wordbrush(config);
-    } else {
+    if (config->multiFileOutput > 0) {
         single_file_output_wordbrush(config);
+    } else {
+        multi_file_output_wordbrush(config);
     }
 
     free(config);

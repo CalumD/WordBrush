@@ -5,7 +5,7 @@
 
 typedef struct Config {
     bool successfullyInitialised;
-    bool multiFileOutput;
+    long multiFileOutput;
     char* inputFilePath;
     char* outputFilePath;
     char** extra_args;

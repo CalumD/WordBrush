@@ -31,7 +31,7 @@ typedef struct svg{
     } while (1); \
 } while (0)
 
-svg* svg_start(long width, long height);
+svg* svg_start(long xOffset, long yOffset, long width, long height);
 
 void svg_rect(svg* svg, float x, float y, float rx, float ry, float width,float height, char* style);
 

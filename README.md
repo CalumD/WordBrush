@@ -10,10 +10,10 @@ This project takes ASCII input and draws the resultant line, as if you were to '
  
 -[ ] Give the line a coloured gradient from start to finish so we can track direction.
 -[ ] Potentially centre and trim if the word is below some given width
--[ ] Putting multiple words into a single SVG with offsets
+-[ ] Make the multiple files output default to TRUE, and if given in CLI, make it the number of words to fit per line of the multi-svg.
+-[ ] run through valgrind
 -[ ] Multithreading if we have a large wordcount
     -[ ] Simple multithreading
     -[ ] Thread pool
--[ ] Being able to read input from a file in addition to CLI extra params
--[ ] Make the multiple files output default to TRUE, and if given in CLI, make it the number of words to fit per line of the multi-svg.
--[ ] run through valgrind
+-[ ] Putting multiple words into a single SVG with offsets                 <!-- TODO: CALUM NEXT TASK -->
+-[ ] Being able to read input from a file in addition to CLI extra params  <!-- TOM NEXT TASK -->
