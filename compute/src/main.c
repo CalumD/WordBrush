@@ -158,8 +158,8 @@ int main(int argc, char* argv[]) {
     debug("Multi-file Output: %ld\n", config->multiFileOutput);
     debug("Keyboard Width: %ld\n", config->width);
     debug("Keyboard Height: %ld\n", config->height);
-    for (int i = sizeof(config->extra_args); i < argc; i++) {
-        debug("extra argument: %s\n", argv[i]);
+    for (int i = 0; *(config->extra_args + i); i++) {
+        debug("extra argument: %s\n", *(config->extra_args + i));
     }
     debug("\n\n");
 

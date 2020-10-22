@@ -13,7 +13,7 @@ svg* svg_start(long xOffset, long yOffset, long width, long height) {
     char* format ="<svg xmlns='%s' x='%dpx' y='%dpx' width='%dpx' height='%dpx' viewBox='0 0 %d %d'>\n";
     char* XML_NAMESPACE = "http://www.w3.org/2000/svg";
 
-    add_to_svg(svg, format, xOffset, yOffset, XML_NAMESPACE, width, height, width, height);
+    add_to_svg(svg, format, XML_NAMESPACE, xOffset, yOffset, width, height, width, height);
 
     return svg;
 }
