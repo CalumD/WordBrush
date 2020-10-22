@@ -4,11 +4,12 @@
 #include <stdbool.h>
 
 typedef struct Config {
-    bool successfullyInitialised;
-    long multiFileOutput;
-    char* inputFilePath;
-    char* outputFilePath;
-    char** extra_args;
+    bool successfully_initialised;
+    long single_file_column_count;
+    char* input_file_path;
+    char* output_file_path;
+    char** words;
+    long word_count;
     long width;
     long height;
 } Config;

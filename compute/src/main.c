@@ -6,8 +6,8 @@ void display_help() {
 
 Config* initialiseConfig() {
     Config* config = malloc(sizeof(Config));
-    config->successfullyInitialised = false;
-    config->multiFileOutput = 0;
+    config->successfully_initialised = false;
+    config->single_file_column_count = 0;
     config->width = 450;
     config->height = 180;
 
@@ -37,15 +37,15 @@ Config* get_program_arguments(int argc, char* argv[]) {
                 return config;
                 // Create Multiple outputs (1 per word)
             case 'm':
-                config->multiFileOutput = strtol(optarg, NULL, 10);
+                config->single_file_column_count = strtol(optarg, NULL, 10);
                 break;
                 // Input filename
             case 'i':
-                config->inputFilePath = optarg;
+                config->input_file_path = optarg;
                 break;
                 // Output directory (will output files to here with name ~/output_<X>.svg)
             case 'o':
-                config->outputFilePath = optarg;
+                config->output_file_path = optarg;
                 break;
                 // Width of the virtual keyboard (aka output width scale)
             case 'W':
@@ -68,10 +68,14 @@ Config* get_program_arguments(int argc, char* argv[]) {
     }
 
     // optind is for the extra arguments which are not parsed
-    config->extra_args = argv + optind;
+    config->words = argv + optind;
+    config->word_count = argc - optind;
+
+    // TODO: At THIS point - if there was an input file defined, then we should read in all the words and ADD
+    //  them to the end of the config-words mapping.
 
     if (!errored) {
-        config->successfullyInitialised = true;
+        config->successfully_initialised = true;
     }
 
     return config;
@@ -85,17 +89,17 @@ void multi_file_output_wordbrush(Config* cfg) {
      * path, plus a /, plus the most digits a long can have (20 assuming
      * a long is 8 bytes wide), plus ".svg", plus a zero terminator.
      */
-    size_t filename_length = strlen(cfg->outputFilePath) + 26;
+    size_t filename_length = strlen(cfg->output_file_path) + 26;
 
-    mkdir(cfg->outputFilePath, 0700);
+    mkdir(cfg->output_file_path, 0700);
     char* filename = malloc(filename_length);
 
     FILE* current_output_file = NULL;
     unsigned long file_index = 0;
 
     // Do work for each 'word' (additional param not in command line arguments)
-    for (char** word = cfg->extra_args; *word; word++, file_index++) {
-        snprintf(filename, filename_length, "%s/%lu.svg", cfg->outputFilePath, file_index);
+    for (char** word = cfg->words; *word; word++, file_index++) {
+        snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index);
         current_output_file = fopen(filename, "w");
 
         svg* svg = svg_start(0, 0, cfg->width, cfg->height);
@@ -107,7 +111,6 @@ void multi_file_output_wordbrush(Config* cfg) {
         svg_free(svg);
         fclose(current_output_file);
     }
-
 
     free(filename);
 }
@@ -147,24 +150,25 @@ int main(int argc, char* argv[]) {
     Config* config = get_program_arguments(argc, argv);
 
     // If program arguments are not suitable, then shutdown.
-    if (!config->successfullyInitialised) {
+    if (!config->successfully_initialised) {
         free(config);
         fprintf(stderr, "Arguments provided were invalid to compute an output.");
         return -1;
     }
 
-    debug("Input Path: %s\n", config->inputFilePath);
-    debug("Output Path: %s\n", config->outputFilePath);
-    debug("Multi-file Output: %ld\n", config->multiFileOutput);
+    debug("Input Path: %s\n", config->input_file_path);
+    debug("Output Path: %s\n", config->output_file_path);
+    debug("Multi-file Output: %ld\n", config->single_file_column_count);
     debug("Keyboard Width: %ld\n", config->width);
     debug("Keyboard Height: %ld\n", config->height);
-    for (int i = 0; *(config->extra_args + i); i++) {
-        debug("extra argument: %s\n", *(config->extra_args + i));
+    debug("Input Word Count: %ld\n", config->word_count);
+    for (int i = 0; i < config->word_count; i++) {
+        debug("word: %s\n", *(config->words + i));
     }
     debug("\n\n");
 
     //Execute the main purpose of the program.
-    if (config->multiFileOutput > 0) {
+    if (config->single_file_column_count > 0) {
         single_file_output_wordbrush(config);
     } else {
         multi_file_output_wordbrush(config);
