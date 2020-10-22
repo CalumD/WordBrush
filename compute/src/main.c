@@ -117,23 +117,43 @@ void multi_file_output_wordbrush(Config* cfg) {
 
 
 void single_file_output_wordbrush(Config* cfg) {
-    //create directory
-    printf("HALLO: ");
-    FILE* current_output_file = NULL;
-    current_output_file = fopen(cfg->outputFilePath, "w");
-    fclose(current_output_file);
-
-
-    //create the file
-
-    //write the start of the wrapper SVG
+    //create output file
+    FILE* output_file = fopen(cfg->output_file_path, "w");
 
     //Do some maths to figure out how long each 'row' of words should be before wrapping
+    long row_count = count_rows_in_wrapper_svg(cfg);
+
+    //write the start of the wrapper SVG
+    svg* wrapper_svg = svg_start(
+            0,
+            0,
+            cfg->width * cfg->single_file_column_count,
+            cfg->height * row_count
+    );
+
+    char* format ="<svg xmlns='%s' x='%dpx' y='%dpx' width='%dpx' height='%dpx' viewBox='0 0 %d %d'>\n";
+    char* XML_NAMESPACE = "http://www.w3.org/2000/svg";
 
     //Do a loop to get each individual "word's" SVG image and APPEND to the file as we go to now blow memory up
+    for (int row_index = 0; row_index < row_count; row_index++) {
+        for (int column_index = 0; column_index < cfg->single_file_column_count; column_index++) {
+            if (((row_index * cfg->single_file_column_count) + column_index) >= cfg->word_count) {
+                continue;
+            }
+            printf("x: %d y: %d, word: %s\n", column_index, row_index, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+
+            add_to_svg(wrapper_svg, format, XML_NAMESPACE, column_index * cfg->width, row_index * cfg->height, cfg->width, cfg->height, cfg->width, cfg->height);
+            compute_curves(cfg, wrapper_svg, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+            svg_end(wrapper_svg);
+        }
+    }
 
     //Write the closing of the wrapper SVG
+    svg_end(wrapper_svg);
+    svg_write_to_file(wrapper_svg, output_file);
+    svg_free(wrapper_svg);
 
+    fclose(output_file);
 }
 
 
