@@ -48,10 +48,17 @@ void svg_quadratic_bezier(svg* svg, int n, Point* ps) {
 
     Point ctrl_p = ps[0];
 
-    add_to_svg(svg, PATH_START,
-               ps[0].x, ps[0].y,
-               ctrl_p.x, ctrl_p.y,
-               ps[1].x, ps[1].y);
+    if (n == 1) {
+        add_to_svg(svg, PATH_START,
+                   ps[1].x, ps[1].y,
+                   ctrl_p.x, ctrl_p.y,
+                   ps[1].x, ps[1].y);
+    } else {
+        add_to_svg(svg, PATH_START,
+                   ps[0].x, ps[0].y,
+                   ctrl_p.x, ctrl_p.y,
+                   ps[1].x, ps[1].y);
+    }
 
     for (int i = 2; i < n; i++) {
         Point cur_p = ps[i];
