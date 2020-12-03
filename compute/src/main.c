@@ -71,8 +71,25 @@ Config* get_program_arguments(int argc, char* argv[]) {
     config->words = argv + optind;
     config->word_count = argc - optind;
 
+    // FIXME: The output from the 'canWrite' methods are inconsistent depending on where they are called from.
+    if (config->single_file_column_count > 0) {
+        if (!canWriteFile(config->output_file_path)) {
+            fprintf(stderr, "Cannot write that file, check destination is free - aborting.\n");
+            errored = true;
+        }
+    } else {
+        if (!canWriteDirectory(config->output_file_path)) {
+            fprintf(stderr, "Cannot write to that output directory - aborting.\n");
+            errored = true;
+        }
+    }
+
     // TODO: At THIS point - if there was an input file defined, then we should read in all the words and ADD
     //  them to the end of the config-words mapping.
+    if (!errored && !canReadFile(config->input_file_path)) {
+        fprintf(stderr, "Cannot read from the provided input file - aborting.\n");
+        errored = true;
+    }
 
     if (!errored) {
         config->successfully_initialised = true;
@@ -98,25 +115,26 @@ void multi_file_output_wordbrush(Config* cfg) {
     unsigned long file_index = 0;
 
     // Do work for each 'word' (additional param not in command line arguments)
+    svg* svg = svg_init();
     for (char** word = cfg->words; *word; word++, file_index++) {
         snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index);
-        current_output_file = fopen(filename, "w");
 
-        svg* svg = svg_start(0, 0, cfg->width, cfg->height);
+        current_output_file = fopen(filename, "w");
+        svg_start(svg, 0, 0, cfg->width, cfg->height);
 
         compute_curves(cfg, svg, *word);
 
         svg_end(svg);
-        svg_write_to_file(svg, current_output_file);
-        svg_free(svg);
+        svg_flush_to_file(svg, current_output_file);
         fclose(current_output_file);
     }
 
+    svg_free(svg);
     free(filename);
 }
 
-
 void single_file_output_wordbrush(Config* cfg) {
+
     //create output file
     FILE* output_file = fopen(cfg->output_file_path, "w");
 
@@ -124,33 +142,39 @@ void single_file_output_wordbrush(Config* cfg) {
     long row_count = count_rows_in_wrapper_svg(cfg);
 
     //write the start of the wrapper SVG
-    svg* wrapper_svg = svg_start(
-            0,
-            0,
-            cfg->width * cfg->single_file_column_count,
-            cfg->height * row_count
-    );
+    svg* wrapper_svg = svg_init();
+    svg_start(wrapper_svg, 0, 0, cfg->width * cfg->single_file_column_count, cfg->height * row_count);
+    svg_flush_to_file(wrapper_svg, output_file);
 
-    char* format ="<svg xmlns='%s' x='%dpx' y='%dpx' width='%dpx' height='%dpx' viewBox='0 0 %d %d'>\n";
-    char* XML_NAMESPACE = "http://www.w3.org/2000/svg";
+    //create an inner SVG for the inner words
+    svg* inner_word = svg_init();
 
-    //Do a loop to get each individual "word's" SVG image and APPEND to the file as we go to now blow memory up
+    //Do a loop to get each individual "word's" SVG image and add to the file as we go to now blow memory up
     for (int row_index = 0; row_index < row_count; row_index++) {
         for (int column_index = 0; column_index < cfg->single_file_column_count; column_index++) {
+            // If we have reached the 'wordcount', then skip the remaining cells in the 2D grid of words
             if (((row_index * cfg->single_file_column_count) + column_index) >= cfg->word_count) {
                 continue;
             }
-            printf("x: %d y: %d, word: %s\n", column_index, row_index, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
 
-            add_to_svg(wrapper_svg, format, XML_NAMESPACE, column_index * cfg->width, row_index * cfg->height, cfg->width, cfg->height, cfg->width, cfg->height);
-            compute_curves(cfg, wrapper_svg, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
-            svg_end(wrapper_svg);
+            // Initialise the boilerplate of the next word
+            svg_start(inner_word, column_index * cfg->width, row_index * cfg->height, cfg->width, cfg->height);
+            debug("x: %d y: %d, word: %s\n", column_index, row_index,
+                  cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+
+            // Calculate the next word
+            compute_curves(cfg, inner_word, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+
+            // End & write it to the file
+            svg_end(inner_word);
+            svg_flush_to_file(inner_word, output_file);
         }
     }
 
-    //Write the closing of the wrapper SVG
+    //Write the closing of the wrapper SVG & free buffers
     svg_end(wrapper_svg);
-    svg_write_to_file(wrapper_svg, output_file);
+    svg_flush_to_file(wrapper_svg, output_file);
+    svg_free(inner_word);
     svg_free(wrapper_svg);
 
     fclose(output_file);
@@ -172,7 +196,7 @@ int main(int argc, char* argv[]) {
     // If program arguments are not suitable, then shutdown.
     if (!config->successfully_initialised) {
         free(config);
-        fprintf(stderr, "Arguments provided were invalid to compute an output.");
+        fprintf(stderr, "Arguments provided were invalid to compute an output.\n");
         return -1;
     }
 

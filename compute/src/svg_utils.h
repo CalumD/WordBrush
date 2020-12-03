@@ -31,7 +31,9 @@ typedef struct svg{
     } while (1); \
 } while (0)
 
-svg* svg_start(long xOffset, long yOffset, long width, long height);
+svg* svg_init();
+
+void svg_start(svg* svg, long xOffset, long yOffset, long width, long height);
 
 void svg_rect(svg* svg, float x, float y, float rx, float ry, float width,float height, char* style);
 
@@ -39,7 +41,7 @@ void svg_key(svg* svg, Config* cfg, char c);
 
 void svg_quadratic_bezier(svg* svg, int n, Point* ps);
 
-void svg_write_to_file(svg* svg, FILE* fp);
+void svg_flush_to_file(svg* svg, FILE* fp);
 
 void svg_end(svg* svg);
 
