@@ -2,18 +2,20 @@
 #define WORDBRUSH_MAIN_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct Config {
     bool successfullyInitialised;
     bool multiFileOutput;
     char* inputFilePath;
+    FILE* inputFile;
     char* outputFilePath;
     char** extra_args;
+    char** current_arg;
     long width;
     long height;
 } Config;
 
-#include <stdio.h>
 #include <malloc.h>
 #include <getopt.h>
 #include <stdbool.h>
