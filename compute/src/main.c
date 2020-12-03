@@ -70,6 +70,7 @@ Config* get_program_arguments(int argc, char* argv[]) {
     // optind is for the extra arguments which are not parsed
     config->words = argv + optind;
     config->word_count = argc - optind;
+    config->current_arg = config->words;
 
     // FIXME: The output from the 'canWrite' methods are inconsistent depending on where they are called from.
     if (config->single_file_column_count > 0) {
@@ -98,6 +99,141 @@ Config* get_program_arguments(int argc, char* argv[]) {
     return config;
 }
 
+bool check_if_delim(char c, char *delims) {
+    for (char *dl = delims; *dl; dl++) {
+        if (c == *dl) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Returns tokens from a file.
+ *
+ * Similar to strtok, however this function takes the FILE* itself
+ * and is able to stream the files, handling tokens that overflow onto
+ * the next buffer.
+ *
+ * @param fp Pointer to a file stream.
+ * @param delim Token delimiters.
+ */
+char* clever_strtok(FILE* fp, char* delim) {
+
+    /*
+     * TODO
+     *
+     * change to buffer that can resize if a word is too big
+     */
+    static char token[1024];
+
+#define buf_size 1024
+    static char buf[buf_size];
+
+    static FILE* prev_fp;
+
+    static size_t bytes_read = buf_size;
+
+    static char* cur;
+    static char* end;
+
+    if (fp == NULL) {
+        fp = prev_fp;
+
+    } else {
+        bytes_read = buf_size;
+        cur = NULL;
+        end = NULL;
+    }
+
+    prev_fp = fp;
+
+    // skip all leading delimiters
+    for (;; cur++) {
+        if (cur >= end) {
+            if (bytes_read < buf_size) {
+                return NULL;
+            } else {
+                bytes_read = fread(buf, 1, buf_size, fp);
+                cur = buf;
+                end = buf + bytes_read;
+
+                if (bytes_read == 0) {
+                    return NULL;
+                }
+            }
+        }
+
+        bool delim_found = check_if_delim(*cur, delim);
+        if (!delim_found) {
+            break;
+        }
+    }
+
+    char* tok = token;
+    *(tok++) = *(cur++);
+    for (;; cur++) {
+        if (cur >= end) {
+            if (bytes_read < buf_size) {
+                *tok = '\0';
+                return token;
+            } else {
+                bytes_read = fread(buf, 1, buf_size, fp);
+                cur = buf;
+                end = buf + bytes_read;
+
+                if (bytes_read == 0) {
+                    *tok = '\0';
+                    return token;
+                }
+            }
+        }
+
+        bool delim_found = check_if_delim(*cur, delim);
+        if (delim_found) {
+            break;
+        } else {
+            *(tok++) = *cur;
+        }
+    }
+
+    *tok = '\0';
+    return token;
+}
+
+char* next_word_file(Config* cfg) {
+    static bool first_time = true;
+    char* res = clever_strtok(first_time ? cfg->inputFile : NULL, " \n,.-\":;");
+    first_time = false;
+    fprintf(stderr, "%s\n", res);
+    return res;
+}
+
+char* next_word_arg(Config* cfg) {
+    char* res = *(cfg->current_arg++);
+    return res;
+}
+
+char* next_word(Config* cfg) {
+
+    /*
+     * The input can be either a list of command-line arguments,
+     * or text from a file. This function should correctly choose
+     * how to get the next word based on whether or not there was an
+     * input file given at initialisation.
+     */
+    if (cfg->inputFile) {
+        char* res = next_word_file(cfg);
+
+        if (res) {
+            return res;
+        }
+    }
+
+    return next_word_arg(cfg);
+}
+
 void multi_file_output_wordbrush(Config* cfg) {
 
     /*
@@ -116,17 +252,19 @@ void multi_file_output_wordbrush(Config* cfg) {
 
     // Do work for each 'word' (additional param not in command line arguments)
     svg* svg = svg_init();
-    for (char** word = cfg->words; *word; word++, file_index++) {
+    char* word;
+    while ((word = next_word(cfg))) {
         snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index);
-
         current_output_file = fopen(filename, "w");
+
         svg_start(svg, 0, 0, cfg->width, cfg->height);
 
-        compute_curves(cfg, svg, *word);
+        compute_curves(cfg, svg, word);
 
         svg_end(svg);
         svg_flush_to_file(svg, current_output_file);
         fclose(current_output_file);
+        file_index++;
     }
 
     svg_free(svg);
@@ -180,6 +318,17 @@ void single_file_output_wordbrush(Config* cfg) {
     fclose(output_file);
 }
 
+FILE* open_input_file(char* path) {
+    if (!path) {
+        return NULL;
+    }
+
+    if (!strcmp(path, "-")) {
+        return stdin;
+    }
+
+    return fopen(path, "r");
+}
 
 /**
  * Main Entry point which delegates out the rest of the application functionality.
@@ -210,6 +359,9 @@ int main(int argc, char* argv[]) {
         debug("word: %s\n", *(config->words + i));
     }
     debug("\n\n");
+
+    // Open the input file, if it exists, for reading.
+    config->inputFile = open_input_file(config->input_file_path);
 
     //Execute the main purpose of the program.
     if (config->single_file_column_count > 0) {
