@@ -12,7 +12,6 @@ typedef struct Config {
     char* output_file_path;
     char** words;
     long word_count;
-    char** extra_args;
     char** current_arg;
     long width;
     long height;
