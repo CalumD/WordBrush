@@ -70,7 +70,6 @@ Config* get_program_arguments(int argc, char* argv[]) {
     // optind is for the extra arguments which are not parsed
     config->words = argv + optind;
     config->word_count = argc - optind;
-    config->current_arg = config->words;
 
     // FIXME: The output from the 'canWrite' methods are inconsistent depending on where they are called from.
     if (config->single_file_column_count > 0) {
@@ -92,6 +91,9 @@ Config* get_program_arguments(int argc, char* argv[]) {
         errored = true;
     }
 
+    // Open the input file, if it exists, for reading.
+    config->inputFile = open_input_file(config->input_file_path);
+
     if (!errored) {
         config->successfully_initialised = true;
     }
@@ -109,17 +111,17 @@ void multi_file_output_wordbrush(Config* cfg) {
      */
     size_t filename_length = strlen(cfg->output_file_path) + 26;
 
+    // Create the directory and make space for the various file names
     mkdir(cfg->output_file_path, 0700);
     char* filename = malloc(filename_length);
-
     FILE* current_output_file = NULL;
     unsigned long file_index = 0;
 
-    // Do work for each 'word' (additional param not in command line arguments)
+    // Initialise the re-usable svg memory
     svg* svg = svg_init();
     char* word;
     while ((word = next_word(cfg))) {
-        snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index);
+        snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index++);
         current_output_file = fopen(filename, "w");
 
         svg_start(svg, 0, 0, cfg->width, cfg->height);
@@ -129,7 +131,6 @@ void multi_file_output_wordbrush(Config* cfg) {
         svg_end(svg);
         svg_flush_to_file(svg, current_output_file);
         fclose(current_output_file);
-        file_index++;
     }
 
     svg_free(svg);
@@ -153,20 +154,21 @@ void single_file_output_wordbrush(Config* cfg) {
     svg* inner_word = svg_init();
 
     //Do a loop to get each individual "word's" SVG image and add to the file as we go to now blow memory up
+    char* word;
     for (int row_index = 0; row_index < row_count; row_index++) {
         for (int column_index = 0; column_index < cfg->single_file_column_count; column_index++) {
             // If we have reached the 'wordcount', then skip the remaining cells in the 2D grid of words
             if (((row_index * cfg->single_file_column_count) + column_index) >= cfg->word_count) {
                 continue;
             }
+            word = next_word(cfg);
 
             // Initialise the boilerplate of the next word
             svg_start(inner_word, column_index * cfg->width, row_index * cfg->height, cfg->width, cfg->height);
-            debug("x: %d y: %d, word: %s\n", column_index, row_index,
-                  cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+            debug("x: %d y: %d, word: %s\n", column_index, row_index, word);
 
             // Calculate the next word
-            compute_curves(cfg, inner_word, cfg->words[(row_index * cfg->single_file_column_count) + column_index]);
+            compute_curves(cfg, inner_word, word);
 
             // End & write it to the file
             svg_end(inner_word);
@@ -181,18 +183,6 @@ void single_file_output_wordbrush(Config* cfg) {
     svg_free(wrapper_svg);
 
     fclose(output_file);
-}
-
-FILE* open_input_file(char* path) {
-    if (!path) {
-        return NULL;
-    }
-
-    if (!strcmp(path, "-")) {
-        return stdin;
-    }
-
-    return fopen(path, "r");
 }
 
 /**
@@ -221,12 +211,9 @@ int main(int argc, char* argv[]) {
     debug("Keyboard Height: %ld\n", config->height);
     debug("Input Word Count: %ld\n", config->word_count);
     for (int i = 0; i < config->word_count; i++) {
-        debug("word: %s\n", *(config->words + i));
+        debug("cli arg word: %s\n", *(config->words + i));
     }
     debug("\n\n");
-
-    // Open the input file, if it exists, for reading.
-    config->inputFile = open_input_file(config->input_file_path);
 
     //Execute the main purpose of the program.
     if (config->single_file_column_count > 0) {

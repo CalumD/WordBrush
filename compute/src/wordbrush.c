@@ -10,7 +10,7 @@
         }
 
 KeyBounds get_key_bounds(Config* config, char character) {
-    switch (character) {
+    switch (tolower(character)) {
         key('q', 0, 0);
         key('w', 1, 0);
         key('e', 2, 0);
@@ -85,13 +85,21 @@ Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
 
 Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
     Point* points = malloc(sizeof(Point) * word_length);
-    points[0] = get_random_point_on_current_key(get_key_bounds(config, word[0]));
+    bool is_first_char = true;
 
-    for (int i = 1; i < word_length; i++) {
-        points[i] = get_random_point_on_next_key(
-                get_key_bounds(config, word[i - 1]),
-                get_key_bounds(config, word[i])
-        );
+    for (int i = 0, char_index = 0; i < strlen(word); i++) {
+        if (isalpha(word[i])) {
+            if (is_first_char) {
+                points[0] = get_random_point_on_current_key(get_key_bounds(config, word[i]));
+                is_first_char = false;
+            } else {
+                points[char_index] = get_random_point_on_next_key(
+                        get_key_bounds(config, word[i - 1]),
+                        get_key_bounds(config, word[i])
+                );
+            }
+            char_index++;
+        }
     }
 
     return points;
@@ -115,13 +123,18 @@ void compute_curves(Config* config, svg* svg, char* word) {
             svg_key(svg, config, ' ')
     );
 
-    int word_length = (int) strlen(word);
-    Point* key_locations = get_random_points_on_keys(config, word_length, word);
+    int alphaCharCount = 0;
+    for (int i = 0; i < strlen(word); i++) {
+        if (!isalpha(word[i])) continue;
+        else alphaCharCount++;
+    }
 
-    svg_quadratic_bezier(svg, word_length, key_locations);
+    Point* key_locations = get_random_points_on_keys(config, alphaCharCount, word);
+
+    svg_quadratic_bezier(svg, alphaCharCount, key_locations);
 
 
-    debug_only(for (int i = 0; i < word_length; i++) {
+    debug_only(for (int i = 0; i < alphaCharCount; i++) {
         add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
                    key_locations[i].y);
     });

@@ -9,7 +9,20 @@ bool canReadFile(char* pathToFile) {
 }
 
 bool canWriteFile(char* pathToFile) {
-    return access(pathToFile, W_OK) == 0 ? true : false;
+    pathToFile =pathToFile;
+    return true;//access(pathToFile, W_OK) == 0 ? true : false;
+}
+
+FILE* open_input_file(char* path) {
+    if (!path) {
+        return NULL;
+    }
+
+    if (!strcmp(path, "-")) {
+        return stdin;
+    }
+
+    return fopen(path, "r");
 }
 
 bool check_if_delim(char c, char *delims) {
@@ -119,17 +132,19 @@ char* next_word_file(Config* cfg) {
     static bool first_time = true;
     char* res = clever_strtok(first_time ? cfg->inputFile : NULL, " \n,.-\":;");
     first_time = false;
-    fprintf(stderr, "%s\n", res);
     return res;
 }
 
 char* next_word_arg(Config* cfg) {
-    char* res = *(cfg->current_arg++);
-    return res;
+    if (*cfg->words) {
+        return *(cfg->words++);
+    }
+    return *cfg->words;
 }
 
 char* next_word(Config* cfg) {
 
+    char * ret;
     /*
      * The input can be either a list of command-line arguments,
      * or text from a file. This function should correctly choose
@@ -137,12 +152,14 @@ char* next_word(Config* cfg) {
      * input file given at initialisation.
      */
     if (cfg->inputFile) {
-        char* res = next_word_file(cfg);
+        ret = next_word_file(cfg);
 
-        if (res) {
-            return res;
+        if (!ret) {
+            ret = next_word_arg(cfg);
         }
+    } else {
+        ret = next_word_arg(cfg);
     }
-
-    return next_word_arg(cfg);
+    debug("next_word() returned: %s\n", ret);
+    return ret;
 }

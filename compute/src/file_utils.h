@@ -13,11 +13,7 @@ bool canWriteFile(char* pathToFile);
 
 bool check_if_delim(char c, char *delims);
 
-char* clever_strtok(FILE* fp, char* delim);
-
-char* next_word_file(Config* cfg);
-
-char* next_word_arg(Config* cfg);
+FILE* open_input_file(char* path);
 
 char* next_word(Config* cfg);
 

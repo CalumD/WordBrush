@@ -4,6 +4,7 @@
 #include "math_utils.h"
 #include "main.h"
 #include "svg_utils.h"
+#include "ctype.h"
 
 #define KEY_WIDTH_PERCENTAGE 0.1
 #define KEY_HEIGHT_PERCENTAGE 0.25
