@@ -89,8 +89,6 @@ Config* get_program_arguments(int argc, char* argv[]) {
         errored = true;
     }
 
-    // TODO: At THIS point - if there was an input file defined, then we should read in all the words and ADD
-    //  them to the end of the config-words mapping.
     if (!errored && !canReadFile(config->input_file_path)) {
         fprintf(stderr, "Cannot read from the provided input file - aborting.\n");
         errored = true;
