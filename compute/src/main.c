@@ -29,14 +29,14 @@ Config* get_program_arguments(int argc, char* argv[]) {
 
     // put ':' in the starting of the string so that program can distinguish between '?' and ':'
     int opt;
-    while ((opt = getopt(argc, argv, ":i:o:m:hW:H:")) != -1) {
+    while ((opt = getopt(argc, argv, ":i:o:s:hW:H:")) != -1) {
         switch (opt) {
             // print help output
             case 'h':
                 display_help();
                 return config;
-                // Create Multiple outputs (1 per word)
-            case 'm':
+                // Create singular output file with rows and columns of words
+            case 's':
                 config->single_file_column_count = strtol(optarg, NULL, 10);
                 break;
                 // Input filename
@@ -84,6 +84,11 @@ Config* get_program_arguments(int argc, char* argv[]) {
         }
     }
 
+    if (config->single_file_column_count > 0 && config->inputFile) {
+        fprintf(stderr, "You cannot use -s and -i together - aborting.\n");
+        errored = true;
+    }
+
     // TODO: At THIS point - if there was an input file defined, then we should read in all the words and ADD
     //  them to the end of the config-words mapping.
     if (!errored && !canReadFile(config->input_file_path)) {
@@ -121,13 +126,16 @@ void multi_file_output_wordbrush(Config* cfg) {
     svg* svg = svg_init();
     char* word;
     while ((word = next_word(cfg))) {
+        // prepare the next output file name
         snprintf(filename, filename_length, "%s/%lu.svg", cfg->output_file_path, file_index++);
         current_output_file = fopen(filename, "w");
 
+        //create the svg
         svg_start(svg, 0, 0, cfg->width, cfg->height);
 
         compute_curves(cfg, svg, word);
 
+        // finalise and write the file.
         svg_end(svg);
         svg_flush_to_file(svg, current_output_file);
         fclose(current_output_file);
