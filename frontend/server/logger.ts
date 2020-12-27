@@ -123,7 +123,7 @@ const setDefaults: (defaults: { component: string; }) => Logger =
             level: 'verbose',
             format: winston.format.combine(
                 winston.format.label({label: defaults.component}),
-                winston.format.timestamp({format: 'YYYY-MM-DD HH:MM:SS'}),
+                winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
                 winston.format.align(),
                 winston.format.printf(({level, message, timestamp, label, ...data}) => {
                     return winston.format.colorize()
