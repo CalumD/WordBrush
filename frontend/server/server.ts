@@ -1,9 +1,12 @@
+import { default as app } from './app';
 import { logger } from './logger';
 
-var express = require('express'),
-    app = express(),
-    port = process.env.PORT || 3000;
-app.listen(port);
-
-logger.success('Server started on: http://localhost:' + port);
+let port = process.env.PORT || 3000;
+app.listen(port, (err: Error) => {
+    if (err) {
+        return logger.critical(`Error on server startup: ${err}`);
+    } else {
+        return logger.success(`Server started on: http://localhost:${port}`);
+    }
+});
 
