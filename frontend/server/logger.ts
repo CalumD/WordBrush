@@ -112,6 +112,19 @@ export interface Logger {
 
 let basicConsoleLogger;
 
+const getCircularJSONStringifyReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+                return '[Circular reference]';
+            }
+            seen.add(value);
+        }
+        return value;
+    };
+};
+
 const setDefaults: (defaults: { component: string; }) => Logger =
     (defaults): Logger => {
 
@@ -129,7 +142,7 @@ const setDefaults: (defaults: { component: string; }) => Logger =
                     return winston.format.colorize()
                         .colorize(level,
                             `[${label}] [${timestamp}] [${level.toUpperCase()}] ${message}`
-                        ) + `${Object.keys(data).length > 0 ? `\n\t\t\t\t\t\t${JSON.stringify(data)}` : ''}`
+                        ) + `${Object.keys(data).length > 0 ? `\n\t\t\t\t\t\t${JSON.stringify(data, getCircularJSONStringifyReplacer())}` : ''}`
                 })
             )
         });
