@@ -1,5 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as ex from 'express';
+import serveFavicon = require('serve-favicon');
 
 const onHeaders = require('on-headers');
 
@@ -69,6 +70,7 @@ class App {
         defRouter.all('*', (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
             next(new RequestError(404, 'invalid_endpoint', 'No matching endpoints for url provided.'));
         });
+        this.express.use(serveFavicon(__dirname + '/favicon.ico'));
         this.express.use('/api/v1/words', V1_Router);
         this.express.use('/', defRouter);
     }
