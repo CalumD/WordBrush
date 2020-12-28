@@ -2,6 +2,7 @@ import {logger} from './logger';
 import {NextFunction, Request, Response, Router} from 'express';
 import * as bodyParser from 'body-parser';
 import {RequestError} from './errors';
+import {uuid} from './uuid';
 
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
@@ -95,8 +96,15 @@ export class WordsRouterV1 {
     }
 
     private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
-        if (!input.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+        if (!uuid.verify(input)) {
             return new RequestError(400, 'invalid_uuid', 'URL parameter for ' + forParam + ' expected a valid uuid.');
+        }
+        return null;
+    }
+
+    private static urlParamFilenameMatcher(input: string, forParam: string): void | RequestError {
+        if (input.match(/^([0-9]+)(\.svg)?$/)) {
+            return new RequestError(400, 'invalid_filename', 'URL parameter for ' + forParam + ' expected /^([0-9]+)(\\.svg)?$/.');
         }
         return null;
     }
@@ -179,7 +187,7 @@ export class WordsRouterV1 {
                 req: Request, res: Response, next: NextFunction,
                 output: string
             ): Promise<void> => {
-                let potentialError = WordsRouterV1.urlParamUUIDMatcher(output, 'output');
+                let potentialError = WordsRouterV1.urlParamFilenameMatcher(output, 'output');
                 if (potentialError) {
                     return next(potentialError);
                 }
