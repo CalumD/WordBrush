@@ -60,6 +60,13 @@ export class WordsRouterV1 {
         return null;
     }
 
+    private static integerBoundChecker(input: Number, forParam: string, minBound: Number, maxBound: Number): void | RequestError {
+        if (input < minBound || input > maxBound) {
+            return new RequestError(400, 'invalid_size_param', `URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`);
+        }
+        return null;
+    }
+
     private precondition(): void {
         this.router.param(
             'width',
@@ -68,6 +75,10 @@ export class WordsRouterV1 {
                 w: string
             ): Promise<void> => {
                 let potentialError = WordsRouterV1.urlParamIntegerMatcher(w, 'width');
+                if (potentialError) {
+                    return next(potentialError);
+                }
+                potentialError = WordsRouterV1.integerBoundChecker(+w, 'width', 50, 3840);
                 if (potentialError) {
                     return next(potentialError);
                 }
@@ -84,6 +95,10 @@ export class WordsRouterV1 {
                 if (potentialError) {
                     return next(potentialError);
                 }
+                potentialError = WordsRouterV1.integerBoundChecker(+h, 'height', 50, 3840);
+                if (potentialError) {
+                    return next(potentialError);
+                }
                 next();
             }
         );
@@ -94,6 +109,10 @@ export class WordsRouterV1 {
                 sfo: string
             ): Promise<void> => {
                 let potentialError = WordsRouterV1.urlParamIntegerMatcher(sfo, 'sfo');
+                if (potentialError) {
+                    return next(potentialError);
+                }
+                potentialError = WordsRouterV1.integerBoundChecker(+sfo, 'sfo', 1, 100);
                 if (potentialError) {
                     return next(potentialError);
                 }
