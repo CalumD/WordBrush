@@ -1,6 +1,8 @@
 import * as bodyParser from 'body-parser';
 import * as ex from 'express';
 
+const onHeaders = require('on-headers');
+
 import {logger} from './logger';
 import {errorHandler} from './errors';
 
@@ -31,7 +33,7 @@ class App {
                         data: await res.locals.data
                     });
                 }
-                logger.success(`Responded to ${req.ip}`);
+                logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
             }
         );
         this.errorWare();
@@ -41,6 +43,19 @@ class App {
         logger.debug('Loading basic middleware');
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({extended: false}));
+        this.express.use((req, res, next) => {
+            const startAt = process.hrtime();
+            onHeaders(res, () => {
+                const diff = process.hrtime(startAt);
+                const time = diff[0] * 1e3 + diff[1] * 1e-6;
+                const header_name = 'X-Response-Time';
+                const header_value = time.toFixed(3) + 'ms';
+                res.locals.responseTime = header_value;
+                if (res.getHeader(header_name)) return;
+                res.setHeader(header_name, header_value);
+            });
+            next();
+        });
     }
 
     private mountRoutes(): void {
@@ -51,21 +66,8 @@ class App {
                 important: 'Endpoints start from /api/v1'
             });
         });
-        this.express.use('/api/v1', V1_Router);
         this.express.use('/', defRouter);
-        this.express.use(
-            (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
-                if (Object.keys(res.locals).length === 0) {
-                    res.status(404)
-                        .json({
-                            status: 'error',
-                            error: 'invalid_route',
-                            error_description: 'Endpoints start from /api/v1'
-                        });
-                } else {
-                    next();
-                }
-            });
+        this.express.use('/api/v1', V1_Router);
     }
 
     private errorWare(): void {
