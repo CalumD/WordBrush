@@ -4,7 +4,7 @@ import * as ex from 'express';
 const onHeaders = require('on-headers');
 
 import {logger} from './logger';
-import {errorHandler} from './errors';
+import {errorHandler, RequestError} from './errors';
 
 import V1_Router from './words_router_v1';
 
@@ -63,11 +63,14 @@ class App {
         defRouter.get('/', (req: ex.Request, res: ex.Response): void => {
             res.json({
                 message: 'Welcome to the WordBrush UI server!',
-                important: 'Endpoints start from /api/v1'
+                important: 'Endpoints start from /api/v1/words'
             });
         });
+        defRouter.all('*', (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
+            next(new RequestError(404, 'invalid_endpoint', 'No matching endpoints for url provided.'));
+        });
+        this.express.use('/api/v1/words', V1_Router);
         this.express.use('/', defRouter);
-        this.express.use('/api/v1', V1_Router);
     }
 
     private errorWare(): void {

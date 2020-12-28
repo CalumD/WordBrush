@@ -54,8 +54,8 @@ const validateQueryParamsRequired: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.trace('Called validateQueryParamsRequired')
-    if (!req.query.w) {
-        return next(new RequestError(400, 'missing_query_param', 'Required query param (w) was missing from the request.'));
+    if (!req.query.input) {
+        return next(new RequestError(400, 'missing_query_param', 'Required query param (input) was missing from the request.'));
     }
     next();
 }
@@ -69,21 +69,21 @@ export class WordsRouterV1 {
         this.precondition();
 
         // CLI only params
-        this.router.get('/words/w/:width/h/:height/sfo/:single_file_output_column_count',
+        this.router.get('/w/:width/h/:height/sfo/:single_file_output_column_count',
             validateQueryParamsRequired, getWordsCLI_singleFileOutput);
-        this.router.get('/words/w/:width/h/:height',
+        this.router.get('/w/:width/h/:height',
             validateQueryParamsRequired, getWordsCLI);
 
         // Input File in addition to CLI
-        this.router.post('/words/w/:width/:height/sfo/:single_file_output_column_count',
+        this.router.post('/w/:width/:height/sfo/:single_file_output_column_count',
             bodyParser.raw({limit: '1GB'}), postWordsFile_singleFileOutput);
-        this.router.post('/words/w/:width/h/:height',
+        this.router.post('/w/:width/h/:height',
             bodyParser.raw({limit: '1GB'}), postWordsFile);
 
         // A result set
-        this.router.get('/words/results/:resultSet',
+        this.router.get('/results/:resultSet',
             getResultSet);
-        this.router.get('/words/result/:output',
+        this.router.get('/results/:resultSet/:output',
             getOutput);
     }
 
