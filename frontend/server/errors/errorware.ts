@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from 'express';
 import {logger} from '../logger';
 
 export interface ErrorResponseBlock {
-    status: string;
+    status: Number;
     error: string;
     error_description?: string;
     user_message?: string;
@@ -29,6 +29,7 @@ export class RequestError extends Error {
         errData?: any
     ) {
         super(errDescription);
+        Object.setPrototypeOf(this, new.target.prototype);
         this.code = errCode;
         this.name = errName;
         this.userMessage = errUserMessage;
@@ -37,7 +38,7 @@ export class RequestError extends Error {
 
     public responseBlock(): ErrorResponseBlock {
         return {
-            status: 'error',
+            status: this.code,
             error: this.name,
             error_description: this.message,
             user_message: this.userMessage,
@@ -50,10 +51,10 @@ export type ErrorWare = (err: Error, req: Request, res: Response, next: NextFunc
 
 export const errorHandler: ErrorWare = (err: Error, req: Request, res: Response, next: NextFunction): void => {
     if (RequestError.is(err)) {
-        logger.warn(`Responded to ${req.ip} with error`, {code: err.code, name: err.name});
         res.status(err.code).json(err.responseBlock());
+        logger.error(`Responded to ${req.ip} with error in ${res.locals.responseTime}`, err.responseBlock());
     } else {
-        logger.warn(`Responded to ${req.ip} with error`, {code: 500});
         res.status(500).send(err.stack);
+        logger.error(`Responded to ${req.ip} with error in ${res.locals.responseTime}`, err);
     }
 };
