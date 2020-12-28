@@ -4,7 +4,7 @@ import * as ex from 'express';
 import {logger} from './logger';
 import {errorHandler} from './errors';
 
-// import FileRouter from './FileRouter';
+import V1_Router from './words_router_v1';
 
 class App {
     public express: ex.Express;
@@ -51,7 +51,7 @@ class App {
                 important: 'Endpoints start from /api/v1'
             });
         });
-        this.express.use('/api/v1', v1_router);
+        this.express.use('/api/v1', V1_Router);
         this.express.use('/', defRouter);
         this.express.use(
             (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
