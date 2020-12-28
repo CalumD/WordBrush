@@ -20,12 +20,12 @@ const LOG_LEVELS: LogLevel[] = [
     {
         rank: 7,
         colour: 'cyan',
-        names: ['silly', 'testing', 'verbose']
+        names: ['silly', 'testing', 'verbose', 'trace']
     },
     {
         rank: 6,
         colour: 'magenta',
-        names: ['debug', 'minor', 'data']
+        names: ['debug', 'minor', 'data', 'follow']
     },
     {
         rank: 5,
@@ -76,10 +76,12 @@ export interface Logger {
     silly: (message: string, meta?: {}) => void,
     testing: (message: string, meta?: {}) => void,
     verbose: (message: string, meta?: {}) => void,
+    trace: (message: string, meta?: {}) => void,
     // 6
     debug: (message: string, meta?: {}) => void,
     minor: (message: string, meta?: {}) => void,
     data: (message: string, meta?: {}) => void,
+    follow: (message: string, meta?: {}) => void,
     // 5
     information: (message: string, meta?: {}) => void,
     inform: (message: string, meta?: {}) => void,
@@ -153,10 +155,12 @@ const setDefaults: (defaults: { component: string; }) => Logger =
             silly: (message, meta) => basicConsoleLogger['silly'](message, meta),
             testing: (message, meta) => basicConsoleLogger['testing'](message, meta),
             verbose: (message, meta) => basicConsoleLogger['verbose'](message, meta),
+            trace: (message, meta) => basicConsoleLogger['trace'](message, meta),
             // 6
             debug: (message, meta) => basicConsoleLogger['debug'](message, meta),
             minor: (message, meta) => basicConsoleLogger['minor'](message, meta),
             data: (message, meta) => basicConsoleLogger['data'](message, meta),
+            follow: (message, meta) => basicConsoleLogger['follow'](message, meta),
             // 5
             information: (message, meta) => basicConsoleLogger['information'](message, meta),
             inform: (message, meta) => basicConsoleLogger['inform'](message, meta),
