@@ -35,6 +35,20 @@ const postWordsFile_singleFileOutput: Middleware = (
     next();
 }
 
+const getResultSet: Middleware = (
+    req: Request, res: Response, next: NextFunction
+): void => {
+    logger.follow('Called getResultSet')
+    next();
+}
+
+const getOutput: Middleware = (
+    req: Request, res: Response, next: NextFunction
+): void => {
+    logger.follow('Called getOutput')
+    next();
+}
+
 
 const validateQueryParamsRequired: Middleware = (
     req: Request, res: Response, next: NextFunction
@@ -62,14 +76,27 @@ export class WordsRouterV1 {
 
         // Input File in addition to CLI
         this.router.post('/words/w/:width/:height/sfo/:single_file_output_column_count',
-            bodyParser.raw({limit: '1GB'}), postWordsFile_singleFileOutput)
+            bodyParser.raw({limit: '1GB'}), postWordsFile_singleFileOutput);
         this.router.post('/words/w/:width/h/:height',
             bodyParser.raw({limit: '1GB'}), postWordsFile);
+
+        // A result set
+        this.router.get('/words/results/:resultSet',
+            getResultSet);
+        this.router.get('/words/result/:output',
+            getOutput);
     }
 
     private static urlParamIntegerMatcher(input: string, forParam: string): void | RequestError {
         if (!input.match(/^[0-9]+$/)) {
             return new RequestError(400, 'invalid_size_param', 'URL parameter for ' + forParam + ' expected an integer, received non-integer input.');
+        }
+        return null;
+    }
+
+    private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
+        if (!input.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+            return new RequestError(400, 'invalid_uuid', 'URL parameter for ' + forParam + ' expected a valid uuid.');
         }
         return null;
     }
@@ -127,6 +154,32 @@ export class WordsRouterV1 {
                     return next(potentialError);
                 }
                 potentialError = WordsRouterV1.integerBoundChecker(+sfo, 'sfo', 1, 100);
+                if (potentialError) {
+                    return next(potentialError);
+                }
+                next();
+            }
+        );
+        this.router.param(
+            'resultSet',
+            async (
+                req: Request, res: Response, next: NextFunction,
+                results: string
+            ): Promise<void> => {
+                let potentialError = WordsRouterV1.urlParamUUIDMatcher(results, 'resultSet');
+                if (potentialError) {
+                    return next(potentialError);
+                }
+                next();
+            }
+        );
+        this.router.param(
+            'output',
+            async (
+                req: Request, res: Response, next: NextFunction,
+                output: string
+            ): Promise<void> => {
+                let potentialError = WordsRouterV1.urlParamUUIDMatcher(output, 'output');
                 if (potentialError) {
                     return next(potentialError);
                 }
