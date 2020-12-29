@@ -3,10 +3,12 @@ import {NextFunction, Request, Response, Router} from 'express';
 import * as bodyParser from 'body-parser';
 import {RequestError} from './errors';
 import {uuid} from './uuid';
+import {resolve} from 'path';
 
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
 
+const BASE_RESOURCES_PATH: string = resolve(__dirname + '/../../resources');
 
 const getWordsCLI: Middleware = (
     req: Request, res: Response, next: NextFunction
