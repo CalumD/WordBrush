@@ -19,7 +19,7 @@ const getWordsCLI: Middleware = (
 const getWordsCLI_singleFileOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
-    logger.follow('Called getWordsCLI_singleFileOutput')
+    logger.follow('Called getWordsCLI_singleFileOutput');
     res.locals.methodCalled = 'Called getWordsCLI_singleFileOutput';
     next();
 }
@@ -27,7 +27,7 @@ const getWordsCLI_singleFileOutput: Middleware = (
 const postWordsFile: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
-    logger.follow('Called postWordsFile')
+    logger.follow('Called postWordsFile');
     res.locals.methodCalled = 'Called postWordsFile';
     next();
 }
@@ -35,7 +35,7 @@ const postWordsFile: Middleware = (
 const postWordsFile_singleFileOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
-    logger.follow('Called postWordsFile_singleFileOutput')
+    logger.follow('Called postWordsFile_singleFileOutput');
     res.locals.methodCalled = 'Called postWordsFile_singleFileOutput';
     next();
 }
@@ -43,7 +43,7 @@ const postWordsFile_singleFileOutput: Middleware = (
 const getResultSet: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
-    logger.follow('Called getResultSet')
+    logger.follow('Called getResultSet');
     res.locals.methodCalled = 'Called getResultSet';
     next();
 }
@@ -51,11 +51,29 @@ const getResultSet: Middleware = (
 const getOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
-    logger.follow('Called getOutput')
+    logger.follow('Called getOutput');
     res.locals.methodCalled = 'Called getOutput';
     next();
 }
 
+const getMethods: Middleware = (
+    req: Request, res: Response, next: NextFunction
+): void => {
+    logger.follow('Called getMethods');
+    res.locals.methodCalled = 'Called getMethods';
+    // TODO: Improve this by making it programmatic!
+    res.locals.data = {
+        endpoints: [
+            'api/v1/words/w/:width/h/:height/sfo/:single_file_output_column_count',
+            'api/v1/words/w/:width/h/:height',
+            'api/v1/words/w/:width/:height/sfo/:single_file_output_column_count',
+            'api/v1/words/w/:width/h/:height',
+            'api/v1/words/results/:resultSet',
+            'api/v1/words/results/:resultSet/:output'
+        ]
+    };
+    next();
+}
 
 const validateQueryParamsRequired: Middleware = (
     req: Request, res: Response, next: NextFunction
@@ -96,6 +114,8 @@ export class WordsRouterV1 {
             getResultSet);
         this.router.get('/results/:resultSet/:output',
             getOutput);
+
+        this.router.get('', getMethods);
     }
 
     private static urlParamIntegerMatcher(input: string, forParam: string): void | RequestError {
