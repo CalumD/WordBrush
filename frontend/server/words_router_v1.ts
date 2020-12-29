@@ -12,6 +12,7 @@ const getWordsCLI: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called getWordsCLI');
+    res.locals.methodCalled = 'Called getWordsCLI';
     next();
 }
 
@@ -19,6 +20,7 @@ const getWordsCLI_singleFileOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called getWordsCLI_singleFileOutput')
+    res.locals.methodCalled = 'Called getWordsCLI_singleFileOutput';
     next();
 }
 
@@ -26,6 +28,7 @@ const postWordsFile: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called postWordsFile')
+    res.locals.methodCalled = 'Called postWordsFile';
     next();
 }
 
@@ -33,6 +36,7 @@ const postWordsFile_singleFileOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called postWordsFile_singleFileOutput')
+    res.locals.methodCalled = 'Called postWordsFile_singleFileOutput';
     next();
 }
 
@@ -40,6 +44,7 @@ const getResultSet: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called getResultSet')
+    res.locals.methodCalled = 'Called getResultSet';
     next();
 }
 
@@ -47,6 +52,7 @@ const getOutput: Middleware = (
     req: Request, res: Response, next: NextFunction
 ): void => {
     logger.follow('Called getOutput')
+    res.locals.methodCalled = 'Called getOutput';
     next();
 }
 

@@ -26,15 +26,18 @@ class App {
         this.express.use(
             async (req: ex.Request, res: ex.Response, next: ex.NextFunction):
             Promise<void> => {
-                if (res.locals.function) {
-                    res.locals.function.bind(res)(await res.locals.data);
-                } else {
-                    res.json({
-                        status: 'success',
-                        data: await res.locals.data
-                    });
+                if (Object.keys(res.locals).length !== 0) {
+                    logger.debug('res.locals at end of MiddleWare chain', res.locals)
+                    if (res.locals.function) {
+                        res.locals.function.bind(res)(await res.locals.data);
+                    } else {
+                        res.json({
+                            status: 'success',
+                            data: await res.locals.data
+                        });
+                    }
+                    logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
                 }
-                logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
             }
         );
         this.errorWare();
@@ -67,12 +70,22 @@ class App {
                 important: 'Endpoints start from /api/v1/words'
             });
         });
-        defRouter.all('*', (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
-            next(new RequestError(404, 'invalid_endpoint', 'No matching endpoints for url provided.'));
-        });
         this.express.use(serveFavicon(__dirname + '/favicon.ico'));
         this.express.use('/api/v1/words', V1_Router);
         this.express.use('/', defRouter);
+        this.express.use(
+            (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {
+                if (Object.keys(res.locals).length === 0) {
+                    next(new RequestError({
+                        code: 404,
+                        name: 'invalid_endpoint',
+                        description: 'No matching endpoints for url provided.',
+                        data: req.url
+                    }));
+                } else {
+                    next();
+                }
+            });
     }
 
     private errorWare(): void {
