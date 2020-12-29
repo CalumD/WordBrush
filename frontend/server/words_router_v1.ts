@@ -56,7 +56,11 @@ const validateQueryParamsRequired: Middleware = (
 ): void => {
     logger.trace('Called validateQueryParamsRequired')
     if (!req.query.input) {
-        return next(new RequestError(400, 'missing_query_param', 'Required query param (input) was missing from the request.'));
+        return next(new RequestError({
+            code: 400,
+            name: 'missing_query_param',
+            description: 'Required query param (input) was missing from the request.'
+        }));
     }
     next();
 }
@@ -90,28 +94,44 @@ export class WordsRouterV1 {
 
     private static urlParamIntegerMatcher(input: string, forParam: string): void | RequestError {
         if (!input.match(/^[0-9]+$/)) {
-            return new RequestError(400, 'invalid_size_param', 'URL parameter for ' + forParam + ' expected an integer, received non-integer input.');
+            return new RequestError({
+                code: 400,
+                name: 'invalid_size_param',
+                description: 'URL parameter for ' + forParam + ' expected an integer, received non-integer input.'
+            });
         }
         return null;
     }
 
     private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
         if (!uuid.verify(input)) {
-            return new RequestError(400, 'invalid_uuid', 'URL parameter for ' + forParam + ' expected a valid uuid.');
+            return new RequestError({
+                code: 400,
+                name: 'invalid_uuid',
+                description: 'URL parameter for ' + forParam + ' expected a valid uuid.'
+            });
         }
         return null;
     }
 
     private static urlParamFilenameMatcher(input: string, forParam: string): void | RequestError {
         if (input.match(/^([0-9]+)(\.svg)?$/)) {
-            return new RequestError(400, 'invalid_filename', 'URL parameter for ' + forParam + ' expected /^([0-9]+)(\\.svg)?$/.');
+            return new RequestError({
+                code: 400,
+                name: 'invalid_filename',
+                description: 'URL parameter for ' + forParam + ' expected /^([0-9]+)(\\.svg)?$/.'
+            });
         }
         return null;
     }
 
     private static integerBoundChecker(input: Number, forParam: string, minBound: Number, maxBound: Number): void | RequestError {
         if (input < minBound || input > maxBound) {
-            return new RequestError(400, 'invalid_size_param', `URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`);
+            return new RequestError({
+                code: 400,
+                name: 'invalid_size_param',
+                description: 'URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).'
+            });
         }
         return null;
     }

@@ -2,11 +2,11 @@ import {NextFunction, Request, Response} from 'express';
 import {logger} from '../logger';
 
 export interface ErrorResponseBlock {
-    status: Number;
-    error: string;
-    error_description?: string;
-    user_message?: string;
-    error_data?: any;
+    code: number;
+    name: string;
+    description?: string;
+    message?: string;
+    data?: any;
 }
 
 export class RequestError extends Error {
@@ -21,28 +21,22 @@ export class RequestError extends Error {
     public userMessage?: string;
     public errorData?: any;
 
-    public constructor(
-        errCode: number = 500,
-        errName: string = 'internal_server_error',
-        errDescription?: string,
-        errUserMessage?: string,
-        errData?: any
-    ) {
-        super(errDescription);
+    public constructor({code = 500, name = 'internal_server_error', description, message, data}: ErrorResponseBlock) {
+        super(description);
         Object.setPrototypeOf(this, new.target.prototype);
-        this.code = errCode;
-        this.name = errName;
-        this.userMessage = errUserMessage;
-        this.errorData = errData;
+        this.code = code;
+        this.name = name;
+        this.userMessage = message;
+        this.errorData = data;
     }
 
     public responseBlock(): ErrorResponseBlock {
         return {
-            status: this.code,
-            error: this.name,
-            error_description: this.message,
-            user_message: this.userMessage,
-            error_data: this.errorData
+            code: this.code,
+            name: this.name,
+            description: this.message,
+            message: this.userMessage,
+            data: this.errorData
         };
     }
 }
