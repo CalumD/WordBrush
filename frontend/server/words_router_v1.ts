@@ -8,51 +8,50 @@ import {resolve} from 'path';
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
 
-const BASE_RESOURCES_PATH: string = resolve(__dirname + '/../../resources');
 
-const getWordsCLI: Middleware = (
+const getWordsCLI: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called getWordsCLI');
     res.locals.methodCalled = 'Called getWordsCLI';
     next();
 }
 
-const getWordsCLI_singleFileOutput: Middleware = (
+const getWordsCLI_singleFileOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called getWordsCLI_singleFileOutput');
     res.locals.methodCalled = 'Called getWordsCLI_singleFileOutput';
     next();
 }
 
-const postWordsFile: Middleware = (
+const postWordsFile: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called postWordsFile');
     res.locals.methodCalled = 'Called postWordsFile';
     next();
 }
 
-const postWordsFile_singleFileOutput: Middleware = (
+const postWordsFile_singleFileOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called postWordsFile_singleFileOutput');
     res.locals.methodCalled = 'Called postWordsFile_singleFileOutput';
     next();
 }
 
-const getResultSet: Middleware = (
+const getResultSet: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called getResultSet');
     res.locals.methodCalled = 'Called getResultSet';
     next();
 }
 
-const getOutput: Middleware = (
+const getOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
+): Promise<void> => {
     logger.follow('Called getOutput');
     res.locals.methodCalled = 'Called getOutput';
     next();

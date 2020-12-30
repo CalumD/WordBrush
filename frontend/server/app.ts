@@ -31,10 +31,7 @@ class App {
                     if (res.locals.function) {
                         res.locals.function.bind(res)(await res.locals.data);
                     } else {
-                        res.json({
-                            status: 'success',
-                            data: await res.locals.data
-                        });
+                        res.status(200).json(await res.locals.data);
                     }
                     logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
                 }
