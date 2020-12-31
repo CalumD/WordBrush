@@ -143,7 +143,7 @@ export class WordsRouterV1 {
     }
 
     private static urlParamFilenameMatcher(input: string, forParam: string): void | RequestError {
-        if (input.match(/^([0-9]+)(\.svg)?$/)) {
+        if (!input.match(/^([0-9]+)(\.svg)?$/)) {
             return new RequestError({
                 code: 400,
                 name: 'invalid_filename',
