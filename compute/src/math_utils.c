@@ -1,7 +1,3 @@
-//
-// Created by calum on 23/09/2020.
-//
-
 #include "math_utils.h"
 
 Point magnify(Point point, float amount) {
@@ -89,4 +85,15 @@ KeyBounds calculate_directional_key_subdivision(Point current, Point next, Point
                 .width = scale.x, .height = scale.y};
     }
     return ret;
+}
+
+
+long count_rows_in_wrapper_svg(Config* cfg) {
+    long fullDivision = cfg->word_count / cfg->single_file_column_count;
+    long require_overflow_row =
+            (cfg->word_count % cfg->single_file_column_count) > 0
+            ? 1
+            : 0;
+
+    return fullDivision + require_overflow_row;
 }

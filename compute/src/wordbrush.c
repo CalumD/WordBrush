@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
 #include "wordbrush.h"
-#include "debug.h"
-#include "math_utils.h"
 
 #define key(character, x_point, y_point) \
     case character:\
@@ -16,7 +10,7 @@
         }
 
 KeyBounds get_key_bounds(Config* config, char character) {
-    switch (character) {
+    switch (tolower(character)) {
         key('q', 0, 0);
         key('w', 1, 0);
         key('e', 2, 0);
@@ -61,12 +55,13 @@ Point get_random_point_on_current_key(KeyBounds current_key) {
             .x = current_key.width * KEY_ACTIVE_ZONE_PERCENTAGE,
             .y = current_key.height * KEY_ACTIVE_ZONE_PERCENTAGE
     };
-    return get_random_point_in_bounds((KeyBounds) {
+    KeyBounds sub_division = (KeyBounds) {
             .x = (current_key.x + (current_key.width / 2)) - (scale.x / 2),
             .y = (current_key.y + (current_key.height / 2)) - (scale.y / 2),
             .width = scale.x,
             .height = scale.y
-    });
+    };
+    return get_random_point_in_bounds(sub_division);
 }
 
 Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
@@ -88,59 +83,60 @@ Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
     return get_random_point_in_bounds(sub_division_bound);
 }
 
+Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
+    Point* points = malloc(sizeof(Point) * word_length);
+    bool is_first_char = true;
 
-void compute_curves(Config* config) {
-    printf("<svg xmlns=\"http://www.w3.org/2000/svg\""
-           " width=\"%dpx\""
-           " height=\"%dpx\""
-           " viewBox=\"0 0 %d %d\">\n", config->width, config->height, config->width, config->height);
-
-    char* KEY_STYLE = "fill:white;stroke:blue;stroke-width:3;";
-
-    for (int i = 0; i < 26; i++) {
-        KeyBounds bounds = get_key_bounds(config, 'a' + i);
-        printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" "
-               "height=\"%f\" style=\"%s\"/>\n",
-               bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-    }
-    KeyBounds bounds = get_key_bounds(config, ' ');
-    printf("<rect x=\"%f\" y=\"%f\" rx=\"10\" ry=\"10\" width=\"%f\" height=\"%f\" style=\"%s\"/>\n",
-           bounds.x, bounds.y, bounds.width, bounds.height, KEY_STYLE);
-
-    const char* sentence = "hello";
-
-    int l = strlen(sentence);
-    Point* key_locations = malloc(sizeof(Point) * l);
-    for (int i = 0; i < l; i++) {
-        if (l == 1) {
-            break;
+    for (size_t i = 0, char_index = 0; i < strlen(word); i++) {
+        if (isalpha(word[i])) {
+            if (is_first_char) {
+                points[0] = get_random_point_on_current_key(get_key_bounds(config, word[i]));
+                is_first_char = false;
+            } else {
+                points[char_index] = get_random_point_on_next_key(
+                        get_key_bounds(config, word[i - 1]),
+                        get_key_bounds(config, word[i])
+                );
+            }
+            char_index++;
         }
-        if ((i == 0 && l > 1)) {
-            get_random_point_on_current_key(get_key_bounds(config, sentence[i]));
-        }
-        key_locations[i] = get_random_point_on_next_key(
-                get_key_bounds(config, sentence[i]),
-                get_key_bounds(config, sentence[i + 1])
-        );
     }
-//
-//    Point fst = key_locations[0];
-//    Point snd = key_locations[1];
-//
-//    Point cp = fst;
-//
-//    printf("<path d=\"M%f,%f Q%f,%f %f,%f",
-//           fst.x, fst.y,
-//           cp.x, cp.y,
-//           snd.x, snd.y);
-//
-//    for (int i = 2; i < l; i++) {
-//        Point cur_p = key_locations[i];
-//        cp = find_next_control_point(cp, key_locations[i - 1]);
-//        printf(" Q%f,%f %f,%f", cp.x, cp.y, cur_p.x, cur_p.y);
-//    }
 
+    return points;
+}
+
+void compute_curves(Config* config, svg* svg, char* word) {
+
+
+    debug_only(
+            int key_count = 26;
+            for (int i = 0; i < key_count; i++) {
+                /*
+                 * TODO
+                 * I can't remember if modern C standards guarantee that
+                 * sequential characters are adjacent in terms of integer
+                 * value (i.e. that 'a' + 1 == 'b'). Should probably double-
+                 * check this.
+                 */
+                svg_key(svg, config, 'a' + i);
+            }
+            svg_key(svg, config, ' ')
+    );
+
+    int alphaCharCount = 0;
+    for (size_t i = 0; i < strlen(word); i++) {
+        if (!isalpha(word[i])) continue;
+        else alphaCharCount++;
+    }
+
+    Point* key_locations = get_random_points_on_keys(config, alphaCharCount, word);
+
+    svg_quadratic_bezier(svg, alphaCharCount, key_locations);
+
+
+    debug_only(for (int i = 0; i < alphaCharCount; i++) {
+        add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
+                   key_locations[i].y);
+    });
     free(key_locations);
-//    printf("\" stroke=\"black\" stroke-width=\"5\" fill=\"none\" /></svg>\n");
-    printf("</svg>\n");
 }

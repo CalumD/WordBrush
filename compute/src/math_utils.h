@@ -1,13 +1,21 @@
-//
-// Created by calum on 23/09/2020.
-//
-
 #ifndef WORDBRUSH_MATH_UTILS_H
 #define WORDBRUSH_MATH_UTILS_H
 
-#include <stdlib.h>
-#include "wordbrush.h"
+typedef struct Point {
+    float x;
+    float y;
+} Point;
 
+typedef struct KeyBounds {
+    float x;
+    float y;
+    float width;
+    float height;
+} KeyBounds;
+
+#include "stdlib.h"
+#include "math.h"
+#include "main.h"
 
 #define NEXT_CONTROL_POINT_DRIFT_WEIGHT 0.8
 
@@ -27,5 +35,7 @@ float random_number_between(float min, float max);
 Point get_random_point_in_bounds(KeyBounds bounds);
 
 KeyBounds calculate_directional_key_subdivision(Point current, Point next, Point scale);
+
+long count_rows_in_wrapper_svg(Config* cfg);
 
 #endif //WORDBRUSH_MATH_UTILS_H
