@@ -51,7 +51,7 @@ const getResultSet: Middleware = async (
     res.locals.methodCalled = getResultSet.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
-    res.locals.data = wb_inter.getResultSet({directory: req.params.resultSet});
+    res.locals.data = wb_inter.getResultSet({directory: req.params.resultSet, next: next});
 
     next();
 }
@@ -75,6 +75,7 @@ const getMethods: Middleware = async (
     };
     next();
 }
+
 
 const validateQueryParamsRequired: Middleware = (
     req: Request, res: Response, next: NextFunction
