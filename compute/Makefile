@@ -26,7 +26,7 @@ run:
 
 test: all
 	rm -f ../resources/*.svg
-	@$(TRGT) -i '../resources/input.txt' -o "../resources/0.svg" -W 900 -H 360 -m 4 i wonder what would happen if i just type up some random whole sentence
+	@$(TRGT) -i '../resources/input.txt' -o "../resources/0.svg" -W 900 -H 360 -s 4 i wonder what would happen if i just type up some random whole sentence
 	xdg-open ../resources/0.svg
 
 rebuild:

@@ -87,7 +87,7 @@ Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
     Point* points = malloc(sizeof(Point) * word_length);
     bool is_first_char = true;
 
-    for (int i = 0, char_index = 0; i < strlen(word); i++) {
+    for (size_t i = 0, char_index = 0; i < strlen(word); i++) {
         if (isalpha(word[i])) {
             if (is_first_char) {
                 points[0] = get_random_point_on_current_key(get_key_bounds(config, word[i]));
@@ -124,7 +124,7 @@ void compute_curves(Config* config, svg* svg, char* word) {
     );
 
     int alphaCharCount = 0;
-    for (int i = 0; i < strlen(word); i++) {
+    for (size_t i = 0; i < strlen(word); i++) {
         if (!isalpha(word[i])) continue;
         else alphaCharCount++;
     }
