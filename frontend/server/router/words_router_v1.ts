@@ -1,9 +1,9 @@
-import {logger} from './logger';
+import {logger} from '../logger';
 import {NextFunction, Request, Response, Router} from 'express';
 import * as bodyParser from 'body-parser';
-import {RequestError} from './errors';
-import {uuid} from './uuid';
-import * as wb_inter from "./logic/wordbrush_interface";
+import {RequestError} from '../errors';
+import {uuid} from '../uuid';
+import * as wb_inter from "../logic/wordbrush_interface";
 
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
@@ -12,67 +12,66 @@ export type Middleware =
 const getWordsCLI: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called getWordsCLI');
-    res.locals.methodCalled = 'Called getWordsCLI';
+    res.locals.methodCalled = getWordsCLI.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
     next();
 }
 
 const getWordsCLI_singleFileOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called getWordsCLI_singleFileOutput');
-    res.locals.methodCalled = 'Called getWordsCLI_singleFileOutput';
+    res.locals.methodCalled = getWordsCLI_singleFileOutput.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
     next();
 }
 
 const postWordsFile: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called postWordsFile');
-    res.locals.methodCalled = 'Called postWordsFile';
+    res.locals.methodCalled = postWordsFile.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
     next();
 }
 
 const postWordsFile_singleFileOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called postWordsFile_singleFileOutput');
-    res.locals.methodCalled = 'Called postWordsFile_singleFileOutput';
+    res.locals.methodCalled = postWordsFile_singleFileOutput.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
     next();
 }
 
 const getResultSet: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called getResultSet');
-    res.locals.methodCalled = 'Called getResultSet';
-    res.locals.data = await wb_inter.callApplication({height: 100});
+    res.locals.methodCalled = getResultSet.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
+    res.locals.data = wb_inter.getResultSet({directory: req.params.resultSet});
+
     next();
 }
 
 const getOutput: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    logger.follow('Called getOutput');
-    res.locals.methodCalled = 'Called getOutput';
+    res.locals.methodCalled = getOutput.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
     next();
 }
 
-const getMethods: Middleware = (
+const getMethods: Middleware = async (
     req: Request, res: Response, next: NextFunction
-): void => {
-    logger.follow('Called getMethods');
-    res.locals.methodCalled = 'Called getMethods';
-    // TODO: Improve this by making it programmatic!
+): Promise<void> => {
+    res.locals.methodCalled = getMethods.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
     res.locals.data = {
-        endpoints: [
-            'api/v1/words/w/:width/h/:height/sfo/:single_file_output_column_count',
-            'api/v1/words/w/:width/h/:height',
-            'api/v1/words/w/:width/:height/sfo/:single_file_output_column_count',
-            'api/v1/words/w/:width/h/:height',
-            'api/v1/words/results/:resultSet',
-            'api/v1/words/results/:resultSet/:output'
-        ]
+        endpoints: routerRoutes
     };
     next();
 }
@@ -244,5 +243,10 @@ export class WordsRouterV1 {
         );
     }
 }
+
+const routerRoutes: { method: { [key: string]: boolean }, path: string }[] = [];
+new WordsRouterV1().router.stack.forEach((route) => {
+    routerRoutes.push({method: route.route.methods, path: `api/v1/words${route.route.path}`})
+});
 
 export default new WordsRouterV1().router;

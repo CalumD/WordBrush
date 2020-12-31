@@ -7,7 +7,7 @@ const onHeaders = require('on-headers');
 import {logger} from './logger';
 import {errorHandler, RequestError} from './errors';
 
-import V1_Router from './words_router_v1';
+import V1_Router from './router/words_router_v1';
 
 class App {
     public express: ex.Express;
