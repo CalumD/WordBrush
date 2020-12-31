@@ -3,7 +3,7 @@ import {NextFunction, Request, Response, Router} from 'express';
 import * as bodyParser from 'body-parser';
 import {RequestError} from './errors';
 import {uuid} from './uuid';
-import {resolve} from 'path';
+import * as wb_inter from "./logic/wordbrush_interface";
 
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
@@ -46,6 +46,7 @@ const getResultSet: Middleware = async (
 ): Promise<void> => {
     logger.follow('Called getResultSet');
     res.locals.methodCalled = 'Called getResultSet';
+    res.locals.data = await wb_inter.callApplication({height: 100});
     next();
 }
 
