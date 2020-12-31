@@ -27,12 +27,16 @@ class App {
             async (req: ex.Request, res: ex.Response, next: ex.NextFunction):
             Promise<void> => {
                 if (Object.keys(res.locals).length !== 0) {
-                    logger.debug('res.locals at end of MiddleWare chain', res.locals)
+                    res.locals.data = await res.locals.data;
                     if (res.locals.function) {
                         res.locals.function.bind(res)(await res.locals.data);
                     } else {
                         res.status(200).json(await res.locals.data);
                     }
+                    if (typeof res.locals.data == 'string' && res.locals.data.length > 100) {
+                        res.locals.data = res.locals.data.substr(0, 100) + ' [...]';
+                    }
+                    logger.debug('res.locals at end of MiddleWare chain', res.locals);
                     logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
                 }
             }
