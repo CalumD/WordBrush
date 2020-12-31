@@ -62,6 +62,10 @@ const getOutput: Middleware = async (
     res.locals.methodCalled = getOutput.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
+    res.locals.function = res.send;
+    res.setHeader('content-type', "image/svg+xml");
+    res.locals.data = wb_inter.getOutput({file: req.params.output, directory: req.params.resultSet, next: next});
+
     next();
 }
 

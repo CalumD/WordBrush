@@ -24,6 +24,23 @@ export async function callApplication({width = 50, height = 50}: WordBrushArgs):
 }
 
 
+export async function getOutput(
+    {file, directory, next}: { file: string, directory: string, next: NextFunction }
+): Promise<object> {
+    return new Promise((resolve, reject) => {
+        if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
+            const fileName = `${BASE_RESOURCES_PATH}/${directory}/${file}`;
+            if (fs.existsSync(fileName)) {
+                resolve(fs.readFile(fileName, 'utf8'));
+            } else {
+                output404(file, directory, next);
+            }
+        } else {
+            resultSet404(directory, next);
+        }
+    })
+}
+
 export async function getResultSet({directory, next}: { directory: string, next: NextFunction }): Promise<string[]> {
     return new Promise((resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
@@ -31,14 +48,26 @@ export async function getResultSet({directory, next}: { directory: string, next:
                 resolve(files.filter(f => extname(f).toLowerCase() === '.svg'));
             });
         } else {
-            next(new RequestError({
-                code: 404,
-                name: 'resultSet_not_found',
-                description: 'The requested directory of output data was not found on the server.',
-                data: directory
-            }))
+            resultSet404(directory, next);
         }
     })
+}
+
+const resultSet404: Function = (directory: string, next: NextFunction): void => {
+    next(new RequestError({
+        code: 404,
+        name: 'resultSet_not_found',
+        description: 'The requested directory of output data was not found on the server.',
+        data: directory
+    }));
+}
+const output404: Function = (fileName: string, directory: string, next: NextFunction): void => {
+    next(new RequestError({
+        code: 404,
+        name: 'output_file_not_found',
+        description: `The requested file from existing result set (${directory}) could not be found.`,
+        data: {resultSet: directory, file: fileName}
+    }));
 }
 
 function execAsync(command: string, opts: {} = {}): Promise<ExecOutput> {
