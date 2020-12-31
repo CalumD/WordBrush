@@ -84,12 +84,12 @@ Config* get_program_arguments(int argc, char* argv[]) {
         }
     }
 
-    if (config->single_file_column_count > 0 && config->inputFile) {
+    if (config->single_file_column_count > 0 && config->input_file_path) {
         fprintf(stderr, "You cannot use -s and -i together - aborting.\n");
         errored = true;
     }
 
-    if (!errored && !canReadFile(config->input_file_path)) {
+    if (!errored && config->input_file_path && !canReadFile(config->input_file_path)) {
         fprintf(stderr, "Cannot read from the provided input file - aborting.\n");
         errored = true;
     }
