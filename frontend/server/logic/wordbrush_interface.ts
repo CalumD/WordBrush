@@ -19,7 +19,17 @@ export type WordBrushArgs = {
     words?: string[]
 }
 
-export async function callApplication({width = 50, height = 50}: WordBrushArgs): Promise<any> {
+export type WordBrushMetadataFile = {
+    outputType: "single" | "multi",
+    words: {
+        [key: string]: string | string[][]
+    },
+    startTime?: string,
+    stopTime?: string,
+    finalised?: boolean
+}
+
+export async function callApplication({width = 50, height = 50}: WordBrushArgs): Promise<ExecOutput> {
     return execAsync('ls -lha');
 }
 
@@ -41,16 +51,27 @@ export async function getOutput(
     })
 }
 
-export async function getResultSet({directory, next}: { directory: string, next: NextFunction }): Promise<string[]> {
-    return new Promise((resolve, reject) => {
+export async function getResultSet({directory, next}: { directory: string, next: NextFunction }): Promise<WordBrushMetadataFile> {
+    return new Promise(async (resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
-            fs.readdir(`${BASE_RESOURCES_PATH}/${directory}`, (err, files) => {
-                resolve(files.filter(f => extname(f).toLowerCase() === '.svg'));
-            });
+            let metadataFilePath = (
+                await execAsync(
+                    `find ${BASE_RESOURCES_PATH}/${directory}/*.json`,
+                    {silent: true}
+                )
+            ).stdOut;
+            metadataFilePath = metadataFilePath.trim();
+            try {
+                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(metadataFilePath);
+                resolve({outputType: metadataFile.outputType, words: metadataFile.words});
+            } catch (Err) {
+                return resultSet202(directory, next);
+            }
         } else {
             resultSet404(directory, next);
         }
-    })
+        return;
+    });
 }
 
 const resultSet404: Function = (directory: string, next: NextFunction): void => {
@@ -58,6 +79,15 @@ const resultSet404: Function = (directory: string, next: NextFunction): void => 
         code: 404,
         name: 'resultSet_not_found',
         description: 'The requested directory of output data was not found on the server.',
+        data: directory
+    }));
+}
+const resultSet202: Function = (directory: string, next: NextFunction): void => {
+    next(new RequestError({
+        code: 202,
+        name: 'resultSet_not_ready',
+        description: 'The requested directory of output data has not yet been finalised as the meta file wasn\'t found.',
+        message: 'Data not ready yet, try again shortly.',
         data: directory
     }));
 }
