@@ -3,16 +3,20 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
+#include <libgen.h>
 
 typedef struct Config {
     bool successfully_initialised;
     long single_file_column_count;
     char* input_file_path;
-    FILE* inputFile;
+    FILE* input_file;
+    FILE* output_meta_file;
+    char* start_timestamp;
+    char* stop_timestamp;
     char* output_file_path;
     char** words;
     long word_count;
-    char** current_arg;
     long width;
     long height;
 } Config;

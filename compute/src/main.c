@@ -95,7 +95,7 @@ Config* get_program_arguments(int argc, char* argv[]) {
     }
 
     // Open the input file, if it exists, for reading.
-    config->inputFile = open_input_file(config->input_file_path);
+    config->input_file = open_input_file(config->input_file_path);
 
     if (!errored) {
         config->successfully_initialised = true;

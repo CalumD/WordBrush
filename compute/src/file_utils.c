@@ -130,7 +130,7 @@ char* clever_strtok(FILE* fp, char* delim) {
 
 char* next_word_file(Config* cfg) {
     static bool first_time = true;
-    char* res = clever_strtok(first_time ? cfg->inputFile : NULL, " \n,.-\":;");
+    char* res = clever_strtok(first_time ? cfg->input_file : NULL, " \n,.-\":;");
     first_time = false;
     return res;
 }
@@ -151,7 +151,7 @@ char* next_word(Config* cfg) {
      * how to get the next word based on whether or not there was an
      * input file given at initialisation.
      */
-    if (cfg->inputFile) {
+    if (cfg->input_file) {
         ret = next_word_file(cfg);
 
         if (!ret) {
