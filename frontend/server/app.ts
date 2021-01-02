@@ -1,6 +1,7 @@
 import * as bodyParser from 'body-parser';
 import * as ex from 'express';
 import serveFavicon = require('serve-favicon');
+import {cors} from "./cors";
 
 const onHeaders = require('on-headers');
 
@@ -21,6 +22,7 @@ class App {
                 next();
             }
         );
+        this.express.use(cors());
         this.middleWare();
         this.mountRoutes();
         this.express.use(
