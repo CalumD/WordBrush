@@ -5,6 +5,8 @@ import {RequestError} from '../errors';
 import {uuid} from '../uuid';
 import * as wb_inter from "../logic/wordbrush_interface";
 
+const multer = require('multer')
+
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
 
@@ -50,9 +52,10 @@ const postWordsFile: Middleware = async (
         wbArgs: {
             width: req.params.width,
             height: req.params.height,
-            words: req.query.input.replace(/[,;-]/g, ' ')
+            words: req.query.input ? req.query.input.replace(/[,;-]/g, ' ') : undefined
         },
-        file: req.file
+        file: req.file,
+        next: next
     });
 
     next();
@@ -123,7 +126,20 @@ export class WordsRouterV1 {
         this.router.get('/w/:width/h/:height', validateQueryParamsRequired, getWordsCLI);
 
         // Input File in addition to CLI
-        this.router.post('/w/:width/h/:height', bodyParser.raw({limit: '10MB'}), postWordsFile);
+        this.router.post('/w/:width/h/:height',
+            bodyParser.raw({limit: '10MB'}),
+            multer({
+                storage: multer.memoryStorage(),
+                fileFilter: function (req, file, cb) {
+                    if (file.originalname.endsWith(".txt") && file.mimetype.startsWith("text/")) {
+                        cb(null, true);
+                    }
+                    cb(null, false);
+                },
+                limit: {fileSize: 10485760} // 10MiB
+            }).single('input_txt_file'),
+            postWordsFile
+        );
 
         // A result set
         this.router.get('/results/:resultSet', getResultSet);

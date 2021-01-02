@@ -1,6 +1,6 @@
 import * as shell from 'shelljs';
 import {logger} from "../logger";
-import {resolve, extname} from 'path';
+import {resolve} from 'path';
 import {NextFunction} from 'express';
 import * as fs from 'fs-extra'
 import {RequestError} from "../errors";
@@ -40,30 +40,40 @@ const createResultSetDirectory = (): { path: string, id: string } => {
     return {path: outputDirectory, id: newResultSet};
 }
 
-export async function getWordsWithInputFile({wbArgs, file}: { wbArgs: WordBrushArgs; file: any }): Promise<object> {
+export async function getWordsWithInputFile(
+    {wbArgs, file, next}: { wbArgs: WordBrushArgs; file: any, next: NextFunction }
+): Promise<object> {
     return new Promise((resolve, reject) => {
-        // const outputData = createResultSetDirectory();
-        // fs.writeFileSync(`${outputData.path}/input.txt`, file);
+        if (!file || !file.buffer) {
+            return next(new RequestError({
+                code: 400,
+                name: 'bad_file_upload',
+                description: 'The uploaded file was rejected or corrupted, check filesize/extension is < 10MiB and .txt',
+                message: 'unacceptable file upload.'
+            }));
+        }
+        const outputData = createResultSetDirectory();
+        fs.writeFileSync(`${outputData.path}/input.txt`, file.buffer);
 
-        // if (wbArgs.sfo) {
-        //     execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${args.width} -H ${args.height} -s ${args.sfo} ${args.words}`, {silent: true});
-        // } else {
-        //     execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${args.width} -H ${args.height} ${args.words}`, {silent: true});
-        // }
-        //
-        // resolve({resultSetID: outputData.id});
+        const command = `${APPLICATION_PATH} -i "${outputData.path}/input.txt" -o "${outputData.path}" -W ${wbArgs.width} -H ${wbArgs.height}`;
+        if (wbArgs.words) {
+            execAsync(`${command} ${wbArgs.words}`, {silent: true});
+        } else {
+            execAsync(command, {silent: true});
+        }
+
+        resolve({resultSetID: outputData.id});
     });
 }
 
-
-export async function getWordsCLI(args: WordBrushArgs): Promise<object> {
+export async function getWordsCLI(wbArgs: WordBrushArgs): Promise<object> {
     return new Promise((resolve, reject) => {
         const outputData = createResultSetDirectory();
 
-        if (args.sfo) {
-            execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${args.width} -H ${args.height} -s ${args.sfo} ${args.words}`, {silent: true});
+        if (wbArgs.sfo) {
+            execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${wbArgs.width} -H ${wbArgs.height} -s ${wbArgs.sfo} ${wbArgs.words}`, {silent: true});
         } else {
-            execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${args.width} -H ${args.height} ${args.words}`, {silent: true});
+            execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${wbArgs.width} -H ${wbArgs.height} ${wbArgs.words}`, {silent: true});
         }
 
         resolve({resultSetID: outputData.id});
