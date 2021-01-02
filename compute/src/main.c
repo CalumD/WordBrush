@@ -95,13 +95,40 @@ Config* get_program_arguments(int argc, char* argv[]) {
     }
 
     // Open the input file, if it exists, for reading.
-    config->inputFile = open_input_file(config->input_file_path);
+    config->input_file = open_input_file(config->input_file_path);
 
     if (!errored) {
         config->successfully_initialised = true;
     }
 
     return config;
+}
+
+void start_metadata_file(Config* cfg, char* metadata_dir_name, char* metadata_file_name) {
+    char metadata_file_path[strlen(metadata_dir_name) + strlen(metadata_file_name)];
+    strcpy(metadata_file_path, metadata_dir_name);
+    strcat(metadata_file_path, metadata_file_name);
+    if ((cfg->output_meta_file = fopen(metadata_file_path, "w")) == NULL) {
+        printf("Write error occurred, check metadata file path.\n");
+        exit(1);
+    }
+    fprintf(cfg->output_meta_file, "{\n\t");
+}
+
+void provide_metadata_output_type(Config* cfg, bool is_multi_file_output) {
+    fprintf(cfg->output_meta_file,
+            "\"outputType\": \"%s\",\n\t\"words\": {\n\t\t",
+            is_multi_file_output ? "multi" : "single");
+}
+
+void finish_metadata_file(Config* cfg) {
+    fprintf(cfg->output_meta_file,
+            ",\n\t\"startTime\": \"%s\",\n\t\"stopTime\": \"%s\",\n\t\"finalised\": true\n}\n",
+            cfg->start_timestamp, cfg->stop_timestamp
+    );
+    fclose(cfg->output_meta_file);
+    free(cfg->start_timestamp);
+    free(cfg->stop_timestamp);
 }
 
 void multi_file_output_wordbrush(Config* cfg) {
@@ -113,6 +140,9 @@ void multi_file_output_wordbrush(Config* cfg) {
      * a long is 8 bytes wide), plus ".svg", plus a zero terminator.
      */
     size_t filename_length = strlen(cfg->output_file_path) + 26;
+
+    start_metadata_file(cfg, cfg->output_file_path, "/meta.json");
+    provide_metadata_output_type(cfg, true);
 
     // Create the directory and make space for the various file names
     mkdir(cfg->output_file_path, 0700);
@@ -137,7 +167,10 @@ void multi_file_output_wordbrush(Config* cfg) {
         svg_end(svg);
         svg_flush_to_file(svg, current_output_file);
         fclose(current_output_file);
+        fprintf(cfg->output_meta_file, "\"%lu.svg\": \"%s\",\n\t\t", file_index - 1, word);
     }
+    fseek(cfg->output_meta_file, -4, SEEK_CUR);
+    fprintf(cfg->output_meta_file, "\n\t}");
 
     svg_free(svg);
     free(filename);
@@ -147,6 +180,9 @@ void single_file_output_wordbrush(Config* cfg) {
 
     //create output file
     FILE* output_file = fopen(cfg->output_file_path, "w");
+    start_metadata_file(cfg, cfg->output_file_path, "-meta.json");
+    provide_metadata_output_type(cfg, false);
+    fprintf(cfg->output_meta_file, "\"%s\": [\n\t\t\t", basename(cfg->output_file_path));
 
     //Do some maths to figure out how long each 'row' of words should be before wrapping
     long row_count = count_rows_in_wrapper_svg(cfg);
@@ -162,6 +198,7 @@ void single_file_output_wordbrush(Config* cfg) {
     //Do a loop to get each individual "word's" SVG image and add to the file as we go to now blow memory up
     char* word;
     for (int row_index = 0; row_index < row_count; row_index++) {
+        fprintf(cfg->output_meta_file, "[");
         for (int column_index = 0; column_index < cfg->single_file_column_count; column_index++) {
             // If we have reached the 'wordcount', then skip the remaining cells in the 2D grid of words
             if (((row_index * cfg->single_file_column_count) + column_index) >= cfg->word_count) {
@@ -179,7 +216,10 @@ void single_file_output_wordbrush(Config* cfg) {
             // End & write it to the file
             svg_end(inner_word);
             svg_flush_to_file(inner_word, output_file);
+            fprintf(cfg->output_meta_file, "\"%s\", ", word);
         }
+        fseek(cfg->output_meta_file, -2, SEEK_CUR);
+        fprintf(cfg->output_meta_file, "],\n\t\t\t");
     }
 
     //Write the closing of the wrapper SVG & free buffers
@@ -189,6 +229,15 @@ void single_file_output_wordbrush(Config* cfg) {
     svg_free(wrapper_svg);
 
     fclose(output_file);
+    fseek(cfg->output_meta_file, -5, SEEK_CUR);
+    fprintf(cfg->output_meta_file, "\n\t\t]\n\t}");
+}
+
+char* get_time_stamp() {
+    char* timestamp = malloc(sizeof(char) * 20);
+    time_t now = time(0);
+    strftime(timestamp, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
+    return timestamp;
 }
 
 /**
@@ -202,6 +251,7 @@ int main(int argc, char* argv[]) {
 
     // Check command line arguments
     Config* config = get_program_arguments(argc, argv);
+    config->start_timestamp = get_time_stamp();
 
     // If program arguments are not suitable, then shutdown.
     if (!config->successfully_initialised) {
@@ -226,6 +276,12 @@ int main(int argc, char* argv[]) {
         single_file_output_wordbrush(config);
     } else {
         multi_file_output_wordbrush(config);
+    }
+    config->stop_timestamp = get_time_stamp();
+    finish_metadata_file(config);
+
+    if (config->input_file) {
+        fclose(config->input_file);
     }
 
     free(config);
