@@ -52,26 +52,7 @@ const postWordsFile: Middleware = async (
             height: req.params.height,
             words: req.query.input.replace(/[,;-]/g, ' ')
         },
-        file: req.body
-    });
-
-    next();
-}
-
-const postWordsFile_singleFileOutput: Middleware = async (
-    req: Request, res: Response, next: NextFunction
-): Promise<void> => {
-    res.locals.methodCalled = postWordsFile_singleFileOutput.name;
-    logger.follow(`Called ${res.locals.methodCalled}`);
-
-    res.locals.data = wb_inter.getWordsWithInputFile({
-        wbArgs: {
-            width: req.params.width,
-            height: req.params.height,
-            sfo: req.params.single_file_output_column_count,
-            words: req.query.input.replace(/[,;-]/g, ' ')
-        },
-        file: req.body
+        file: req.file
     });
 
     next();
@@ -138,22 +119,15 @@ export class WordsRouterV1 {
         this.precondition();
 
         // CLI only params
-        this.router.get('/w/:width/h/:height/sfo/:single_file_output_column_count',
-            validateQueryParamsRequired, getWordsCLI_singleFileOutput);
-        this.router.get('/w/:width/h/:height',
-            validateQueryParamsRequired, getWordsCLI);
+        this.router.get('/w/:width/h/:height/sfo/:single_file_output_column_count', validateQueryParamsRequired, getWordsCLI_singleFileOutput);
+        this.router.get('/w/:width/h/:height', validateQueryParamsRequired, getWordsCLI);
 
         // Input File in addition to CLI
-        this.router.post('/w/:width/:height/sfo/:single_file_output_column_count',
-            bodyParser.raw({limit: '1GB'}), postWordsFile_singleFileOutput);
-        this.router.post('/w/:width/h/:height',
-            bodyParser.raw({limit: '1GB'}), postWordsFile);
+        this.router.post('/w/:width/h/:height', bodyParser.raw({limit: '10MB'}), postWordsFile);
 
         // A result set
-        this.router.get('/results/:resultSet',
-            getResultSet);
-        this.router.get('/results/:resultSet/:output',
-            getOutput);
+        this.router.get('/results/:resultSet', getResultSet);
+        this.router.get('/results/:resultSet/:output', getOutput);
 
         this.router.get('', getMethods);
     }
@@ -163,7 +137,7 @@ export class WordsRouterV1 {
             return new RequestError({
                 code: 400,
                 name: 'invalid_size_param',
-                description: 'URL parameter for ' + forParam + ' expected an integer, received non-integer input.'
+                description: `URL parameter for ${forParam} expected an integer, received non-integer input.`
             });
         }
         return null;
@@ -174,7 +148,7 @@ export class WordsRouterV1 {
             return new RequestError({
                 code: 400,
                 name: 'invalid_uuid',
-                description: 'URL parameter for ' + forParam + ' expected a valid uuid.'
+                description: `URL parameter for ${forParam} expected a valid uuid.`
             });
         }
         return null;
@@ -185,7 +159,7 @@ export class WordsRouterV1 {
             return new RequestError({
                 code: 400,
                 name: 'invalid_filename',
-                description: 'URL parameter for ' + forParam + ' expected /^([0-9]+)(\\.svg)?$/.'
+                description: `URL parameter for ${forParam} expected /^([0-9]+)(\\.svg)?$/.`
             });
         }
         return null;
@@ -196,7 +170,7 @@ export class WordsRouterV1 {
             return new RequestError({
                 code: 400,
                 name: 'invalid_size_param',
-                description: 'URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).'
+                description: `URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`
             });
         }
         return null;
