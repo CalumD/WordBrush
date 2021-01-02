@@ -18,7 +18,7 @@ const getWordsCLI: Middleware = async (
     res.locals.data = wb_inter.getWordsCLI({
         width: req.params.width,
         height: req.params.height,
-        words: req.query.input.replace(/[,;-]/g,' ')
+        words: req.query.input.replace(/[,;-]/g, ' ')
     });
 
     next();
@@ -34,7 +34,7 @@ const getWordsCLI_singleFileOutput: Middleware = async (
         width: req.params.width,
         height: req.params.height,
         sfo: req.params.single_file_output_column_count,
-        words: req.query.input.replace(/[,;-]/g,' ')
+        words: req.query.input.replace(/[,;-]/g, ' ')
     });
 
     next();
@@ -46,6 +46,15 @@ const postWordsFile: Middleware = async (
     res.locals.methodCalled = postWordsFile.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
+    res.locals.data = wb_inter.getWordsWithInputFile({
+        wbArgs: {
+            width: req.params.width,
+            height: req.params.height,
+            words: req.query.input.replace(/[,;-]/g, ' ')
+        },
+        file: req.body
+    });
+
     next();
 }
 
@@ -54,6 +63,16 @@ const postWordsFile_singleFileOutput: Middleware = async (
 ): Promise<void> => {
     res.locals.methodCalled = postWordsFile_singleFileOutput.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
+
+    res.locals.data = wb_inter.getWordsWithInputFile({
+        wbArgs: {
+            width: req.params.width,
+            height: req.params.height,
+            sfo: req.params.single_file_output_column_count,
+            words: req.query.input.replace(/[,;-]/g, ' ')
+        },
+        file: req.body
+    });
 
     next();
 }

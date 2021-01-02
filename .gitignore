@@ -72,4 +72,4 @@ yarn-error.log*
 pnpm-debug.log*
 
 #Misc
-resources/*.svg
+resources/**/*.svg

@@ -5,7 +5,6 @@ import {NextFunction} from 'express';
 import * as fs from 'fs-extra'
 import {RequestError} from "../errors";
 import {uuid} from "../uuid";
-import {Middleware} from "../router/words_router_v1";
 
 export const BASE_RESOURCES_PATH: string = resolve(process.cwd() + '../../../resources');
 const APPLICATION_PATH: string = `${resolve(process.cwd() + '../../../compute/bin/wordbrush')}`;
@@ -32,21 +31,32 @@ export type WordBrushMetadataFile = {
     finalised?: boolean
 }
 
-// export async function callApplication({width = 50, height = 50}: WordBrushArgs): Promise<ExecOutput> {
-//     return execAsync('ls -lha');
-// }
-
 const createResultSetDirectory = (): { path: string, id: string } => {
     const newResultSet = uuid.generate();
     const outputDirectory = `${BASE_RESOURCES_PATH}/${newResultSet}`;
     fs.ensureDirSync(outputDirectory);
+    logger.note(`Created new result set directory: ${outputDirectory}`);
 
     return {path: outputDirectory, id: newResultSet};
 }
 
-export async function getWordsCLI(
-    args: WordBrushArgs
-): Promise<object> {
+export async function getWordsWithInputFile({wbArgs, file}: { wbArgs: WordBrushArgs; file: any }): Promise<object> {
+    return new Promise((resolve, reject) => {
+        // const outputData = createResultSetDirectory();
+        // fs.writeFileSync(`${outputData.path}/input.txt`, file);
+
+        // if (wbArgs.sfo) {
+        //     execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${args.width} -H ${args.height} -s ${args.sfo} ${args.words}`, {silent: true});
+        // } else {
+        //     execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${args.width} -H ${args.height} ${args.words}`, {silent: true});
+        // }
+        //
+        // resolve({resultSetID: outputData.id});
+    });
+}
+
+
+export async function getWordsCLI(args: WordBrushArgs): Promise<object> {
     return new Promise((resolve, reject) => {
         const outputData = createResultSetDirectory();
 
