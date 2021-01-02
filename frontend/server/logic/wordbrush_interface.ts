@@ -4,8 +4,11 @@ import {resolve, extname} from 'path';
 import {NextFunction} from 'express';
 import * as fs from 'fs-extra'
 import {RequestError} from "../errors";
+import {uuid} from "../uuid";
+import {Middleware} from "../router/words_router_v1";
 
 export const BASE_RESOURCES_PATH: string = resolve(process.cwd() + '../../../resources');
+const APPLICATION_PATH: string = `${resolve(process.cwd() + '../../../compute/bin/wordbrush')}`;
 
 export type ExecOutput = {
     code: number,
@@ -29,10 +32,33 @@ export type WordBrushMetadataFile = {
     finalised?: boolean
 }
 
-export async function callApplication({width = 50, height = 50}: WordBrushArgs): Promise<ExecOutput> {
-    return execAsync('ls -lha');
+// export async function callApplication({width = 50, height = 50}: WordBrushArgs): Promise<ExecOutput> {
+//     return execAsync('ls -lha');
+// }
+
+const createResultSetDirectory = (): { path: string, id: string } => {
+    const newResultSet = uuid.generate();
+    const outputDirectory = `${BASE_RESOURCES_PATH}/${newResultSet}`;
+    fs.ensureDirSync(outputDirectory);
+
+    return {path: outputDirectory, id: newResultSet};
 }
 
+export async function getWordsCLI(
+    args: WordBrushArgs
+): Promise<object> {
+    return new Promise((resolve, reject) => {
+        const outputData = createResultSetDirectory();
+
+        if (args.sfo) {
+            execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${args.width} -H ${args.height} -s ${args.sfo} ${args.words}`, {silent: true});
+        } else {
+            execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${args.width} -H ${args.height} ${args.words}`, {silent: true});
+        }
+
+        resolve({resultSetID: outputData.id});
+    });
+}
 
 export async function getOutput(
     {file, directory, next}: { file: string, directory: string, next: NextFunction }
@@ -51,7 +77,9 @@ export async function getOutput(
     })
 }
 
-export async function getResultSet({directory, next}: { directory: string, next: NextFunction }): Promise<WordBrushMetadataFile> {
+export async function getResultSet(
+    {directory, next}: { directory: string, next: NextFunction }
+): Promise<WordBrushMetadataFile> {
     return new Promise(async (resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
             let metadataFilePath = (

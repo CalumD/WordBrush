@@ -1,6 +1,6 @@
-import {v5, validate} from 'uuid';
+import {v4, validate} from 'uuid';
 
 export const uuid: {
     generate: () => string;
     verify: (input: string) => boolean;
-} = {generate: v5, verify: validate};
+} = {generate: v4, verify: validate};

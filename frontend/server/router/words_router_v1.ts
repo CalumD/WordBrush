@@ -15,6 +15,12 @@ const getWordsCLI: Middleware = async (
     res.locals.methodCalled = getWordsCLI.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
+    res.locals.data = wb_inter.getWordsCLI({
+        width: req.params.width,
+        height: req.params.height,
+        words: req.query.input.replace(/[,;-]/g,' ')
+    });
+
     next();
 }
 
@@ -23,6 +29,13 @@ const getWordsCLI_singleFileOutput: Middleware = async (
 ): Promise<void> => {
     res.locals.methodCalled = getWordsCLI_singleFileOutput.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
+
+    res.locals.data = wb_inter.getWordsCLI({
+        width: req.params.width,
+        height: req.params.height,
+        sfo: req.params.single_file_output_column_count,
+        words: req.query.input.replace(/[,;-]/g,' ')
+    });
 
     next();
 }
@@ -74,9 +87,11 @@ const getMethods: Middleware = async (
 ): Promise<void> => {
     res.locals.methodCalled = getMethods.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
+
     res.locals.data = {
         endpoints: routerRoutes
     };
+
     next();
 }
 
