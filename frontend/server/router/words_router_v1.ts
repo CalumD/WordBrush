@@ -11,47 +11,17 @@ export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
 
 
-const getWordsCLI: Middleware = async (
+const getWords: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    res.locals.methodCalled = getWordsCLI.name;
+    res.locals.methodCalled = getWords.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
-    res.locals.data = wb_inter.getWordsCLI({
-        width: req.params.width,
-        height: req.params.height,
-        words: req.query.input.replace(/[,;-]/g, ' ')
-    });
-
-    next();
-}
-
-const getWordsCLI_singleFileOutput: Middleware = async (
-    req: Request, res: Response, next: NextFunction
-): Promise<void> => {
-    res.locals.methodCalled = getWordsCLI_singleFileOutput.name;
-    logger.follow(`Called ${res.locals.methodCalled}`);
-
-    res.locals.data = wb_inter.getWordsCLI({
-        width: req.params.width,
-        height: req.params.height,
-        sfo: req.params.single_file_output_column_count,
-        words: req.query.input.replace(/[,;-]/g, ' ')
-    });
-
-    next();
-}
-
-const postWordsFile: Middleware = async (
-    req: Request, res: Response, next: NextFunction
-): Promise<void> => {
-    res.locals.methodCalled = postWordsFile.name;
-    logger.follow(`Called ${res.locals.methodCalled}`);
-
-    res.locals.data = wb_inter.getWordsWithInputFile({
+    res.locals.data = wb_inter.getWords({
         wbArgs: {
-            width: req.params.width,
-            height: req.params.height,
+            width: req.query.w,
+            height: req.query.h,
+            sfo: req.query.sfo,
             words: req.query.input ? req.query.input.replace(/[,;-]/g, ' ') : undefined
         },
         file: req.file,
@@ -99,18 +69,14 @@ const getMethods: Middleware = async (
 }
 
 
-const validateQueryParamsRequired: Middleware = (
-    req: Request, res: Response, next: NextFunction
-): void => {
-    logger.trace('Called validateQueryParamsRequired')
-    if (!req.query.input) {
-        return next(new RequestError({
-            code: 400,
-            name: 'missing_query_param',
-            description: 'Required query param (input) was missing from the request.'
-        }));
-    }
-    next();
+const badQueryParam: Function = (description: string, message?: string, data?: any): void | RequestError => {
+    return new RequestError({
+        code: 400,
+        name: 'bad_query_param',
+        description: description,
+        message: message,
+        data: data
+    });
 }
 
 export class WordsRouterV1 {
@@ -122,11 +88,10 @@ export class WordsRouterV1 {
         this.precondition();
 
         // CLI only params
-        this.router.get('/w/:width/h/:height/sfo/:single_file_output_column_count', validateQueryParamsRequired, getWordsCLI_singleFileOutput);
-        this.router.get('/w/:width/h/:height', validateQueryParamsRequired, getWordsCLI);
+        this.router.get('/words', this.validateQueryParamsRequired, this.validateQueryParamsOptional, getWords);
 
         // Input File in addition to CLI
-        this.router.post('/w/:width/h/:height',
+        this.router.post('/words',
             bodyParser.raw({limit: '10MB'}),
             multer({
                 storage: multer.memoryStorage(),
@@ -138,7 +103,8 @@ export class WordsRouterV1 {
                 },
                 limit: {fileSize: 10485760} // 10MiB
             }).single('input_txt_file'),
-            postWordsFile
+            this.validateQueryParamsOptional,
+            getWords
         );
 
         // A result set
@@ -150,100 +116,84 @@ export class WordsRouterV1 {
 
     private static urlParamIntegerMatcher(input: string, forParam: string): void | RequestError {
         if (!input.match(/^[0-9]+$/)) {
-            return new RequestError({
-                code: 400,
-                name: 'invalid_size_param',
-                description: `URL parameter for ${forParam} expected an integer, received non-integer input.`
-            });
+            return badQueryParam(`URL parameter for ${forParam} expected an integer, received non-integer input.`, 'invalid_size_param', input);
         }
         return null;
     }
 
     private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
         if (!uuid.verify(input)) {
-            return new RequestError({
-                code: 400,
-                name: 'invalid_uuid',
-                description: `URL parameter for ${forParam} expected a valid uuid.`
-            });
+            return badQueryParam(`URL parameter for ${forParam} expected a valid uuid.`, 'invalid_uuid', input);
         }
         return null;
     }
 
     private static urlParamFilenameMatcher(input: string, forParam: string): void | RequestError {
         if (!input.match(/^([0-9]+)(\.svg)?$/)) {
-            return new RequestError({
-                code: 400,
-                name: 'invalid_filename',
-                description: `URL parameter for ${forParam} expected /^([0-9]+)(\\.svg)?$/.`
-            });
+            return badQueryParam(`URL parameter for ${forParam} expected /^([0-9]+)(\\.svg)?$/.`, 'invalid_filename', input);
         }
         return null;
     }
 
     private static integerBoundChecker(input: Number, forParam: string, minBound: Number, maxBound: Number): void | RequestError {
         if (input < minBound || input > maxBound) {
-            return new RequestError({
-                code: 400,
-                name: 'invalid_size_param',
-                description: `URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`
-            });
+            return badQueryParam(`URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`, 'invalid_size_param', input);
         }
         return null;
     }
 
+    private validateQueryParamsRequired: Middleware = (
+        req: Request, res: Response, next: NextFunction
+    ): void => {
+        logger.trace('Called validateQueryParamsRequired')
+        if (!req.query.input) {
+            return next(new RequestError({
+                code: 400,
+                name: 'missing_query_param',
+                description: 'Required query param (input) was missing from the request.'
+            }));
+        }
+        next();
+    }
+
+    private validateQueryParamsOptional: Middleware = (
+        req: Request, res: Response, next: NextFunction
+    ): void => {
+        logger.trace('Called validateQueryParamsOptional')
+        if (req.query.w) {
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.w, 'width');
+            if (potentialError) {
+                return next(potentialError);
+            }
+            potentialError = WordsRouterV1.integerBoundChecker(+req.query.w, 'width', 50, 3840);
+            if (potentialError) {
+                return next(potentialError);
+            }
+        }
+        if (req.query.h) {
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.h, 'height');
+            if (potentialError) {
+                return next(potentialError);
+            }
+            potentialError = WordsRouterV1.integerBoundChecker(+req.query.h, 'height', 50, 3840);
+            if (potentialError) {
+                return next(potentialError);
+            }
+        }
+        if (req.query.sfo) {
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.sfo, 'sfo');
+            if (potentialError) {
+                return next(potentialError);
+            }
+            potentialError = WordsRouterV1.integerBoundChecker(+req.query.sfo, 'sfo', 1, 100);
+            if (potentialError) {
+                return next(potentialError);
+            }
+        }
+        next();
+    }
+
     private precondition(): void {
-        this.router.param(
-            'width',
-            async (
-                req: Request, res: Response, next: NextFunction,
-                w: string
-            ): Promise<void> => {
-                let potentialError = WordsRouterV1.urlParamIntegerMatcher(w, 'width');
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                potentialError = WordsRouterV1.integerBoundChecker(+w, 'width', 50, 3840);
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                next();
-            }
-        );
-        this.router.param(
-            'height',
-            async (
-                req: Request, res: Response, next: NextFunction,
-                h: string
-            ): Promise<void> => {
-                let potentialError = WordsRouterV1.urlParamIntegerMatcher(h, 'height');
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                potentialError = WordsRouterV1.integerBoundChecker(+h, 'height', 50, 3840);
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                next();
-            }
-        );
-        this.router.param(
-            'single_file_output_column_count',
-            async (
-                req: Request, res: Response, next: NextFunction,
-                sfo: string
-            ): Promise<void> => {
-                let potentialError = WordsRouterV1.urlParamIntegerMatcher(sfo, 'sfo');
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                potentialError = WordsRouterV1.integerBoundChecker(+sfo, 'sfo', 1, 100);
-                if (potentialError) {
-                    return next(potentialError);
-                }
-                next();
-            }
-        );
         this.router.param(
             'resultSet',
             async (
@@ -273,9 +223,17 @@ export class WordsRouterV1 {
     }
 }
 
-const routerRoutes: { method: { [key: string]: boolean }, path: string }[] = [];
+const routerRoutes: {[path: string]: {methods: string[]}} = {};
 new WordsRouterV1().router.stack.forEach((route) => {
-    routerRoutes.push({method: route.route.methods, path: `api/v1/words${route.route.path}`})
+    if (routerRoutes[`api/v1${route.route.path}`]) {
+        Object.keys(route.route.methods).forEach((key: string) => {
+            if (!routerRoutes[`api/v1${route.route.path}`].methods.includes(key)) {
+                routerRoutes[`api/v1${route.route.path}`].methods.push(key)
+            }
+        })
+    } else {
+        routerRoutes[`api/v1${route.route.path}`] = {methods: Object.keys(route.route.methods)}
+    }
 });
 
 export default new WordsRouterV1().router;

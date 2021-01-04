@@ -70,11 +70,11 @@ class App {
         defRouter.get('/', (req: ex.Request, res: ex.Response): void => {
             res.json({
                 message: 'Welcome to the WordBrush UI server!',
-                important: 'Endpoints start from /api/v1/words'
+                important: 'Endpoints start from /api/v1'
             });
         });
         this.express.use(serveFavicon(__dirname + '/favicon.ico'));
-        this.express.use('/api/v1/words', V1_Router);
+        this.express.use('/api/v1', V1_Router);
         this.express.use('/', defRouter);
         this.express.use(
             (req: ex.Request, res: ex.Response, next: ex.NextFunction): void => {

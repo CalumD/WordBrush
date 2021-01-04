@@ -18,7 +18,8 @@ export type WordBrushArgs = {
     width?: number,
     height?: number,
     sfo?: number,
-    words?: string[]
+    words?: string[],
+    hasInputFile?: boolean
 }
 
 export type WordBrushMetadataFile = {
@@ -40,41 +41,40 @@ const createResultSetDirectory = (): { path: string, id: string } => {
     return {path: outputDirectory, id: newResultSet};
 }
 
-export async function getWordsWithInputFile(
+export async function getWords(
     {wbArgs, file, next}: { wbArgs: WordBrushArgs; file: any, next: NextFunction }
 ): Promise<object> {
     return new Promise((resolve, reject) => {
-        if (!file || !file.buffer) {
-            return next(new RequestError({
-                code: 400,
-                name: 'bad_file_upload',
-                description: 'The uploaded file was rejected or corrupted, check filesize/extension is < 10MiB and .txt',
-                message: 'unacceptable file upload.'
-            }));
+        if (wbArgs.hasInputFile) {
+            if (!file || !file.buffer) {
+                return next(new RequestError({
+                    code: 400,
+                    name: 'bad_file_upload',
+                    description: 'The uploaded file was rejected or corrupted, check filesize/extension is < 10MiB and .txt',
+                    message: 'unacceptable file upload.'
+                }));
+            }
         }
+
         const outputData = createResultSetDirectory();
-        fs.writeFileSync(`${outputData.path}/input.txt`, file.buffer);
+        let command: string;
 
-        const command = `${APPLICATION_PATH} -i "${outputData.path}/input.txt" -o "${outputData.path}" -W ${wbArgs.width} -H ${wbArgs.height}`;
-        if (wbArgs.words) {
-            execAsync(`${command} ${wbArgs.words}`, {silent: true});
+        if (wbArgs.hasInputFile) {
+            fs.writeFileSync(`${outputData.path}/input.txt`, file.buffer);
+            command = `${APPLICATION_PATH} -i "${outputData.path}/input.txt"`;
         } else {
-            execAsync(command, {silent: true});
+            command = APPLICATION_PATH;
         }
 
-        resolve({resultSetID: outputData.id});
-    });
-}
+        const options =
+            ` -o "${wbArgs.sfo ? outputData.path + '/0.svg' : outputData.path}"` +
+            `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
+            `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
+            `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
+            `${wbArgs.words ? ` ${wbArgs.words}` : ''}`;
 
-export async function getWordsCLI(wbArgs: WordBrushArgs): Promise<object> {
-    return new Promise((resolve, reject) => {
-        const outputData = createResultSetDirectory();
-
-        if (wbArgs.sfo) {
-            execAsync(`${APPLICATION_PATH} -o "${outputData.path}/0.svg" -W ${wbArgs.width} -H ${wbArgs.height} -s ${wbArgs.sfo} ${wbArgs.words}`, {silent: true});
-        } else {
-            execAsync(`${APPLICATION_PATH} -o "${outputData.path}" -W ${wbArgs.width} -H ${wbArgs.height} ${wbArgs.words}`, {silent: true});
-        }
+        logger.debug("Calling WordBrush C code", {command: command, args: options});
+        execAsync(`${command} ${options}`, {silent: true});
 
         resolve({resultSetID: outputData.id});
     });
