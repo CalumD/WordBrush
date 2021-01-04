@@ -1,5 +1,5 @@
-import { default as app } from './app';
-import { logger } from './logger';
+import {default as app} from './app';
+import {logger} from './logger';
 
 let port = process.env.PORT || 3000;
 app.listen(port, (err: Error) => {

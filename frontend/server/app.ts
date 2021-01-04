@@ -1,14 +1,13 @@
 import * as bodyParser from 'body-parser';
 import * as ex from 'express';
-import serveFavicon = require('serve-favicon');
 import {cors} from "./cors";
-
-const onHeaders = require('on-headers');
-
 import {logger} from './logger';
 import {errorHandler, RequestError} from './errors';
 
 import V1_Router from './router/words_router_v1';
+import serveFavicon = require('serve-favicon');
+
+const onHeaders = require('on-headers');
 
 class App {
     public express: ex.Express;

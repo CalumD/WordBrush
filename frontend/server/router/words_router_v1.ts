@@ -223,7 +223,7 @@ export class WordsRouterV1 {
     }
 }
 
-const routerRoutes: {[path: string]: {methods: string[]}} = {};
+const routerRoutes: { [path: string]: { methods: string[] } } = {};
 new WordsRouterV1().router.stack.forEach((route) => {
     if (routerRoutes[`api/v1${route.route.path}`]) {
         Object.keys(route.route.methods).forEach((key: string) => {

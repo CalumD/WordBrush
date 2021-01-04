@@ -11,12 +11,6 @@ export interface ErrorResponseBlock {
 
 export class RequestError extends Error {
 
-    public static is(test: object): test is RequestError {
-        return (test as Partial<RequestError>).code !== undefined
-            && (test as Partial<RequestError>).name !== undefined
-            && (test as Partial<RequestError>).responseBlock !== undefined;
-    }
-
     public code: number;
     public userMessage?: string;
     public errorData?: any;
@@ -28,6 +22,12 @@ export class RequestError extends Error {
         this.name = name;
         this.userMessage = message;
         this.errorData = data;
+    }
+
+    public static is(test: object): test is RequestError {
+        return (test as Partial<RequestError>).code !== undefined
+            && (test as Partial<RequestError>).name !== undefined
+            && (test as Partial<RequestError>).responseBlock !== undefined;
     }
 
     public responseBlock(): ErrorResponseBlock {
