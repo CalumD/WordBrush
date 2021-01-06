@@ -1,6 +1,17 @@
 <template>
     <div class="hello">
+
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            With Bootstrap!
+            <button aria-label="Close" class="close" data-dismiss="alert" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+
         <h1>{{ msg }}</h1>
+
+
         <p>
             For a guide and recipes on how to configure / customize this project,<br>
             check out the
@@ -32,11 +43,21 @@
 </template>
 
 <script>
+
 export default {
     name: 'HelloWorld',
+    components: {},
     props: {
         msg: String
-    }
+    },
+    data() {
+        return {}
+    },
+    methods: {
+        method_1: function (arg_1) {
+        }
+    },
+    computed: {}
 }
 </script>
 

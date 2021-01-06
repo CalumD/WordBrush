@@ -1,0 +1,67 @@
+<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' width='450px' height='180px' viewBox='0 0 450 180'>
+    <rect x='22.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='247.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='157.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='112.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='90.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='157.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='202.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='247.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='315.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='292.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='337.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='382.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='337.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='292.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='360.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='405.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='0.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='135.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='67.500000' y='45.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='180.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='270.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='202.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='45.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='112.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='225.000000' y='0.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='67.500000' y='90.000000' rx='10.000000' ry='10.000000' width='45.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <rect x='112.500000' y='135.000000' rx='10.000000' ry='10.000000' width='225.000000' height='45.000000'
+          style='fill:white;stroke:blue;stroke-width:3;'/>
+    <path d='M72.551788,20.931585 Q72.551788,20.931585 379.279022,26.931835 440.624451,28.131886 171.037964,18.008636 117.120667,15.983986 139.978058,64.058212 144.549530,73.673058 259.274963,105.876457 282.220032,112.317139 164.589355,31.838732 141.063232,15.743051 283.067047,22.699003 311.467804,24.090195 104.140610,66.255493 62.675179,74.688553 264.590332,70.726860'
+          stroke='black' stroke-width='5' fill='none' stroke-linecap='round'/>
+    <circle cx="72.551788" cy="20.931585" r="5" style="fill:red"/>
+    <circle cx="379.279022" cy="26.931835" r="5" style="fill:red"/>
+    <circle cx="171.037964" cy="18.008636" r="5" style="fill:red"/>
+    <circle cx="139.978058" cy="64.058212" r="5" style="fill:red"/>
+    <circle cx="259.274963" cy="105.876457" r="5" style="fill:red"/>
+    <circle cx="164.589355" cy="31.838732" r="5" style="fill:red"/>
+    <circle cx="283.067047" cy="22.699003" r="5" style="fill:red"/>
+    <circle cx="104.140610" cy="66.255493" r="5" style="fill:red"/>
+    <circle cx="264.590332" cy="70.726860" r="5" style="fill:red"/>
+</svg>
