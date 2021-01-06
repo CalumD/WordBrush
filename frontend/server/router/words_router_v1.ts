@@ -22,11 +22,23 @@ const getWords: Middleware = async (
             width: req.query.w,
             height: req.query.h,
             sfo: req.query.sfo,
-            words: req.query.input ? req.query.input.replace(/[,;-]/g, ' ') : undefined
+            words: req.query.input ? req.query.input.replace(/[,;-]/g, ' ') : undefined,
+            hasInputFile: !!req.file
         },
         file: req.file,
         next: next
     });
+
+    next();
+}
+
+const getExistingResults: Middleware = async (
+    req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+    res.locals.methodCalled = getExistingResults.name;
+    logger.follow(`Called ${res.locals.methodCalled}`);
+
+    res.locals.data = wb_inter.getExistingResults();
 
     next();
 }
@@ -97,9 +109,9 @@ export class WordsRouterV1 {
                 storage: multer.memoryStorage(),
                 fileFilter: function (req, file, cb) {
                     if (file.originalname.endsWith(".txt") && file.mimetype.startsWith("text/")) {
-                        cb(null, true);
+                        return cb(null, true);
                     }
-                    cb(null, false);
+                    return cb(null, false);
                 },
                 limit: {fileSize: 10485760} // 10MiB
             }).single('input_txt_file'),
@@ -108,6 +120,7 @@ export class WordsRouterV1 {
         );
 
         // A result set
+        this.router.get('/results', getExistingResults);
         this.router.get('/results/:resultSet', getResultSet);
         this.router.get('/results/:resultSet/:output', getOutput);
 

@@ -54,6 +54,15 @@ export async function getWords(
                     message: 'unacceptable file upload.'
                 }));
             }
+        } else {
+            if (!wbArgs.words) {
+                return next(new RequestError({
+                    code: 400,
+                    name: 'incomplete_request',
+                    description: 'The request was missing either CLI input words, or a .txt file to use as input.',
+                    message: 'No usable input present.'
+                }));
+            }
         }
 
         const outputData = createResultSetDirectory();
@@ -119,6 +128,12 @@ export async function getResultSet(
             resultSet404(directory, next);
         }
         return;
+    });
+}
+
+export async function getExistingResults(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        return resolve(fs.readdir(BASE_RESOURCES_PATH));
     });
 }
 
