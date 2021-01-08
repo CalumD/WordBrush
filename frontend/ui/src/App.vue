@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <ToolBar id="toolbar"></ToolBar>
-        <Display id="display_area"></Display>
+    <div class="whole_screen">
+        <ToolBar id="toolbar" @logo-hovered="logoHovered" @logo-not-hovered="logoNotHovered"></ToolBar>
+        <Display id="display_area" :showAllWordText="showAllWordText"></Display>
     </div>
 </template>
 
 <script>
-import ToolBar from "@/components/ToolBar";
-import Display from "@/components/Display";
+import ToolBar from "./components/ToolBar";
+import Display from "./components/Display";
 
 export default {
     name: 'App',
@@ -15,25 +15,26 @@ export default {
         Display,
         ToolBar
     },
+    data() {
+        return {
+            showAllWordText: false
+        }
+    },
+    methods: {
+        logoHovered: function (params) {
+            this.showAllWordText = params;
+        },
+        logoNotHovered: function (params) {
+            this.showAllWordText = params;
+        }
+    }
 }
 
 </script>
 
 <style>
 /* Apply a CSS reset */
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup,
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
+* {
     margin: 0;
     padding: 0;
     border: 0;
@@ -46,21 +47,41 @@ time, mark, audio, video {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
+    /*text-align: center;*/
     color: #2c3e50;
 }
 
+div {
+    display: block;
+}
+
+.whole_screen {
+    display: grid;
+    height: 100vh;
+    grid-template-areas:
+        'toolbar'
+        'display_area';
+    grid-gap: 0;
+    grid-template-rows: 70px auto;
+    grid-template-columns: auto;
+    min-height: 400px;
+    min-width: 400px;
+}
+
 #toolbar {
-    background-color: red;
-    min-width: 100vw;
-    min-height: 10vh;
-    max-height: 25vh;
+    height: 100%;
+    background: red;
+    grid-area: toolbar;
 }
 
 #display_area {
-    background-color: green;
-    min-width: 100vw;
-    min-height: 10vh;
-    max-height: 75vh;
+    height: 100%;
+    background: blue;
+    grid-area: display_area;
+    padding: 25px;
+}
+
+*, ::before, ::after {
+    box-sizing: border-box;
 }
 </style>
