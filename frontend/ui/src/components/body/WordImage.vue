@@ -7,7 +7,7 @@
          }"
          class="image_data"
     >
-        <div :class="{reveal_all : showAllWordText}"
+        <div :class="{reveal_all : forceDisplayOfText}"
              class="image_overlay word_reveal">
             <h1>
                 {{ imgData.imageText }}
@@ -17,9 +17,19 @@
 </template>
 
 <script>
+import {useShowAllWordText} from "@/components/util/showAllWordText";
+
 export default {
     name: 'WordImage',
-    props: ['imgData', 'showAllWordText']
+    props: ['imgData'],
+    setup() {
+        return useShowAllWordText();
+    },
+    computed: {
+        forceDisplayOfText() {
+            return this.showAllWordText;
+        }
+    }
 }
 </script>
 

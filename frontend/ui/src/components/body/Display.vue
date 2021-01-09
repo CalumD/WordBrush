@@ -1,17 +1,16 @@
 <template>
-    <div class="main_display_body">
-        <WordImage v-for="img in images" :imgData=img :showAllWordText="showAllWordText"></WordImage>
+    <div id="display_area">
+        <WordImage v-for="img in images" :imgData=img/>
     </div>
 </template>
 
+
 <script>
-import HelloWorld from "../components/HelloWorld";
-import WordImage from "../components/WordImage";
+import WordImage from "./WordImage";
 
 export default {
     name: 'Display',
-    components: {HelloWorld, WordImage},
-    props: ['showAllWordText'],
+    components: {WordImage},
     data() {
         return {
             images: [
@@ -72,19 +71,17 @@ export default {
                 }
             ]
         }
-    },
-    methods: {
-        method_1: function (arg_1) {
-        }
-    },
-    computed: {}
+    }
 }
-
 </script>
 
-<style scoped>
 
-.main_display_body {
+<style scoped>
+#display_area {
+    height: 100%;
+    background: blue;
+    grid-area: display_area;
+    padding: 25px;
     align-items: center;
     justify-content: center;
     display: flex;
