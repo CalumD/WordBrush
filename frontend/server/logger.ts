@@ -192,5 +192,5 @@ const setDefaults: (defaults: { component: string; }) => Logger =
         }
     }
 
-export const logger: Logger = setDefaults({component: 'WordBrush'});
+export const logger: Logger = setDefaults({component: 'WordBrush Server'});
 
