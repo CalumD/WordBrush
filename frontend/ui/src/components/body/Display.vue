@@ -1,6 +1,6 @@
 <template>
     <div id="display_area">
-        <WordImage v-for="img in images" :imgData=img/>
+        <WordImage :imgData=img v-for="img in images"/>
     </div>
 </template>
 
