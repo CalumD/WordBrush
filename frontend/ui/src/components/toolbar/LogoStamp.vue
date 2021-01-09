@@ -5,7 +5,7 @@
         @mouseleave="toggleShowAllWordText"
     >
         <img id="wb_logo" alt="WordBrush written in WordBrush as logo." src="../../assets/WordBrush.svg">
-        <h1>WordBrush</h1>
+        <h1><strong>W</strong>ord<strong>B</strong>rush</h1>
     </div>
 </template>
 
@@ -27,10 +27,12 @@ export default {
     display: flex;
     justify-content: flex-start;
     flex: 1 4;
+    min-width: 400px;
 }
 
 #logo_container h1 {
     align-self: center;
+    margin-left: -70px;
 }
 
 #wb_logo {

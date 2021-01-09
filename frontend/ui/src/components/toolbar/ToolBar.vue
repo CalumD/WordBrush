@@ -47,13 +47,14 @@ export default {
 <style scoped>
 #toolbar {
     height: 100%;
-    background: red;
+    background-image: linear-gradient(to top, #aaa5bd, #2f2f2f);
     grid-area: toolbar;
     display: flex;
     flex-flow: row wrap;
     overflow: auto;
     align-items: center;
     align-self: center;
+    /*box-shadow: 0 4px 2px -2px gray;*/
 }
 
 #toolbar > * {

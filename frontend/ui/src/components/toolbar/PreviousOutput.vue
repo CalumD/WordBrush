@@ -1,7 +1,9 @@
 <template>
     <div id="previous_container">
         <div v-if="existing_outputs.length > 0">
-            <p> {{ existing_outputs }} </p>
+            <div v-for="past in existing_outputs">
+                <p> {{ past }} </p>
+            </div>
         </div>
         <div v-else>
             <p>No existing data found.</p>

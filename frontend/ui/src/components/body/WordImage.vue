@@ -1,9 +1,6 @@
 <template>
     <div :style="{
             'background-image': `url(//ubuntu.vms.local:3000/api/v1/results/${imgData.resultsID}/${imgData.imageID})`,
-            'background-size': 'contain',
-            'background-repeat': 'no-repeat',
-            'background-position': 'center'
          }"
          class="image_data"
     >
@@ -35,6 +32,10 @@ export default {
 
 <style scoped>
 .image_data {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
     min-width: 100px;
     max-width: 1000px;
 

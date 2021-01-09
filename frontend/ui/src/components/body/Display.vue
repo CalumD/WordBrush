@@ -79,7 +79,7 @@ export default {
 <style scoped>
 #display_area {
     height: 100%;
-    background: blue;
+    background: #aaa5bd;
     grid-area: display_area;
     padding: 25px;
     align-items: center;
