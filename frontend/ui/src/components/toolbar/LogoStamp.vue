@@ -33,6 +33,15 @@ export default {
 #logo_container h1 {
     align-self: center;
     margin-left: -70px;
+    font-size: 2.5rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 0;
+}
+
+#logo_container strong {
+    font-weight: bolder;
 }
 
 #wb_logo {
