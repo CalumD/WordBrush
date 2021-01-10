@@ -3,14 +3,15 @@
         <form id="search_form" style="width: 100%; height: 100%">
             <div class="search_bar_wrapper">
                 <label for="search_bar"/>
-                <input id="search_bar" class="search_bar" v-model="input_text" placeholder="Enter your words here :)"
-                       spellcheck="true" type="text">
-                <div v-if="input_text.length > 0">
-                    X
-                </div>
+                <input
+                    @keyup.enter="executeSearch"
+                    id="search_bar" class="search_bar" v-model="input_text" placeholder="Enter your words here :)"
+                    spellcheck="true" type="text">
+                <FontAwesomeIcon v-if="input_text.length > 0" class="icons" id="search_bar_cross" icon="times"
+                                 @click="input_text = ''"/>
                 <span></span>
                 <button id="search_button" type="button">
-                    <i class="fa fa-search"></i>
+                    <FontAwesomeIcon class="icons" id="search_button_icon" icon="search"/>
                 </button>
             </div>
 
@@ -41,14 +42,22 @@
 </template>
 
 <script>
+import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
+
 export default {
     name: "Search",
+    components: {FontAwesomeIcon},
     data() {
         return {
             input_text: '',
             img_width: 0,
             img_height: 0,
             img_sfo: 0,
+        }
+    },
+    methods: {
+        executeSearch: function () {
+            console.log("should now be executing search");
         }
     }
 }
@@ -72,7 +81,7 @@ export default {
     flex-flow: row nowrap;
     flex-grow: 3;
     align-items: flex-start;
-    align-self: flex-start;
+    align-self: center;
     max-width: 800px;
 }
 
@@ -90,12 +99,13 @@ label.search_bar {
 
 input.search_bar {
     padding-left: 10px;
-    padding-right: 10px;
+    padding-right: 40px;
     font-size: 1.25rem;
 }
 
 .search_bar {
-    min-width: 728px;
+    min-width: 700px;
+    width: 100%;
     max-width: 750px;
     display: flex;
     height: 50px;
@@ -105,9 +115,9 @@ input.search_bar {
 }
 
 .search_bar_wrapper span {
-    height: 65%;
-    border-left: 1px solid #404040;
-    opacity: 0.8;
+    height: 70%;
+    border-left: 1px solid #7b7b7b;
+    margin-left: -2px;
 }
 
 #search_button {
@@ -116,8 +126,29 @@ input.search_bar {
     background-color: white;
     border-top-right-radius: 25px;
     border-bottom-right-radius: 25px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
 }
 
+#search_button_icon {
+    margin-left: -3px;
+}
+
+#search_bar_cross {
+    margin-left: -40px;
+    align-self: center;
+    width: 40px;
+    height: 40px;
+    opacity: 0.5;
+}
+
+.icons {
+    display: flex;
+    width: 60%;
+    height: 60%;
+    color: #404040;
+}
 
 .output_options_wrapper {
     flex-flow: column wrap;
@@ -126,6 +157,7 @@ input.search_bar {
     flex-grow: 2;
     min-width: 100px;
     max-width: 100px;
+    height: 100%;
 }
 
 .file_upload_wrapper {
