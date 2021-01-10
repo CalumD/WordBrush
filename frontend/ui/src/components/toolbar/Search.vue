@@ -18,23 +18,15 @@
 
             <div class="output_options_wrapper">
 
-                <label class="number_chooser">
-                    Width:
-                    <input type="number" v-model="form.width"/>
-                </label>
-
-                <label class="number_chooser">
-                    Height:
-                    <input type="number" v-model="form.height"/>
-                </label>
+                <NumberChooser :min="50" :max="3840" v-model:result="form.width"></NumberChooser>
+                <NumberChooser :min="50" :max="3840" v-model:result="form.height"></NumberChooser>
 
                 <label class="ticky_box">
                     Enable Single Image:
                     <input type="checkbox" v-model="form.enable_sfo"/>
                 </label>
                 <label v-if="form.enable_sfo" class="number_chooser">
-                    Single Image Columns:
-                    <input type="number" v-model="form.sfo"/>
+                    <NumberChooser :min="1" :max="100" v-model:result="form.sfo"></NumberChooser>
                 </label>
 
                 <label class="ticky_box">
@@ -53,10 +45,11 @@
 <script>
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
 import axios from 'axios';
+import NumberChooser from "@/components/util/NumberChooser";
 
 export default {
     name: "Search",
-    components: {FontAwesomeIcon},
+    components: {NumberChooser, FontAwesomeIcon},
     data() {
         return {
             form: {
@@ -95,8 +88,7 @@ export default {
                         console.log(res);
                         console.log("SUCCEEDED POSTER");
                     })
-                    .catch((err) => {
-                        console.error(err);
+                    .catch(() => {
                         console.log("FAILED POSTER");
                     });
             } else {
@@ -107,8 +99,7 @@ export default {
                         console.log(res);
                         console.log("SUCCEEDED GETTER");
                     })
-                    .catch((err) => {
-                        console.error(err);
+                    .catch(() => {
                         console.log("FAILED GETTER");
                     });
             }
@@ -216,6 +207,14 @@ input.search_bar {
     min-width: 100px;
     max-width: 100px;
     height: 100%;
+}
+
+.number_chooser {
+    width: 4rem;
+}
+
+.number_chooser input {
+    width: 100%;
 }
 
 .file_upload_wrapper {
