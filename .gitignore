@@ -58,7 +58,6 @@ CMakeLists.txt
 cmake-build-debug
 
 # Node stuff
-package-lock.json
 .DS_Store
 **/node_modules
 /dist
