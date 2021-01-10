@@ -17,8 +17,8 @@
     "vue": "next"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
-    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/fontawesome-svg-core": "latest",
+    "@fortawesome/free-solid-svg-icons": "latest",
     "@vue/cli-plugin-babel": "latest",
     "@vue/cli-service": "latest",
     "@vue/compiler-sfc": "latest"
