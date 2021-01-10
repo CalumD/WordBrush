@@ -5,37 +5,46 @@
                 <label for="search_bar"/>
                 <input
                     @keyup.enter="executeSearch"
-                    id="search_bar" class="search_bar" v-model="input_text" placeholder="Enter your words here :)"
-                    spellcheck="true" type="text">
-                <FontAwesomeIcon v-if="input_text.length > 0" class="icons" id="search_bar_cross" icon="times"
-                                 @click="input_text = ''"/>
+                    id="search_bar" class="search_bar" v-model.trim="form.text" placeholder="Enter your words here :)"
+                    spellcheck="true" type="text"
+                />
+                <FontAwesomeIcon v-if="form.text.length > 0" class="icons" id="search_bar_cross" icon="times"
+                                 @click="form.text = ''"/>
                 <span></span>
-                <button id="search_button" type="button">
+                <button @click="executeSearch" id="search_button" type="button">
                     <FontAwesomeIcon class="icons" id="search_button_icon" icon="search"/>
                 </button>
             </div>
 
             <div class="output_options_wrapper">
+
                 <label class="number_chooser">
                     Width:
-                    <input v-model="img_width" placeholder="Enter your words here :)" type="number">
+                    <input type="number" v-model="form.width"/>
                 </label>
+
                 <label class="number_chooser">
                     Height:
-                    <input v-model="img_height" placeholder="Enter your words here :)" type="number">
+                    <input type="number" v-model="form.height"/>
                 </label>
-                <label>
+
+                <label class="ticky_box">
                     Enable Single Image:
-                    <input id="enableSFO" name="enableSFO" type="checkbox">
+                    <input type="checkbox" v-model="form.enable_sfo"/>
                 </label>
-                <label class="number_chooser">
+                <label v-if="form.enable_sfo" class="number_chooser">
                     Single Image Columns:
-                    <input v-model="img_sfo" placeholder="Enter your words here :)" type="number">
+                    <input type="number" v-model="form.sfo"/>
+                </label>
+
+                <label class="ticky_box">
+                    Upload Input File in request:
+                    <input type="checkbox" v-model="form.enable_file"/>
                 </label>
             </div>
 
-            <div class="file_upload_wrapper">
-                <input name="input_txt_file" type="file"/>
+            <div v-if="form.enable_file" class="file_upload_wrapper">
+                <input type="file" @change="handleFileSelection"/>
             </div>
         </form>
     </div>
@@ -43,21 +52,70 @@
 
 <script>
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
+import axios from 'axios';
 
 export default {
     name: "Search",
     components: {FontAwesomeIcon},
     data() {
         return {
-            input_text: '',
-            img_width: 0,
-            img_height: 0,
-            img_sfo: 0,
+            form: {
+                text: '',
+                width: 0,
+                height: 0,
+                enable_sfo: false,
+                sfo: 0,
+                enable_file: false,
+                file: undefined
+            }
         }
     },
     methods: {
         executeSearch: function () {
-            console.log("should now be executing search");
+            console.log("should now be executing search", this.form);
+
+            let queryParams = ''
+            queryParams += (this.form.text ? `input=${this.form.text}` : '');
+            queryParams += (this.form.width ? `&w=${this.form.width}` : '');
+            queryParams += (this.form.height ? `&h=${this.form.height}` : '');
+            queryParams += (this.form.sfo ? `&sfo=${this.form.sfo}` : '');
+
+            if (this.form.enable_file && this.form.file) {
+                const fileToUp = new FormData();
+                fileToUp.append('input_txt_file', this.form.file[0]);
+                console.log("CALLING THE POSTER");
+                axios
+                    .post(`http://ubuntu.vms.local:3000/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`, fileToUp,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data"
+                            }
+                        })
+                    .then((res) => {
+                        console.log(res);
+                        console.log("SUCCEEDED POSTER");
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        console.log("FAILED POSTER");
+                    });
+            } else {
+                console.log("CALLING THE GETTER");
+                axios
+                    .get(`http://ubuntu.vms.local:3000/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`)
+                    .then((res) => {
+                        console.log(res);
+                        console.log("SUCCEEDED GETTER");
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        console.log("FAILED GETTER");
+                    });
+            }
+
+        },
+        handleFileSelection: function (event) {
+            this.form.file = event.target.files
         }
     }
 }
