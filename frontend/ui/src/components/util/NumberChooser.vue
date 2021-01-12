@@ -32,9 +32,9 @@
 import {useDuplexData} from "@/components/util/useDuplexData";
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
 
-const clickHoldChangeInitialSpeed = 500;
-const clickHoldChangeRate = 1.5;
-const clickHoldChangeMaxSpeed = 35;
+const clickHoldChangeInitialSpeed = 400;    // Higher takes longer before the 'and hold' effect takes place
+const clickHoldChangeRate = 1.3;            // Higher means we will reach the highest button speed quicker
+const clickHoldChangeMaxSpeed = 5;          // Lower is faster updates at the quickest speed
 
 export default {
     name: "NumberChooser",
