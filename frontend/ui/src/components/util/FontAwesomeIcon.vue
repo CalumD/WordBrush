@@ -8,10 +8,10 @@
 
 <script>
 import {computed} from "vue";
-import {faHistory, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons'
+import {faFileUpload, faHistory, faMinus, faPlus, faSearch, faTimes} from '@fortawesome/free-solid-svg-icons'
 import {findIconDefinition, library} from "@fortawesome/fontawesome-svg-core";
 
-library.add(faSearch, faHistory, faTimes)
+library.add(faSearch, faHistory, faTimes, faMinus, faPlus, faFileUpload)
 
 export default {
     name: "FontAwesomeIcon",

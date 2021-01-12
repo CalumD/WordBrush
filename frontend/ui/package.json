@@ -14,6 +14,7 @@
   "dependencies": {
     "axios": "latest",
     "core-js": "latest",
+    "nanoid": "latest",
     "vue": "next"
   },
   "devDependencies": {
