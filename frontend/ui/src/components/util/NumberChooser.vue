@@ -121,16 +121,23 @@ export default {
     flex-flow: row nowrap;
     height: 30px;
     outline: none;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.number_chooser input {
+    width: 60%;
 }
 
 .number_chooser button {
     height: 100%;
-    width: 100%;
+    width: 20%;
     flex-grow: 1;
     flex-shrink: 0;
-    flex-basis: 40%;
     background-color: white;
     outline: none;
+    border-color: black;
+    border-width: 10px;
 }
 
 button svg {
@@ -148,7 +155,7 @@ button svg {
     -moz-appearance: textfield;
     text-align: center;
     height: 100%;
-    width: 100%;
+    width: 60%;
     flex-grow: 2;
     flex-shrink: 0;
     outline: none;

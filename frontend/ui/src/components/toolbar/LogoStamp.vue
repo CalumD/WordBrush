@@ -27,7 +27,7 @@ export default {
     display: flex;
     justify-content: flex-start;
     flex: 1 4;
-    min-width: 400px;
+    min-width: 430px;
 }
 
 #logo_container h1 {

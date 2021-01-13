@@ -35,8 +35,6 @@ export default {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /*text-align: center;*/
-    color: #2c3e50;
 }
 
 div {
@@ -50,7 +48,7 @@ div {
         'toolbar'
         'display_area';
     grid-gap: 0;
-    grid-template-rows: 100px auto;
+    grid-template-rows: 120px auto;
     grid-template-columns: auto;
     min-height: 400px;
     min-width: 400px;
@@ -59,5 +57,9 @@ div {
 
 *, ::before, ::after {
     box-sizing: border-box;
+}
+
+button, input, #file_upload_input:enabled ~ .file_upload_button {
+    cursor: pointer;
 }
 </style>

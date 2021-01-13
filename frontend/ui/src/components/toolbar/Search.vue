@@ -1,6 +1,7 @@
 <template>
     <div id="search_container">
         <form id="search_form" style="width: 100%; height: 100%">
+
             <div class="search_bar_wrapper">
                 <label for="search_bar"/>
                 <input
@@ -16,28 +17,28 @@
                 </button>
             </div>
 
-            <div class="output_options_wrapper">
 
-                <NumberChooser :min="50" :max="3840" v-model:result="form.width"></NumberChooser>
-                <NumberChooser :min="50" :max="3840" v-model:result="form.height"></NumberChooser>
-
-                <label class="ticky_box">
-                    Enable Single Image:
-                    <input type="checkbox" v-model="form.enable_sfo"/>
-                </label>
-                <label v-if="form.enable_sfo" class="number_chooser">
-                    <NumberChooser :min="1" :max="100" v-model:result="form.sfo"></NumberChooser>
-                </label>
-
-                <label class="ticky_box">
-                    Upload Input File in request:
-                    <input type="checkbox" v-model="form.enable_file"/>
+            <div class="file_upload_wrapper">
+                <div class="file_upload_wrapper_ticky_wrapper">
+                    <p>Upload File</p>
+                    <label class="ticky_box">
+                        <input type="checkbox" v-model="form.enable_file"/>
+                    </label>
+                    <p
+                        id="file_name"
+                        :style="{opacity: (form.enable_file ? 1 : 0.4)}"
+                    >
+                        {{ selected_file_text }}
+                    </p>
+                </div>
+                <input id="file_upload_input" type="file" @change="handleFileSelection" style="display: none;"
+                       :disabled="!form.enable_file"/>
+                <label class="file_upload_button" for="file_upload_input">
+                    <FontAwesomeIcon icon="upload"/>
                 </label>
             </div>
 
-            <div v-if="form.enable_file" class="file_upload_wrapper">
-                <input type="file" @change="handleFileSelection"/>
-            </div>
+            <SearchOptions v-model:opts="form.options"/>
         </form>
     </div>
 </template>
@@ -45,19 +46,21 @@
 <script>
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
 import axios from 'axios';
-import NumberChooser from "@/components/util/NumberChooser";
+import SearchOptions from "@/components/toolbar/SearchOptions";
 
 export default {
     name: "Search",
-    components: {NumberChooser, FontAwesomeIcon},
+    components: {SearchOptions, FontAwesomeIcon},
     data() {
         return {
             form: {
                 text: '',
-                width: 0,
-                height: 0,
-                enable_sfo: false,
-                sfo: 0,
+                options: {
+                    width: 0,
+                    height: 0,
+                    sfo: 0,
+                    traceColour: false
+                },
                 enable_file: false,
                 file: undefined
             }
@@ -69,13 +72,13 @@ export default {
 
             let queryParams = ''
             queryParams += (this.form.text ? `input=${this.form.text}` : '');
-            queryParams += (this.form.width ? `&w=${this.form.width}` : '');
-            queryParams += (this.form.height ? `&h=${this.form.height}` : '');
-            queryParams += (this.form.sfo ? `&sfo=${this.form.sfo}` : '');
+            queryParams += (this.form.options.width ? `&w=${this.form.options.width}` : '');
+            queryParams += (this.form.options.height ? `&h=${this.form.options.height}` : '');
+            queryParams += (this.form.options.sfo ? `&sfo=${this.form.options.sfo}` : '');
 
             if (this.form.enable_file && this.form.file) {
                 const fileToUp = new FormData();
-                fileToUp.append('input_txt_file', this.form.file[0]);
+                fileToUp.append('input_txt_file', this.form.file);
                 console.log("CALLING THE POSTER");
                 axios
                     .post(`http://ubuntu.vms.local:3000/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`, fileToUp,
@@ -106,7 +109,19 @@ export default {
 
         },
         handleFileSelection: function (event) {
-            this.form.file = event.target.files
+            this.form.file = event.target.files[0];
+        }
+    },
+    computed: {
+        selected_file_text: function () {
+            if (this.form.file) {
+                if (this.form.file.name.length > 16) {
+                    return `(${this.form.file.name.substring(0, 8)}[...]${this.form.file.name.slice(-5)})`;
+                }
+                return `(${this.form.file.name})`;
+            } else {
+                return '(No file selected)';
+            }
         }
     }
 }
@@ -119,7 +134,6 @@ export default {
 }
 
 #search_container {
-    /*align-content: stretch;*/
     justify-content: center;
     flex: 8 1;
     display: flex;
@@ -131,12 +145,13 @@ export default {
     flex-grow: 3;
     align-items: flex-start;
     align-self: center;
-    max-width: 800px;
+    /*max-width: 800px;*/
+    justify-content: center;
 }
 
 .search_bar_wrapper:hover input,
 .search_bar_wrapper:hover button,
-#search_bar:focus, #search_button:focus,
+#search_bar:focus,
 #search_bar:focus ~ #search_button,
 #search_button:focus ~ #search_bar {
     box-shadow: 5px 5px 12px red;
@@ -178,6 +193,7 @@ input.search_bar {
     align-items: center;
     display: flex;
     justify-content: center;
+    outline: none;
 }
 
 #search_button_icon {
@@ -199,29 +215,53 @@ input.search_bar {
     color: #404040;
 }
 
-.output_options_wrapper {
-    flex-flow: column wrap;
-    align-items: flex-end;
-    align-self: center;
-    flex-grow: 2;
-    min-width: 100px;
-    max-width: 100px;
-    height: 100%;
-}
-
-.number_chooser {
-    width: 4rem;
-}
-
-.number_chooser input {
-    width: 100%;
+.ticky_box input {
+    transform: scale(1.2);
 }
 
 .file_upload_wrapper {
-    flex-flow: row wrap;
+    display: flex;
+    flex-flow: row;
     align-items: center;
-    align-self: center;
-    flex-grow: 1;
-    max-width: 100px;
+    justify-content: center;
+    flex: 2 2;
+    min-width: 100px;
+    height: 100%;
+    color: white;
 }
+
+.file_upload_wrapper_ticky_wrapper {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+}
+
+.file_upload_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    width: 60%;
+    outline: none;
+    background-color: #e3e3e3;
+    color: black;
+    border-color: black;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+#file_upload_input:disabled ~ .file_upload_button svg {
+    opacity: 20%;
+}
+
+.file_upload_button svg {
+    height: 75%;
+    width: 75%;
+}
+
+
 </style>
