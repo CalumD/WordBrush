@@ -1,36 +1,36 @@
 <template>
-    <div id="search_options_container">
+    <div id="search_options_container" v-click-away="close">
         <button type="button" class="options_button" @click="viewingOptions = !viewingOptions">
             <transition name="options_button_transition" mode="out-in">
                 <FontAwesomeIcon v-if="!viewingOptions" class="options_icon" icon="cogs"></FontAwesomeIcon>
                 <FontAwesomeIcon v-else class="options_icon" icon="times"></FontAwesomeIcon>
             </transition>
         </button>
+        <transition name="dropdown">
+            <div v-if="viewingOptions" class="options_dropdown_wrapper">
+                <ul class="options_dropdown_content">
+                    <li>
+                        <span>Width</span>
+                        <NumberChooser :min="50" :max="3840" v-model:result="opts.width"></NumberChooser>
+                    </li>
+                    <li>
+                        <span>Height</span>
+                        <NumberChooser :min="50" :max="3840" v-model:result="opts.height"></NumberChooser>
+                    </li>
+                    <li>
+                        <span>No. Columns</span>
+                        <NumberChooser :min="1" :max="100" v-model:result="opts.sfo"></NumberChooser>
+                    </li>
+                    <li>
+                        <span>Enable Colour Tracing (Experimental)</span>
+                        <label class="ticky_box">
+                            <input type="checkbox" v-model="opts.traceColour"/>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </transition>
     </div>
-    <transition name="dropdown">
-        <div v-if="viewingOptions" class="options_dropdown_wrapper">
-            <ul class="options_dropdown_content">
-                <li>
-                    <span>Width</span>
-                    <NumberChooser :min="50" :max="3840" v-model:result="opts.width"></NumberChooser>
-                </li>
-                <li>
-                    <span>Height</span>
-                    <NumberChooser :min="50" :max="3840" v-model:result="opts.height"></NumberChooser>
-                </li>
-                <li>
-                    <span>No. Columns</span>
-                    <NumberChooser :min="1" :max="100" v-model:result="opts.sfo"></NumberChooser>
-                </li>
-                <li>
-                    <span>Enable Colour Tracing (Experimental)</span>
-                    <label class="ticky_box">
-                        <input type="checkbox" v-model="opts.traceColour"/>
-                    </label>
-                </li>
-            </ul>
-        </div>
-    </transition>
 </template>
 
 <script>
@@ -54,6 +54,11 @@ export default {
     setup(props, {emit}) {
         return {
             result: useDuplexData(props, emit, {name: 'opts'})
+        }
+    },
+    methods: {
+        close: function () {
+            this.viewingOptions = false;
         }
     }
 }

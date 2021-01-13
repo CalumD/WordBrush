@@ -1,5 +1,5 @@
 <template>
-    <div id="previous_container">
+    <div id="previous_container" v-click-away="close">
         <button type="button" class="history_button" @click="viewingHistory = !viewingHistory">
             <transition name="history_button_transition" mode="out-in">
                 <FontAwesomeIcon v-if="!viewingHistory" class="history_icon" icon="history"></FontAwesomeIcon>
@@ -32,6 +32,11 @@ export default {
     data() {
         return {
             viewingHistory: false
+        }
+    },
+    methods: {
+        close: function () {
+            this.viewingHistory = false;
         }
     }
 }
