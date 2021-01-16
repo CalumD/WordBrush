@@ -149,6 +149,7 @@ button svg {
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     order: 0;
+    color: #b40000;
 }
 
 .num_chooser_input {
@@ -166,6 +167,7 @@ button svg {
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     order: 2;
+    color: #009513;
 }
 
 

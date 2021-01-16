@@ -120,11 +120,11 @@ export default {
     height: 50%;
     min-height: 200px;
     max-height: 80%;
-    min-width: 300px;
-    width: 30%;
+    min-width: 350px;
+    width: 35%;
     max-width: 50%;
     border-radius: 12px;
-    padding: 12px 0 12px 0;
+    /*padding: 12px 0 12px 0;*/
     background-color: white;
     border: 2px solid gray;
     overflow-y: hidden;

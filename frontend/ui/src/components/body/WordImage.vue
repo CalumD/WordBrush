@@ -1,13 +1,13 @@
 <template>
     <div :style="{
-            'background-image': `url(//ubuntu.vms.local:3000/api/v1/results/${imgData.resultsID}/${imgData.imageID})`,
+            'background-image': `url(//${BASE_URL}/api/v1/results/${imgData.resultsID}/${imgData.imageID})`,
          }"
          class="image_data"
     >
         <div :class="{reveal_all : forceDisplayOfText}"
              class="image_overlay word_reveal">
-            <h1>
-                {{ imgData.imageText }}
+            <h1 v-for="word_or_line in imgData.imageText">
+                {{ word_or_line }}
             </h1>
         </div>
     </div>
@@ -15,10 +15,16 @@
 
 <script>
 import {useShowAllWordText} from "@/components/util/showAllWordText";
+import {BASE_URL} from '@/main';
 
 export default {
     name: 'WordImage',
     props: ['imgData'],
+    data() {
+        return {
+            BASE_URL: BASE_URL
+        }
+    },
     setup() {
         return useShowAllWordText();
     },
@@ -37,14 +43,12 @@ export default {
     background-position: center;
 
     min-width: 100px;
-    max-width: 1000px;
+    max-width: 90vw;
 
     min-height: 100px;
-    max-height: 1000px;
+    max-height: 90vh;
 
     margin: 10px;
-
-    width: calc(100vw / 6);
 }
 
 .image_overlay {
@@ -54,6 +58,7 @@ export default {
     padding: 10px;
     transition: opacity .2s linear;
     text-align: center;
+    display: grid;
 }
 
 .word_reveal:hover, .reveal_all {

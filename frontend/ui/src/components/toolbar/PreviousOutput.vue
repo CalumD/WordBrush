@@ -1,6 +1,6 @@
 <template>
     <div id="previous_container" v-click-away="close">
-        <button type="button" class="history_button" @click="viewingHistory = !viewingHistory">
+        <button type="button" class="history_button" @click="clicked">
             <transition name="history_button_transition" mode="out-in">
                 <FontAwesomeIcon v-if="!viewingHistory" class="history_icon" icon="history"></FontAwesomeIcon>
                 <FontAwesomeIcon v-else class="history_icon" icon="times"></FontAwesomeIcon>
@@ -9,10 +9,14 @@
         <transition name="dropdown">
             <div v-if="viewingHistory" class="history_dropdown_wrapper">
                 <ul class="history_dropdown_content">
-                    <li v-for="item in existing_outputs">
+                    <li v-if="existing_outputs.length > 0" v-for="item in existing_outputs">
                         <span>{{ item }}</span>
-                        <FontAwesomeIcon class="rerun_history_icon" icon="redo"></FontAwesomeIcon>
-                        Rerun
+                        <FontAwesomeIcon @click="getPreviousOutput(item)" class="rerun_history_icon"
+                                         icon="redo"></FontAwesomeIcon>
+                        <span>Rerun</span>
+                    </li>
+                    <li v-else style="max-width: 100%;">
+                        <span>No Past Searches Available.</span>
                     </li>
                 </ul>
             </div>
@@ -39,6 +43,12 @@ export default {
         }
     },
     methods: {
+        clicked: function () {
+            this.viewingHistory = !this.viewingHistory
+            if (this.viewingHistory) {
+                this.fetchExistingOutput();
+            }
+        },
         close: function () {
             this.viewingHistory = false;
         },
@@ -122,7 +132,7 @@ export default {
     min-width: 300px;
     max-width: 50%;
     border-radius: 12px;
-    padding: 12px 0 12px 0;
+    /*padding: 12px 0 12px 0;*/
     background-color: white;
     border: 2px solid gray;
     overflow-y: hidden;
@@ -168,5 +178,10 @@ export default {
     max-height: 100%;
     width: 10%;
     max-width: 20%;
+    color: #af5a3a;
+}
+
+.rerun_history_icon:hover {
+    cursor: pointer;
 }
 </style>
