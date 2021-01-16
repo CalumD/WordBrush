@@ -120,8 +120,12 @@ export async function getResultSet(
             metadataFilePath = metadataFilePath.trim();
             try {
                 const metadataFile: WordBrushMetadataFile = fs.readJSONSync(metadataFilePath);
+                if (!metadataFile.finalised) {
+                    throw new Error('Metadata file not finalised.');
+                }
                 resolve({outputType: metadataFile.outputType, words: metadataFile.words});
             } catch (Err) {
+                console.error(Err);
                 return resultSet202(directory, next);
             }
         } else {
@@ -149,7 +153,7 @@ const resultSet202: Function = (directory: string, next: NextFunction): void => 
     next(new RequestError({
         code: 202,
         name: 'resultSet_not_ready',
-        description: 'The requested directory of output data has not yet been finalised as the meta file wasn\'t found.',
+        description: 'Requested directory of output data has not yet been finalised as the meta file wasn\'t found, or was marked as incomplete.',
         message: 'Data not ready yet, try again shortly.',
         data: directory
     }));
@@ -158,7 +162,7 @@ const output404: Function = (fileName: string, directory: string, next: NextFunc
     next(new RequestError({
         code: 404,
         name: 'output_file_not_found',
-        description: `The requested file from existing result set (${directory}) could not be found.`,
+        description: `Requested file from existing result set could not be found.`,
         data: {resultSet: directory, file: fileName}
     }));
 }
