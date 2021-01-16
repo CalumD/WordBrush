@@ -1,6 +1,6 @@
 <template>
     <div id="search_container">
-        <form id="search_form" style="width: 100%; height: 100%">
+        <form id="search_form" style="width: 100%; height: 100%" onsubmit="return false">
 
             <div class="search_bar_wrapper">
                 <label for="search_bar"/>
@@ -16,7 +16,6 @@
                     <FontAwesomeIcon class="icons" id="search_button_icon" icon="search"/>
                 </button>
             </div>
-
 
             <div class="file_upload_wrapper">
                 <div class="file_upload_wrapper_ticky_wrapper">
@@ -47,6 +46,8 @@
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
 import axios from 'axios';
 import SearchOptions from "@/components/toolbar/SearchOptions";
+import {BASE_URL} from '@/main';
+import {useCurrentResultData} from "@/components/util/useCurrentResultData";
 
 export default {
     name: "Search",
@@ -63,8 +64,12 @@ export default {
                 },
                 enable_file: false,
                 file: undefined
-            }
+            },
+            BASE_URL: BASE_URL
         }
+    },
+    setup() {
+        return useCurrentResultData();
     },
     methods: {
         executeSearch: function () {
@@ -81,7 +86,7 @@ export default {
                 fileToUp.append('input_txt_file', this.form.file);
                 console.log("CALLING THE POSTER");
                 axios
-                    .post(`http://ubuntu.vms.local:3000/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`, fileToUp,
+                    .post(`http://${this.BASE_URL}/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`, fileToUp,
                         {
                             headers: {
                                 "Content-Type": "multipart/form-data"
@@ -89,6 +94,11 @@ export default {
                         })
                     .then((res) => {
                         console.log(res);
+                        if (res.status === 200) {
+                            this.fetchNewResultSet(res.data.resultSetID);
+                        } else {
+                            console.error(res);
+                        }
                         console.log("SUCCEEDED POSTER");
                     })
                     .catch(() => {
@@ -97,9 +107,14 @@ export default {
             } else {
                 console.log("CALLING THE GETTER");
                 axios
-                    .get(`http://ubuntu.vms.local:3000/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`)
+                    .get(`http://${this.BASE_URL}/api/v1/words${queryParams.length > 0 ? `?${queryParams}` : ''}`)
                     .then((res) => {
                         console.log(res);
+                        if (res.status === 200) {
+                            this.fetchNewResultSet(res.data.resultSetID);
+                        } else {
+                            console.error(res);
+                        }
                         console.log("SUCCEEDED GETTER");
                     })
                     .catch(() => {

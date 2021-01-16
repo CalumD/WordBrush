@@ -22,22 +22,44 @@
 
 <script>
 import FontAwesomeIcon from "@/components/util/FontAwesomeIcon";
+import {useCurrentResultData} from "@/components/util/useCurrentResultData";
+import axios from "axios";
+import {BASE_URL} from "@/main";
 
 export default {
     name: "PreviousOutput",
     components: {FontAwesomeIcon},
-    props: {
-        existing_outputs: Array
+    setup() {
+        return useCurrentResultData();
     },
     data() {
         return {
-            viewingHistory: false
+            viewingHistory: false,
+            existing_outputs: []
         }
     },
     methods: {
         close: function () {
             this.viewingHistory = false;
+        },
+        getPreviousOutput: function (resultSetID) {
+            this.fetchNewResultSet(resultSetID);
+            this.viewingHistory = false;
+        },
+        fetchExistingOutput: function () {
+            axios
+                .get(`http://${BASE_URL}/api/v1/results`)
+                .then((out) => {
+                    this.existing_outputs = out.data
+                })
+                .catch((err) => {
+                    console.log("Failed to retrieve existing results data", {err: err});
+                    this.existing_outputs = [];
+                });
         }
+    },
+    mounted() {
+        this.fetchExistingOutput();
     }
 }
 </script>
