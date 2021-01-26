@@ -10,7 +10,7 @@
             <div v-if="viewingHistory" class="history_dropdown_wrapper">
                 <ul class="history_dropdown_content">
                     <li v-if="existing_outputs.length > 0" v-for="item in existing_outputs">
-                        <span>{{ item }}</span>
+                        <span>{{ displayData[item] }}</span>
                         <FontAwesomeIcon @click="getPreviousOutput(item)" class="rerun_history_icon"
                                          icon="redo"></FontAwesomeIcon>
                         <span>Rerun</span>
@@ -39,7 +39,8 @@ export default {
     data() {
         return {
             viewingHistory: false,
-            existing_outputs: []
+            existing_outputs: [],
+            displayData: {}
         }
     },
     methods: {
@@ -61,11 +62,47 @@ export default {
                 .get(`http://${BASE_URL}/api/v1/results`)
                 .then((out) => {
                     this.existing_outputs = out.data
+                    for (let output of this.existing_outputs) {
+                        this.resolveWords(output);
+                    }
                 })
                 .catch((err) => {
                     console.log("Failed to retrieve existing results data", {err: err});
                     this.existing_outputs = [];
                 });
+        },
+        resolveWords: async function (fromSet) {
+            let resultSetWord = '[...unknown...]';
+            axios
+                .get(`http://${BASE_URL}/api/v1/results/${fromSet}`)
+                .then((out) => {
+                    if (out.data.outputType === 'multi') {
+                        resultSetWord = Object.values(out.data.words).join(" ");
+                    } else if (out.data.outputType === 'single') {
+                        const data = Object.values(out.data.words)[0];
+                        const result = [];
+                        for (let row = 0; row < 100 && row < data.length; row++) {
+                            for (const column in data[row]) {
+                                result.push(data[row][column]);
+                            }
+                        }
+                        resultSetWord = Object.values(result).join(" ");
+                    } else {
+                        console.error('Unsupported word output type: ' + out.data.outputType)
+                    }
+                })
+                .catch((err) => {
+                    console.error("Failed to retrieve existing result set data", {err: err});
+                })
+                .finally(() => {
+                    this.displayData[fromSet] = `${this.clipLength(resultSetWord)} (${fromSet.split("-")[0]})`;
+                });
+        },
+        clipLength: function (input) {
+            if (input.length > 75) {
+                return input.substring(0, 75) + '[...]';
+            }
+            return input;
         }
     },
     mounted() {
