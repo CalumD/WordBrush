@@ -45,6 +45,7 @@ class App {
                     logger.debug('res.locals at end of MiddleWare chain', res.locals);
                     logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
                 }
+                next();
             }
         );
         this.errorWare();
