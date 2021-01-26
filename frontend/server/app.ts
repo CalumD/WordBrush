@@ -36,6 +36,11 @@ class App {
                     }
                     if (typeof res.locals.data == 'string' && res.locals.data.length > 100) {
                         res.locals.data = res.locals.data.substr(0, 100) + ' [...]';
+                    } else if (typeof res.locals.data == 'object' && res.locals.data && res.locals.data.words) {
+                        const wordcount = Object.keys(res.locals.data.words).length;
+                        if (wordcount > 15) {
+                            res.locals.data.words = `This object contained ${wordcount} values which have been truncated for logging's sake.`
+                        }
                     }
                     logger.debug('res.locals at end of MiddleWare chain', res.locals);
                     logger.success(`Responded to ${req.ip} in ${res.locals.responseTime}`);
