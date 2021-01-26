@@ -59,7 +59,7 @@ div {
     box-sizing: border-box;
 }
 
-button, input, #file_upload_input:enabled ~ .file_upload_button {
+button, input, #file_upload_input:enabled ~ .file_upload_button, .button_like {
     cursor: pointer;
 }
 </style>

@@ -13,7 +13,7 @@
                         <span>{{ displayData[item] }}</span>
                         <FontAwesomeIcon @click="getPreviousOutput(item)" class="rerun_history_icon"
                                          icon="redo"></FontAwesomeIcon>
-                        <span>Rerun</span>
+                        <span @click="getPreviousOutput(item)" class="button_like">Rerun</span>
                     </li>
                     <li v-else style="max-width: 100%;">
                         <span>No Past Searches Available.</span>
