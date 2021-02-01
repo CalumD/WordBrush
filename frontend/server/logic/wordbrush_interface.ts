@@ -76,11 +76,12 @@ export async function getWords(
         }
 
         const options =
-            ` -o "${wbArgs.sfo ? outputData.path + '/0.svg' : outputData.path}"` +
-            `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
-            `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
-            `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
-            `${wbArgs.words ? ` ${wbArgs.words}` : ''}`;
+            (` -o "${wbArgs.sfo ? outputData.path + '/0.svg' : outputData.path}"` +
+                `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
+                `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
+                `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
+                `${wbArgs.words ? ` ${wbArgs.words}` : ''}`)
+                .replace(/[,;|>&-]/g, '');
 
         logger.debug("Calling WordBrush C code", {command: command, args: options});
         execAsync(`${command} ${options}`, {silent: true}, (execOutput) => {

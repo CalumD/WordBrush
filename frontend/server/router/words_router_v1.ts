@@ -29,7 +29,7 @@ const getWords: Middleware = async (
             width: req.query.w,
             height: req.query.h,
             sfo: req.query.sfo,
-            words: req.query.input ? req.query.input.replace(/[,;-]/g, ' ') : undefined,
+            words: req.query.input ? req.query.input.replace(/[,;|>&-]/g, ' ') : undefined,
             hasInputFile: !!req.file
         },
         file: req.file,
