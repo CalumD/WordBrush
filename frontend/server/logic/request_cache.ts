@@ -17,6 +17,56 @@ type CacheEntry = {
     error?: ErrorResponseBlock
 }
 
+
+const deleteFolder = (dirToPurge: string): void => {
+    logger.inform(`Deleting result set ${dirToPurge}.`);
+    fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
+}
+
+const tryCache = (req: Request, res: Response, next: NextFunction): string => {
+
+    const hashResult = cache.createCacheKey(req.originalUrl, req.file);
+    const cacheHIT = cache.getDirFromHash(hashResult);
+
+    logger.data("Cache " + (cacheHIT ? `HIT ${JSON.stringify(cacheHIT)}` : "MISS"))
+
+    if (cacheHIT) {
+        res.locals.data = {resultSetID: cacheHIT.outputDirectory};
+        return 'HIT';
+    }
+    return hashResult;
+}
+
+const addToCache = (value: CacheEntry): void => {
+    fs.writeFileSync(`${BASE_RESOURCES_PATH}/${value.outputDirectory}/cache.json`, JSON.stringify(value));
+    cache.put(value);
+}
+
+const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
+    const cacheErr = cache.getCacheFromDir(dirToCheck).error;
+    if (cacheErr) {
+        logger.inform("Request made for directory of failed process " + dirToCheck);
+        next(new RequestError(cacheErr))
+        return true;
+    }
+    return false;
+}
+
+const markExceptionDirectory = (dirToMark: string, execOutput: ExecOutput): void => {
+    deleteFolder(dirToMark);
+    let previousCache = cache.getCacheFromDir(dirToMark);
+    previousCache.error = {
+        code: 500,
+        name: 'process_failed',
+        description: 'The provided input caused an unexpected problem with the CLI.',
+        message: 'CLI terminated unexpectedly.',
+        data: execOutput
+    }
+    cache.put(previousCache);
+    logger.inform(`Marked directory ${dirToMark} as a failed process.`)
+}
+
+
 class RequestCacheV1 {
 
     private hashToCache: Map<string, CacheEntry> = new Map<string, CacheEntry>();
@@ -45,6 +95,7 @@ class RequestCacheV1 {
             }
             this.put(fs.readJSONSync(`${BASE_RESOURCES_PATH}/${dir}/cache.json`));
         }
+        logger.success("Cache primed.");
     }
 
     private garbageCollect(): void {
@@ -98,55 +149,6 @@ class RequestCacheV1 {
 }
 
 const cache = new RequestCacheV1();
-
-const deleteFolder = (dirToPurge: string): void => {
-    logger.inform(`Deleting result set.`, {dir: dirToPurge})
-    fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
-}
-
-const tryCache = (req: Request, res: Response, next: NextFunction): string => {
-
-    const hashResult = cache.createCacheKey(req.originalUrl, req.file);
-    const cacheHIT = cache.getDirFromHash(hashResult);
-
-    logger.data("Cache " + (cacheHIT ? `HIT ${JSON.stringify(cacheHIT)}` : "MISS"))
-
-    if (cacheHIT) {
-        res.locals.data = {resultSetID: cacheHIT.outputDirectory};
-        return 'HIT';
-    }
-    return hashResult;
-}
-
-const addToCache = (value: CacheEntry): void => {
-    fs.writeFileSync(`${BASE_RESOURCES_PATH}/${value.outputDirectory}/cache.json`, JSON.stringify(value));
-    cache.put(value);
-}
-
-const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
-    const cacheErr = cache.getCacheFromDir(dirToCheck).error;
-    if (cacheErr) {
-        logger.inform("Request made for directory of failed process " + dirToCheck);
-        next(new RequestError(cacheErr))
-        return true;
-    }
-    return false;
-}
-
-const markExceptionDirectory = (dirToMark: string, execOutput: ExecOutput): void => {
-    deleteFolder(dirToMark);
-    let previousCache = cache.getCacheFromDir(dirToMark);
-    previousCache.error = {
-        code: 500,
-        name: 'process_failed',
-        description: 'The provided input caused an unexpected problem with the CLI.',
-        message: 'CLI terminated unexpectedly.',
-        data: execOutput
-    }
-    cache.put(previousCache);
-    logger.inform(`Marked directory ${dirToMark} as a failed process.`)
-}
-
 
 export {
     tryCache,
