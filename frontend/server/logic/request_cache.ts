@@ -109,7 +109,7 @@ const tryCache = (req: Request, res: Response, next: NextFunction): string => {
     const hashResult = cache.createCacheKey(req.originalUrl, req.file);
     const cacheHIT = cache.getDirFromHash(hashResult);
 
-    logger.debug("Cache " + (cacheHIT ? `HIT ${JSON.stringify(cacheHIT)}` : "MISS"))
+    logger.data("Cache " + (cacheHIT ? `HIT ${JSON.stringify(cacheHIT)}` : "MISS"))
 
     if (cacheHIT) {
         res.locals.data = {resultSetID: cacheHIT.outputDirectory};
@@ -119,20 +119,14 @@ const tryCache = (req: Request, res: Response, next: NextFunction): string => {
 }
 
 const addToCache = (value: CacheEntry): void => {
-    fs.writeFile(`${BASE_RESOURCES_PATH}/${value.outputDirectory}/cache.json`, JSON.stringify(value))
-        .then(() => {
-            logger.success("Successfully written new cache file for " + value.outputDirectory);
-        })
-        .catch((err) => {
-            logger.error("Failed to write cache file for " + value.outputDirectory, err);
-        });
+    fs.writeFileSync(`${BASE_RESOURCES_PATH}/${value.outputDirectory}/cache.json`, JSON.stringify(value));
     cache.put(value);
 }
 
 const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
     const cacheErr = cache.getCacheFromDir(dirToCheck).error;
     if (cacheErr) {
-        logger.inform("Request made for directory of failed process.", cacheErr);
+        logger.inform("Request made for directory of failed process " + dirToCheck);
         next(new RequestError(cacheErr))
         return true;
     }
