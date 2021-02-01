@@ -5,7 +5,7 @@ import {createHash} from 'crypto';
 
 import {BASE_RESOURCES_PATH} from './wordbrush_interface'
 
-const MINS_OLD_FOR_DELETION: number = 2;
+const MINS_OLD_FOR_DELETION: number = 60;
 
 type CacheEntry = {
     hash: string,
