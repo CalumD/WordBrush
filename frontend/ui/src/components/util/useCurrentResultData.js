@@ -30,8 +30,12 @@ function fetchResultSet(resultSetID) {
                 return resolve(false);
             })
             .catch((err) => {
-                console.log('Error retrieving result set: ', err);
+                console.log('Error retrieving result set: ', err.response);
                 reset();
+                if (err.response.status === 500) {
+                    // TODO: create some modal here to show ${err.response.data} values.
+                    return resolve(true);
+                }
                 return resolve(false);
             });
     });
