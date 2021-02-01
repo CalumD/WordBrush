@@ -25,12 +25,12 @@ const LOG_LEVELS: LogLevel[] = [
     {
         rank: 6,
         colour: 'magenta',
-        names: ['debug', 'minor', 'data', 'follow']
+        names: ['debug', 'minor', 'follow']
     },
     {
         rank: 5,
         colour: 'white',
-        names: ['information', 'inform', 'info']
+        names: ['information', 'inform', 'info', 'data']
     },
     {
         rank: 4,
@@ -80,12 +80,12 @@ export interface Logger {
     // 6
     debug: (message: string, meta?: {}) => void,
     minor: (message: string, meta?: {}) => void,
-    data: (message: string, meta?: {}) => void,
     follow: (message: string, meta?: {}) => void,
     // 5
     information: (message: string, meta?: {}) => void,
     inform: (message: string, meta?: {}) => void,
     info: (message: string, meta?: {}) => void,
+    data: (message: string, meta?: {}) => void,
     // 4
     note: (message: string, meta?: {}) => void,
     notice: (message: string, meta?: {}) => void,
