@@ -23,12 +23,12 @@
   },
   "homepage": "https://github.com/CalumD/WordBrush#readme",
   "devDependencies": {
-    "nodemon": "latest"
-  },
-  "dependencies": {
     "@types/fs-extra": "latest",
     "@types/node": "latest",
     "@types/shelljs": "latest",
+    "nodemon": "latest"
+  },
+  "dependencies": {
     "corser": "latest",
     "express": "latest",
     "fs-extra": "latest",
