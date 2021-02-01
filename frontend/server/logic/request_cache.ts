@@ -24,10 +24,12 @@ class RequestCacheV1 {
         this.populateCache();
 
         // Run an initial cleanup
-        this.garbageCollector();
+        this.garbageCollect();
 
         // Kick off scheduled process to delete old entries.
-        // TODO: something something this.garbageCollector();
+        setInterval(() => {
+            this.garbageCollect();
+        }, MINS_OLD_FOR_DELETION * 1000 * 60)
     }
 
     private populateCache(): void {
@@ -42,7 +44,7 @@ class RequestCacheV1 {
         }
     }
 
-    private garbageCollector(): void {
+    private garbageCollect(): void {
         logger.notice("Running garbage collector on output directories.");
         let folderAgeMins;
 
