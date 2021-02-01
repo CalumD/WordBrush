@@ -112,13 +112,16 @@ export async function getResultSet(
     return new Promise(async (resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
             try {
-                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(`${BASE_RESOURCES_PATH}/${directory}/0.svg-meta.json`);
+                const metadataPath = fs.readdirSync(`${BASE_RESOURCES_PATH}/${directory}`).filter((dir) => {
+                    return dir.endsWith('meta.json');
+                });
+                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(`${BASE_RESOURCES_PATH}/${directory}/${metadataPath[0]}`);
                 if (!metadataFile.finalised) {
                     throw new Error('Metadata file not finalised.');
                 }
                 resolve({outputType: metadataFile.outputType, words: metadataFile.words});
             } catch (Err) {
-                console.error(Err);
+                logger.error("Failed while getting result Set", Err);
                 return resultSet202(directory, next);
             }
         } else {
