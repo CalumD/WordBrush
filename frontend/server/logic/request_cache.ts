@@ -3,6 +3,8 @@ import {NextFunction, Request, Response} from 'express';
 import * as fs from 'fs-extra'
 import {createHash} from 'crypto';
 import {resolve} from "path";
+import {ErrorResponseBlock, RequestError} from "../errors";
+import {ExecOutput} from "./wordbrush_interface";
 
 const MINS_OLD_FOR_DELETION: number = 60;
 export const BASE_RESOURCES_PATH: string = resolve(process.cwd() + '../../../resources');
@@ -12,6 +14,7 @@ type CacheEntry = {
     url: string,
     outputDirectory: string
     fileName?: string,
+    error?: ErrorResponseBlock
 }
 
 class RequestCacheV1 {
@@ -53,7 +56,10 @@ class RequestCacheV1 {
             logger.debug("Existing result set", {folder: dir, ageInMinutes: folderAgeMins})
             if (folderAgeMins > MINS_OLD_FOR_DELETION) {
                 logger.inform(`Found result set > ${MINS_OLD_FOR_DELETION} mins old.`)
-                this.purge(dir);
+                deleteFolder(dir);
+                this.hashToCache.delete(this.dirToHash.get(dir));
+                this.dirToHash.delete(dir);
+                logger.data(`${this.size()} values in the cache`);
             }
         }
         logger.success("Garbage collector complete.");
@@ -75,6 +81,10 @@ class RequestCacheV1 {
         return this.hashToCache.get(cacheKey);
     }
 
+    getCacheFromDir(dirOfBadRequest: string): CacheEntry {
+        return this.hashToCache.get(this.dirToHash.get(dirOfBadRequest));
+    }
+
     put(value: CacheEntry): void {
         logger.info('Putting new value into cache', value)
         this.dirToHash.set(value.outputDirectory, value.hash);
@@ -85,18 +95,14 @@ class RequestCacheV1 {
     size(): number {
         return this.hashToCache.size;
     }
-
-    purge(dirToPurge: string): void {
-        logger.inform(`Deleting result set.`, {dir: dirToPurge})
-        fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
-        this.hashToCache.delete(this.dirToHash.get(dirToPurge));
-        this.dirToHash.delete(dirToPurge);
-        logger.data(`${this.size()} values in the cache`);
-    }
 }
 
 const cache = new RequestCacheV1();
 
+const deleteFolder = (dirToPurge: string): void => {
+    logger.inform(`Deleting result set.`, {dir: dirToPurge})
+    fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
+}
 
 const tryCache = (req: Request, res: Response, next: NextFunction): string => {
 
@@ -123,13 +129,34 @@ const addToCache = (value: CacheEntry): void => {
     cache.put(value);
 }
 
-const purge = (dirToPurge): void => {
-    cache.purge(dirToPurge);
+const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
+    const cacheErr = cache.getCacheFromDir(dirToCheck).error;
+    if (cacheErr) {
+        logger.inform("Request made for directory of failed process.", cacheErr);
+        next(new RequestError(cacheErr))
+        return true;
+    }
+    return false;
+}
+
+const markExceptionDirectory = (dirToMark: string, execOutput: ExecOutput): void => {
+    deleteFolder(dirToMark);
+    let previousCache = cache.getCacheFromDir(dirToMark);
+    previousCache.error = {
+        code: 500,
+        name: 'process_failed',
+        description: 'The provided input caused an unexpected problem with the CLI.',
+        message: 'CLI terminated unexpectedly.',
+        data: execOutput
+    }
+    cache.put(previousCache);
+    logger.inform(`Marked directory ${dirToMark} as a failed process.`)
 }
 
 
 export {
     tryCache,
     addToCache,
-    purge
+    shouldErrorDirRequest,
+    markExceptionDirectory
 };

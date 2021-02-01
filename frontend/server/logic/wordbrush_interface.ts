@@ -5,7 +5,7 @@ import {NextFunction} from 'express';
 import * as fs from 'fs-extra'
 import {RequestError} from "../errors";
 import {uuid} from "../uuid";
-import {BASE_RESOURCES_PATH, purge} from "./request_cache";
+import {BASE_RESOURCES_PATH, markExceptionDirectory, shouldErrorDirRequest} from "./request_cache";
 
 const APPLICATION_PATH: string = `${resolve(process.cwd() + '../../../compute/bin/wordbrush')}`;
 
@@ -86,7 +86,7 @@ export async function getWords(
         logger.debug("Calling WordBrush C code", {command: command, args: options});
         execAsync(`${command} ${options}`, {silent: true}, (execOutput) => {
             if (execOutput.code !== 0) {
-                purge(outputData.id);
+                markExceptionDirectory(outputData.id, execOutput);
             }
         });
 
@@ -130,6 +130,9 @@ export async function getResultSet(
                 return resultSet202(directory, next);
             }
         } else {
+            if (shouldErrorDirRequest(directory, next)) {
+                return;
+            }
             resultSet404(directory, next);
         }
         return;
