@@ -4,8 +4,9 @@ import * as bodyParser from 'body-parser';
 import {RequestError} from '../errors';
 import {uuid} from '../uuid';
 import * as wb_inter from "../logic/wordbrush_interface";
+import {addToCache, tryCache} from '../logic/request_cache';
 
-const multer = require('multer')
+const multer = require('multer');
 
 export type Middleware =
     (req: Request, res: Response, next: NextFunction) => void;
@@ -14,10 +15,16 @@ export type Middleware =
 const getWords: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
+    const cacheKey = tryCache(req, res, next);
+    if (cacheKey === 'HIT') {
+        logger.debug("Skipping new getWords() as cache HIT.")
+        return next();
+    }
+
     res.locals.methodCalled = getWords.name;
     logger.follow(`Called ${res.locals.methodCalled}`);
 
-    res.locals.data = wb_inter.getWords({
+    res.locals.data = await wb_inter.getWords({
         wbArgs: {
             width: req.query.w,
             height: req.query.h,
@@ -27,6 +34,13 @@ const getWords: Middleware = async (
         },
         file: req.file,
         next: next
+    });
+
+    addToCache({
+        hash: cacheKey,
+        url: req.originalUrl,
+        fileName: req.file ? req.file.originalname : undefined,
+        outputDirectory: res.locals.data.resultSetID
     });
 
     next();

@@ -111,15 +111,8 @@ export async function getResultSet(
 ): Promise<WordBrushMetadataFile> {
     return new Promise(async (resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
-            let metadataFilePath = (
-                await execAsync(
-                    `find ${BASE_RESOURCES_PATH}/${directory}/*.json`,
-                    {silent: true}
-                )
-            ).stdOut;
-            metadataFilePath = metadataFilePath.trim();
             try {
-                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(metadataFilePath);
+                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(`${BASE_RESOURCES_PATH}/${directory}/meta.json`);
                 if (!metadataFile.finalised) {
                     throw new Error('Metadata file not finalised.');
                 }
