@@ -5,8 +5,8 @@ import {NextFunction} from 'express';
 import * as fs from 'fs-extra'
 import {RequestError} from "../errors";
 import {uuid} from "../uuid";
+import {BASE_RESOURCES_PATH, purge} from "./request_cache";
 
-export const BASE_RESOURCES_PATH: string = resolve(process.cwd() + '../../../resources');
 const APPLICATION_PATH: string = `${resolve(process.cwd() + '../../../compute/bin/wordbrush')}`;
 
 export type ExecOutput = {
@@ -83,7 +83,11 @@ export async function getWords(
             `${wbArgs.words ? ` ${wbArgs.words}` : ''}`;
 
         logger.debug("Calling WordBrush C code", {command: command, args: options});
-        execAsync(`${command} ${options}`, {silent: true});
+        execAsync(`${command} ${options}`, {silent: true}, (execOutput) => {
+            if (execOutput.code !== 0) {
+                purge(outputData.id);
+            }
+        });
 
         resolve({resultSetID: outputData.id});
     });
@@ -163,14 +167,23 @@ const output404: Function = (fileName: string, directory: string, next: NextFunc
     }));
 }
 
-function execAsync(command: string, opts: {} = {}): Promise<ExecOutput> {
+function execAsync(command: string, opts: {} = {}, additionalCallback?: (execOutput: ExecOutput) => void): Promise<ExecOutput> {
     return new Promise(function (resolve) {
         shell.exec(command, opts, function (code, stdout, stderr) {
-            return resolve({
+            const shellOutput = {
                 code: code,
                 stdOut: stdout == "" ? undefined : stdout,
                 stdErr: stderr == "" ? undefined : stderr
-            });
+            };
+            if (code !== 0) {
+                logger.failure("Command Failed.", shellOutput);
+            } else {
+                logger.success("Command Successful.", shellOutput);
+            }
+            if (additionalCallback) {
+                additionalCallback(shellOutput);
+            }
+            return resolve(shellOutput);
         });
     });
 }

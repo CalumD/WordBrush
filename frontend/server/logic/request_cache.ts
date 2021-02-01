@@ -2,10 +2,10 @@ import {logger} from '../logger';
 import {NextFunction, Request, Response} from 'express';
 import * as fs from 'fs-extra'
 import {createHash} from 'crypto';
-
-import {BASE_RESOURCES_PATH} from './wordbrush_interface'
+import {resolve} from "path";
 
 const MINS_OLD_FOR_DELETION: number = 60;
+export const BASE_RESOURCES_PATH: string = resolve(process.cwd() + '../../../resources');
 
 type CacheEntry = {
     hash: string,
@@ -52,11 +52,8 @@ class RequestCacheV1 {
             folderAgeMins = RequestCacheV1.getFolderAgeInMinutes(`${BASE_RESOURCES_PATH}/${dir}`)
             logger.debug("Existing result set", {folder: dir, ageInMinutes: folderAgeMins})
             if (folderAgeMins > MINS_OLD_FOR_DELETION) {
-                logger.inform(`Deleting result set > ${MINS_OLD_FOR_DELETION} mins old.`, {dir: dir})
-                fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dir}`, {recursive: true});
-                this.hashToCache.delete(this.dirToHash.get(dir));
-                this.dirToHash.delete(dir);
-                logger.data(`${this.size()} values in the cache`);
+                logger.inform(`Found result set > ${MINS_OLD_FOR_DELETION} mins old.`)
+                this.purge(dir);
             }
         }
         logger.success("Garbage collector complete.");
@@ -88,6 +85,14 @@ class RequestCacheV1 {
     size(): number {
         return this.hashToCache.size;
     }
+
+    purge(dirToPurge: string): void {
+        logger.inform(`Deleting result set.`, {dir: dirToPurge})
+        fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
+        this.hashToCache.delete(this.dirToHash.get(dirToPurge));
+        this.dirToHash.delete(dirToPurge);
+        logger.data(`${this.size()} values in the cache`);
+    }
 }
 
 const cache = new RequestCacheV1();
@@ -118,7 +123,13 @@ const addToCache = (value: CacheEntry): void => {
     cache.put(value);
 }
 
+const purge = (dirToPurge): void => {
+    cache.purge(dirToPurge);
+}
+
+
 export {
     tryCache,
-    addToCache
+    addToCache,
+    purge
 };
