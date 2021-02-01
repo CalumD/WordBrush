@@ -112,7 +112,7 @@ export async function getResultSet(
     return new Promise(async (resolve, reject) => {
         if (fs.existsSync(`${BASE_RESOURCES_PATH}/${directory}`)) {
             try {
-                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(`${BASE_RESOURCES_PATH}/${directory}/meta.json`);
+                const metadataFile: WordBrushMetadataFile = fs.readJSONSync(`${BASE_RESOURCES_PATH}/${directory}/0.svg-meta.json`);
                 if (!metadataFile.finalised) {
                     throw new Error('Metadata file not finalised.');
                 }
