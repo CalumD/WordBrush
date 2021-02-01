@@ -31,12 +31,16 @@ function fetchResultSet(resultSetID) {
             })
             .catch((err) => {
                 console.log('Error retrieving result set: ', err);
-                currentResultData.resultID = '';
-                currentResultData.outputType = '';
-                currentResultData.images = {};
+                reset();
                 return resolve(false);
             });
     });
+}
+
+function reset() {
+    currentResultData.resultID = '';
+    currentResultData.outputType = '';
+    currentResultData.images = {};
 }
 
 export function useCurrentResultData() {
@@ -55,9 +59,7 @@ export function useCurrentResultData() {
         }
         if (!success) {
             console.error('Couldn\'t get a response in time for a resultSet (' + resultSetID + '), giving up.');
-            currentResultData.resultID = '';
-            currentResultData.outputType = '';
-            currentResultData.images = {};
+            reset();
         }
     }
 
