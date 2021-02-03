@@ -12,7 +12,7 @@
                             <button @click="okay" type="button">
                                 {{ okayText }}
                             </button>
-                            <button @click="cancel" type="button">
+                            <button v-if="showCancel" @click="cancel" type="button">
                                 {{ cancelText }}
                             </button>
                         </div>
