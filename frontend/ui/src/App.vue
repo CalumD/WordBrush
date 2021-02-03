@@ -3,6 +3,7 @@
         <ToolBar/>
         <Display/>
     </div>
+    <div id="modals"/>
 </template>
 
 
