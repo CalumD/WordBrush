@@ -103,6 +103,10 @@ class RequestCacheV1 {
         let folderAgeMins;
 
         for (const dir of Array.from(this.dirToHash.keys())) {
+            if (this.getCacheFromDir(dir).error) {
+                logger.trace(`Skipping GC for directory of failed process ${dir}`);
+                continue;
+            }
             folderAgeMins = RequestCacheV1.getFolderAgeInMinutes(`${BASE_RESOURCES_PATH}/${dir}`)
             logger.debug("Existing result set", {folder: dir, ageInMinutes: folderAgeMins})
             if (folderAgeMins > MINS_OLD_FOR_DELETION) {
