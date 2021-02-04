@@ -43,7 +43,11 @@
             v-if="displayErrorModal"
             v-model:show="shouldError"
             :heading="searchError.message"
-            :body="`${searchError.description}\n${searchError.data.stdErr}`"
+            :body="`${searchError.description}${
+                searchError.data
+                ? '\n' + (searchError.data.stdErr ? searchError.data.stdErr : JSON.stringify(searchError.data))
+                : ''
+            }`"
         />
     </div>
 </template>
