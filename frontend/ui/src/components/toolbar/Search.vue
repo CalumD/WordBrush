@@ -39,6 +39,12 @@
 
             <SearchOptions v-model:opts="form.options"/>
         </form>
+        <Modal
+            v-if="displayErrorModal"
+            v-model:show="shouldError"
+            :heading="searchError.message"
+            :body="`${searchError.description}\n${searchError.data.stdErr}`"
+        />
     </div>
 </template>
 
@@ -48,10 +54,11 @@ import axios from 'axios';
 import SearchOptions from "@/components/toolbar/SearchOptions";
 import {BASE_URL} from '@/main';
 import {useCurrentResultData} from "@/components/util/useCurrentResultData";
+import Modal from "@/components/util/Modal";
 
 export default {
     name: "Search",
-    components: {SearchOptions, FontAwesomeIcon},
+    components: {SearchOptions, FontAwesomeIcon, Modal},
     data() {
         return {
             form: {
@@ -65,7 +72,8 @@ export default {
                 enable_file: false,
                 file: undefined
             },
-            BASE_URL: BASE_URL
+            BASE_URL: BASE_URL,
+            shouldError: false
         }
     },
     setup() {
@@ -121,7 +129,6 @@ export default {
                         console.log("FAILED GETTER");
                     });
             }
-
         },
         handleFileSelection: function (event) {
             this.form.file = event.target.files[0];
@@ -136,6 +143,22 @@ export default {
                 return `(${this.form.file.name})`;
             } else {
                 return '(No file selected)';
+            }
+        },
+        displayErrorModal: function () {
+            this.shouldError = !!this.getCurrentResult().error.message;
+            return this.shouldError;
+        },
+        searchError: function () {
+            return this.getCurrentResult().error;
+        }
+    },
+    watch: {
+        'shouldError': {
+            handler: function (val, oldVal) {
+                if (!val) {
+                    this.clearError();
+                }
             }
         }
     }

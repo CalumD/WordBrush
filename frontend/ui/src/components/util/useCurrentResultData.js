@@ -5,7 +5,8 @@ import {BASE_URL} from '@/main';
 const currentResultData = reactive({
     resultID: '',
     outputType: '',
-    images: {}
+    images: {},
+    error: {}
 });
 const delay = ms => new Promise(res => setTimeout(res, ms));
 const MAX_RETRIES = 5;
@@ -33,7 +34,7 @@ function fetchResultSet(resultSetID) {
                 console.log('Error retrieving result set: ', err.response);
                 reset();
                 if (err.response.status === 500) {
-                    // TODO: create some modal here to show ${err.response.data} values.
+                    currentResultData.error = err.response.data.valueOf();
                     return resolve(true);
                 }
                 return resolve(false);
@@ -45,6 +46,7 @@ function reset() {
     currentResultData.resultID = '';
     currentResultData.outputType = '';
     currentResultData.images = {};
+    currentResultData.error = {};
 }
 
 export function useCurrentResultData() {
@@ -67,8 +69,13 @@ export function useCurrentResultData() {
         }
     }
 
+    function acknowledgeError() {
+        reset();
+    }
+
     return {
         getCurrentResult,
-        fetchNewResultSet
+        fetchNewResultSet,
+        clearError: acknowledgeError
     };
 }

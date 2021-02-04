@@ -59,7 +59,7 @@ const markExceptionDirectory = (dirToMark: string, execOutput: ExecOutput): void
         code: 500,
         name: 'process_failed',
         description: 'The provided input caused an unexpected problem with the CLI.',
-        message: 'CLI terminated unexpectedly.',
+        message: 'CLI terminated prematurely.',
         data: execOutput
     }
     cache.put(previousCache);
