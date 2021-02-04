@@ -6,7 +6,7 @@
                     <div v-if="!exiting" class="modal-container" v-click-away="close">
                         <div class="modal-content">
                             <h1>{{ heading }}</h1>
-                            <p>{{ body }}</p>
+                            <p style="white-space: pre-line">{{ body }}</p>
                         </div>
                         <div class="modal-buttons">
                             <button @click="okay" type="button">
