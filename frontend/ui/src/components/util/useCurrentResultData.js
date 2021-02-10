@@ -33,7 +33,7 @@ function fetchResultSet(resultSetID) {
             .catch((err) => {
                 console.log('Error retrieving result set: ', err.response);
                 reset();
-                if (err.response.status === 500) {
+                if (err.response.status >= 400) {
                     currentResultData.error = err.response.data.valueOf();
                     return resolve(true);
                 }
@@ -69,6 +69,13 @@ export function useCurrentResultData() {
         }
     }
 
+    function setAxiosError(err) {
+        console.log("Axios request failed.", err);
+        if (err.response.status >= 400) {
+            currentResultData.error = err.response.data.valueOf();
+        }
+    }
+
     function acknowledgeError() {
         reset();
     }
@@ -76,6 +83,7 @@ export function useCurrentResultData() {
     return {
         getCurrentResult,
         fetchNewResultSet,
-        clearError: acknowledgeError
+        setAxiosError,
+        acknowledgeError
     };
 }

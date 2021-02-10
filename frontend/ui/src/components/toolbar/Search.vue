@@ -42,10 +42,10 @@
         <Modal
             v-if="displayErrorModal"
             v-model:show="shouldError"
-            :heading="searchError.message"
-            :body="`${searchError.description}${
-                searchError.data
-                ? '\n' + (searchError.data.stdErr ? searchError.data.stdErr : JSON.stringify(searchError.data))
+            :heading="errorData.message"
+            :body="`${errorData.description}${
+                errorData.data
+                ? '\n' + (errorData.data.stdErr ? errorData.data.stdErr : JSON.stringify(errorData.data))
                 : ''
             }`"
         />
@@ -77,7 +77,8 @@ export default {
                 file: undefined
             },
             BASE_URL: BASE_URL,
-            shouldError: false
+            shouldError: false,
+            errorData: {}
         }
     },
     setup() {
@@ -113,9 +114,7 @@ export default {
                         }
                         console.log("SUCCEEDED POSTER");
                     })
-                    .catch(() => {
-                        console.log("FAILED POSTER");
-                    });
+                    .catch((err) => this.setAxiosError(err));
             } else {
                 console.log("CALLING THE GETTER");
                 axios
@@ -129,9 +128,7 @@ export default {
                         }
                         console.log("SUCCEEDED GETTER");
                     })
-                    .catch(() => {
-                        console.log("FAILED GETTER");
-                    });
+                    .catch((err) => this.setAxiosError(err));
             }
         },
         handleFileSelection: function (event) {
@@ -150,18 +147,16 @@ export default {
             }
         },
         displayErrorModal: function () {
-            this.shouldError = !!this.getCurrentResult().error.message;
+            this.errorData = this.getCurrentResult().error;
+            this.shouldError = !!this.errorData.message;
             return this.shouldError;
-        },
-        searchError: function () {
-            return this.getCurrentResult().error;
         }
     },
     watch: {
         'shouldError': {
             handler: function (val, oldVal) {
                 if (!val) {
-                    this.clearError();
+                    this.acknowledgeError();
                 }
             }
         }

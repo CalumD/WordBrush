@@ -177,6 +177,7 @@ export class WordsRouterV1 {
             return next(new RequestError({
                 code: 400,
                 name: 'missing_query_param',
+                message: 'Bad Search Data.',
                 description: 'Required query param (input) was missing from the request.'
             }));
         }
