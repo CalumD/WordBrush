@@ -165,6 +165,7 @@ export default {
     border-width: 2px;
     border-style: solid;
     color: red;
+    outline-width: 0;
 }
 
 .modal-buttons button:hover {
