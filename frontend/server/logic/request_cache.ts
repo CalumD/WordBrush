@@ -43,8 +43,9 @@ const addToCache = (value: CacheEntry): void => {
 }
 
 const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
-    const cacheErr = cache.getCacheFromDir(dirToCheck).error;
+    let cacheErr: CacheEntry | ErrorResponseBlock = cache.getCacheFromDir(dirToCheck);
     if (cacheErr) {
+        cacheErr = cacheErr.error;
         logger.inform("Request made for directory of failed process " + dirToCheck);
         next(new RequestError(cacheErr))
         return true;
