@@ -71,6 +71,7 @@ export default {
                     width: 0,
                     height: 0,
                     sfo: 0,
+                    drawKeyboard: false,
                     traceColour: false
                 },
                 enable_file: false,
@@ -93,6 +94,7 @@ export default {
             queryParams += (this.form.options.width ? `&w=${this.form.options.width}` : '');
             queryParams += (this.form.options.height ? `&h=${this.form.options.height}` : '');
             queryParams += (this.form.options.sfo ? `&sfo=${this.form.options.sfo}` : '');
+            queryParams += (this.form.options.drawKeyboard ? `&k=${this.form.options.drawKeyboard}` : '');
 
             if (this.form.enable_file && this.form.file) {
                 const fileToUp = new FormData();

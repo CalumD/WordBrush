@@ -22,6 +22,12 @@
                         <NumberChooser :min="1" :max="100" v-model:result="opts.sfo"></NumberChooser>
                     </li>
                     <li>
+                        <span>Draw Keyboard</span>
+                        <label class="ticky_box">
+                            <input type="checkbox" v-model="opts.drawKeyboard"/>
+                        </label>
+                    </li>
+                    <li>
                         <span>Enable Colour Tracing (Experimental)</span>
                         <label class="ticky_box">
                             <input type="checkbox" v-model="opts.traceColour"/>
