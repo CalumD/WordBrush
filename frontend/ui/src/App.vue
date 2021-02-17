@@ -63,4 +63,10 @@ div {
 button, input, #file_upload_input:enabled ~ .file_upload_button, .button_like {
     cursor: pointer;
 }
+
+.image_data svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
 </style>

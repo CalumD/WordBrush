@@ -78,7 +78,7 @@ export default {
     width: 100%;
     height: 100%;
     padding: 25px;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     display: flex;
     flex-wrap: wrap;

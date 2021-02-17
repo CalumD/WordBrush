@@ -49,6 +49,9 @@ export default {
     max-height: 90vh;
 
     margin: 10px;
+    position: relative;
+
+    flex-grow: 1;
 }
 
 .image_overlay {
@@ -59,6 +62,8 @@ export default {
     transition: opacity .2s linear;
     text-align: center;
     display: grid;
+    position: absolute;
+    z-index: 10;
 }
 
 .word_reveal:hover, .reveal_all {
@@ -68,5 +73,6 @@ export default {
 .image_overlay h1 {
     font-size: 300%;
     font-weight: bold;
+    align-self: center;
 }
 </style>
