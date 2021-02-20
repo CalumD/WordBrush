@@ -1,9 +1,9 @@
 <template>
-    <div :style="{
-            'background-image': `url(//${BASE_URL}/api/v1/results/${imgData.resultsID}/${imgData.imageID})`,
-         }"
-         class="image_data"
-    >
+    <div class="image_data">
+        <div
+            v-html="svg"
+            :id="uniqueID"
+        />
         <div :class="{reveal_all : forceDisplayOfText}"
              class="image_overlay word_reveal">
             <h1 v-for="word_or_line in imgData.imageText">
@@ -16,13 +16,18 @@
 <script>
 import {useShowAllWordText} from "@/components/util/showAllWordText";
 import {BASE_URL} from '@/main';
+import {useUniqueId} from "@/components/util/useUniqueId";
+import axios from "axios";
 
 export default {
     name: 'WordImage',
     props: ['imgData'],
     data() {
         return {
-            BASE_URL: BASE_URL
+            BASE_URL: BASE_URL,
+            uniqueID: useUniqueId().uniqueIdValue(),
+            svg: "<h1> WordBrush Loading... </h1>",
+            triggerOnce: true
         }
     },
     setup() {
@@ -31,6 +36,29 @@ export default {
     computed: {
         forceDisplayOfText() {
             return this.showAllWordText;
+        }
+    },
+    beforeMount() {
+        this.getImageData()
+    },
+    watch: {
+        'imgData': {
+            handler: function (val, oldVal) {
+                this.getImageData();
+            }
+        }
+    },
+    methods: {
+        getImageData: function () {
+            axios
+                .get(`//${BASE_URL}/api/v1/results/${this.imgData.resultsID}/${this.imgData.imageID}`)
+                .then((res) => {
+                    this.svg = res.data;
+                })
+                .catch((err) => {
+                    console.error(err)
+                    this.svg = "<h1> WordBrush Failed! </h1>"
+                });
         }
     }
 }
@@ -43,7 +71,6 @@ export default {
     background-position: center;
 
     min-width: 100px;
-    max-width: 90vw;
 
     min-height: 100px;
     max-height: 90vh;
