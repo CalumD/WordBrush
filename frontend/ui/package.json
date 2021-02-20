@@ -14,6 +14,7 @@
   "dependencies": {
     "axios": "latest",
     "core-js": "latest",
+    "gradient-path": "latest",
     "nanoid": "latest",
     "vue": "next"
   },

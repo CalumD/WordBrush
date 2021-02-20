@@ -62,10 +62,31 @@ export default {
                 .get(`//${BASE_URL}/api/v1/results/${this.imgData.resultsID}/${this.imgData.imageID}`)
                 .then((res) => {
                     this.svg = res.data;
+                    this.$nextTick(this.colouriseWordBrushPaths);
                 })
                 .catch((err) => {
                     console.error(err)
                     this.svg = "<h1> WordBrush Failed! </h1>"
+                });
+        },
+        colouriseWordBrushPaths: function () {
+            let gradientPath;
+
+            document.querySelectorAll(`#${this.uniqueID} svg path`)
+                .forEach(path => {
+                    gradientPath = new GradientPath({
+                        path: path,
+                        segments: 100,
+                        samples: 4
+                    });
+
+                    gradientPath.render({
+                        type: 'circle',
+                        fill: fill,
+                        width: 5,
+                        stroke: fill,
+                        strokeWidth: 0.5
+                    });
                 });
         }
     }
