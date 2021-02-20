@@ -91,9 +91,9 @@ export default {
 
             let queryParams = ''
             queryParams += (this.form.text ? `input=${this.form.text}` : '');
-            queryParams += (this.form.options.width ? `&w=${this.form.options.width}` : '');
-            queryParams += (this.form.options.height ? `&h=${this.form.options.height}` : '');
-            queryParams += (this.form.options.sfo ? `&sfo=${this.form.options.sfo}` : '');
+            queryParams += (this.form.options.width && this.form.options.width !== 9999 ? `&w=${this.form.options.width}` : '');
+            queryParams += (this.form.options.height && this.form.options.height !== 9999 ? `&h=${this.form.options.height}` : '');
+            queryParams += (this.form.options.sfo && this.form.options.sfo !== 9999 ? `&sfo=${this.form.options.sfo}` : '');
             queryParams += (this.form.options.drawKeyboard ? `&k=${this.form.options.drawKeyboard}` : '');
 
             if (this.form.enable_file && this.form.file) {
