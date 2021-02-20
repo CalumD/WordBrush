@@ -19,6 +19,7 @@ export type WordBrushArgs = {
     height?: number,
     sfo?: number,
     words?: string[],
+    keyboard?: boolean,
     hasInputFile?: boolean
 }
 
@@ -80,6 +81,7 @@ export async function getWords(
                 `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
                 `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
                 `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
+                `${wbArgs.keyboard ? ` -k ${wbArgs.keyboard}` : ''}` +
                 `${wbArgs.words ? ` ${wbArgs.words}` : ''}`)
                 .replace(/[,;|>&]/g, '');
 

@@ -29,6 +29,7 @@ const getWords: Middleware = async (
             width: req.query.w,
             height: req.query.h,
             sfo: req.query.sfo,
+            keyboard: req.query.k ? req.query.k == 'true' : undefined,
             words: req.query.input ? req.query.input.replace(/[,;|>&-]/g, ' ') : undefined,
             hasInputFile: !!req.file
         },
@@ -148,6 +149,13 @@ export class WordsRouterV1 {
         return null;
     }
 
+    private static urlParamBooleanMatcher(input: string, forParam: string): void | RequestError {
+        if (input !== 'true' && input !== 'false') {
+            return badQueryParam(`URL parameter for ${forParam} expected a boolean, received non-bool input.`, 'invalid_flag_param', input);
+        }
+        return null;
+    }
+
     private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
         if (!uuid.verify(input)) {
             return badQueryParam(`URL parameter for ${forParam} expected a valid uuid.`, 'invalid_uuid', input);
@@ -214,6 +222,12 @@ export class WordsRouterV1 {
                 return next(potentialError);
             }
             potentialError = WordsRouterV1.integerBoundChecker(+req.query.sfo, 'sfo', 1, 100);
+            if (potentialError) {
+                return next(potentialError);
+            }
+        }
+        if (req.query.k) {
+            let potentialError = WordsRouterV1.urlParamBooleanMatcher(req.query.k, 'keyboard');
             if (potentialError) {
                 return next(potentialError);
             }
