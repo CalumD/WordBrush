@@ -58,6 +58,7 @@ import axios from 'axios';
 import SearchOptions from "@/components/toolbar/SearchOptions";
 import {BASE_URL} from '@/main';
 import {useCurrentResultData} from "@/components/util/useCurrentResultData";
+import {useColourPaths} from "@/components/util/useColourPaths";
 import Modal from "@/components/util/Modal";
 
 export default {
@@ -72,7 +73,7 @@ export default {
                     height: 0,
                     sfo: 0,
                     drawKeyboard: false,
-                    traceColour: false
+                    traceColour: useColourPaths().drawWithColour
                 },
                 enable_file: false,
                 file: undefined

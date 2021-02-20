@@ -15,8 +15,9 @@
 
 <script>
 import {useShowAllWordText} from "@/components/util/useShowAllWordText";
-import {BASE_URL} from '@/main';
+import {useColourPaths} from "@/components/util/useColourPaths";
 import {useUniqueId} from "@/components/util/useUniqueId";
+import {BASE_URL} from '@/main';
 import axios from "axios";
 import GradientPath from 'gradient-path'
 
@@ -35,7 +36,8 @@ export default {
         return {
             BASE_URL: BASE_URL,
             uniqueID: useUniqueId().uniqueIdValue(),
-            svg: "<h1> WordBrush Loading... </h1>"
+            svg: "<h1> WordBrush Loading... </h1>",
+            drawWithColour: useColourPaths().drawWithColour
         }
     },
     setup() {
@@ -54,15 +56,23 @@ export default {
             handler: function (val, oldVal) {
                 this.getImageData();
             }
+        },
+        'drawWithColour': {
+            handler: function (val, oldVal) {
+                this.getImageData();
+            }
         }
     },
     methods: {
         getImageData: function () {
+            this.svg = "<h1> WordBrush Loading... </h1>";
             axios
                 .get(`//${BASE_URL}/api/v1/results/${this.imgData.resultsID}/${this.imgData.imageID}`)
                 .then((res) => {
                     this.svg = res.data;
-                    this.$nextTick(this.colouriseWordBrushPaths);
+                    if (this.drawWithColour) {
+                        this.$nextTick(this.colouriseWordBrushPaths);
+                    }
                 })
                 .catch((err) => {
                     console.error(err)
@@ -77,7 +87,7 @@ export default {
                     gradientPath = new GradientPath({
                         path: path,
                         segments: 100,
-                        samples: 4
+                        samples: 5
                     });
 
                     gradientPath.render({
