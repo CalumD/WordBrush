@@ -6,7 +6,12 @@ export function useUniqueId(length = 5) {
     const nextId = ref(nanoid(length));
 
     function uniqueIdValue() {
-        return nextId.value;
+        // Ensure the id does not start with a number.
+        do {
+            nextId.value = nanoid(length);
+        } while (nextId.value.match(/^\d.*/));
+
+        return nextId;
     }
 
     return {
