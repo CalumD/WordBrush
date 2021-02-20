@@ -11,7 +11,7 @@
 
 
 <script>
-import {useShowAllWordText} from "@/components/util/showAllWordText";
+import {useShowAllWordText} from "@/components/util/useShowAllWordText";
 
 export default {
     name: "LogoStamp",

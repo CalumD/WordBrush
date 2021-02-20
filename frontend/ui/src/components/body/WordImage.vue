@@ -14,10 +14,19 @@
 </template>
 
 <script>
-import {useShowAllWordText} from "@/components/util/showAllWordText";
+import {useShowAllWordText} from "@/components/util/useShowAllWordText";
 import {BASE_URL} from '@/main';
 import {useUniqueId} from "@/components/util/useUniqueId";
 import axios from "axios";
+import GradientPath from 'gradient-path'
+
+const fill = [
+    {color: '#ff7a7a', pos: 0},
+    {color: '#fdb57e', pos: 0.25},
+    {color: '#f7e279', pos: 0.5},
+    {color: '#c6f87f', pos: 0.75},
+    {color: '#81ff78', pos: 1}
+];
 
 export default {
     name: 'WordImage',
@@ -35,7 +44,7 @@ export default {
     },
     computed: {
         forceDisplayOfText() {
-            return this.showAllWordText;
+            return this.useShowAllWordText;
         }
     },
     beforeMount() {
