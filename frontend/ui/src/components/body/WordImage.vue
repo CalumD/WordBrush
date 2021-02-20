@@ -35,8 +35,7 @@ export default {
         return {
             BASE_URL: BASE_URL,
             uniqueID: useUniqueId().uniqueIdValue(),
-            svg: "<h1> WordBrush Loading... </h1>",
-            triggerOnce: true
+            svg: "<h1> WordBrush Loading... </h1>"
         }
     },
     setup() {
@@ -44,7 +43,7 @@ export default {
     },
     computed: {
         forceDisplayOfText() {
-            return this.useShowAllWordText;
+            return this.showAllWordText;
         }
     },
     beforeMount() {
