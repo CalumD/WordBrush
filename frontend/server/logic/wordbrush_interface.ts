@@ -141,7 +141,18 @@ export async function getResultSet(
 
 export async function getExistingResults(): Promise<any> {
     return new Promise(async (resolve, reject) => {
-        return resolve(fs.readdir(BASE_RESOURCES_PATH));
+        fs.readdir(BASE_RESOURCES_PATH, function (err, files) {
+            files = files
+                .map(function (fileName) {
+                    return {
+                        name: fileName,
+                        time: fs.statSync(BASE_RESOURCES_PATH + '/' + fileName).ctime.getTime()
+                    };
+                })
+                .sort((a, b) => b.time - a.time)
+                .map(v => v.name);
+            return resolve(files);
+        });
     });
 }
 
