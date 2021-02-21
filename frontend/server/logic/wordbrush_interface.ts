@@ -81,9 +81,9 @@ export async function getWords(
                 `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
                 `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
                 `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
-                `${wbArgs.keyboard ? ` -k ${wbArgs.keyboard}` : ''}` +
-                `${wbArgs.words ? ` ${wbArgs.words}` : ''}`)
-                .replace(/[,;|>&]/g, '');
+                `${wbArgs.keyboard ? ` -k ` : ''}` +
+                `${wbArgs.words ? ` ${wbArgs.words}` : ''}`
+            ).replace(/[,;|>&]/g, '');
 
         logger.debug("Calling WordBrush C code", {command: command, args: options});
         execAsync(`${command} ${options}`, {silent: true}, (execOutput) => {
