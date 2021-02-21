@@ -272,7 +272,6 @@ int main(int argc, char* argv[]) {
 
     // Check command line arguments
     Config* config = get_program_arguments(argc, argv);
-    config->start_timestamp = get_time_stamp();
 
     // If program arguments are not suitable, then shutdown.
     if (!config->successfully_initialised) {
@@ -282,6 +281,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Execute the main purpose of the program.
+    config->start_timestamp = get_time_stamp();
     if (config->single_file_column_count > 0) {
         single_file_output_wordbrush(config);
     } else {
