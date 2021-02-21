@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "main.h"
 
 bool canWriteDirectory(char* pathToDirectory);

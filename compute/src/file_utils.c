@@ -1,6 +1,12 @@
 #include "file_utils.h"
 
 bool canWriteDirectory(char* pathToDirectory) {
+    struct stat info;
+    if (stat(pathToDirectory, &info) == 0) {
+        if (S_ISREG(info.st_mode)) {
+            return false;
+        }
+    }
     return access(pathToDirectory, W_OK) == 0 ? true : false;
 }
 
@@ -9,8 +15,13 @@ bool canReadFile(char* pathToFile) {
 }
 
 bool canWriteFile(char* pathToFile) {
-    pathToFile = pathToFile;
-    return true;//access(pathToFile, W_OK) == 0 ? true : false;
+    struct stat info;
+    if (stat(pathToFile, &info) == 0) {
+        if (S_ISDIR(info.st_mode)) {
+            return false;
+        }
+    }
+    return access(pathToFile, W_OK) == 0 ? true : false;
 }
 
 FILE* open_input_file(char* path) {
