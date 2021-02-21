@@ -20,7 +20,7 @@ type CacheEntry = {
 
 const deleteFolder = (dirToPurge: string): void => {
     logger.inform(`Deleting result set ${dirToPurge}.`);
-    fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true});
+    fs.rmSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true, force: true});
 }
 
 const tryCache = (req: Request, res: Response, next: NextFunction): string => {
@@ -91,7 +91,7 @@ class RequestCacheV1 {
         for (let dir of fs.readdirSync(`${BASE_RESOURCES_PATH}`)) {
             if (!fs.existsSync(`${BASE_RESOURCES_PATH}/${dir}/cache.json`)) {
                 logger.inform(`Couldn't find cache file in output directory ${dir}, will purge.`);
-                fs.rmdirSync(`${BASE_RESOURCES_PATH}/${dir}`, {recursive: true});
+                fs.rmSync(`${BASE_RESOURCES_PATH}/${dir}`, {recursive: true, force: true});
                 continue;
             }
             this.put(fs.readJSONSync(`${BASE_RESOURCES_PATH}/${dir}/cache.json`));
