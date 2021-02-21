@@ -9,7 +9,7 @@ bool canReadFile(char* pathToFile) {
 }
 
 bool canWriteFile(char* pathToFile) {
-    pathToFile =pathToFile;
+    pathToFile = pathToFile;
     return true;//access(pathToFile, W_OK) == 0 ? true : false;
 }
 
@@ -25,8 +25,8 @@ FILE* open_input_file(char* path) {
     return fopen(path, "r");
 }
 
-bool check_if_delim(char c, char *delims) {
-    for (char *dl = delims; *dl; dl++) {
+bool check_if_delim(char c, char* delims) {
+    for (char* dl = delims; *dl; dl++) {
         if (c == *dl) {
             return true;
         }
@@ -136,15 +136,14 @@ char* next_word_file(Config* cfg) {
 }
 
 char* next_word_arg(Config* cfg) {
-    if (*cfg->words) {
-        return *(cfg->words++);
-    }
-    return *cfg->words;
+    static char* previous_word = 0;
+    previous_word = argz_next(cfg->words, cfg->args_legnth, previous_word);
+    return previous_word;
 }
 
 char* next_word(Config* cfg) {
 
-    char * ret;
+    char* ret;
     /*
      * The input can be either a list of command-line arguments,
      * or text from a file. This function should correctly choose

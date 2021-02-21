@@ -2,7 +2,7 @@ TRGT = bin/wordbrush
 SRCS = $(wildcard src/*.c)
 OBJS = $(patsubst src/%.c,bin/%.o, $(SRCS))
 
-CFLAGS = --pedantic -Wall -Wextra -Werror #-DNDEBUG
+CFLAGS = --pedantic -Wall -Wextra -Werror -DNDEBUG #-ggdb3
 
 .PHONY: default all clean run test
 

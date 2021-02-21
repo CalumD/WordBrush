@@ -1,20 +1,62 @@
 #include "main.h"
 
-void display_help() {
-    printf("TODO: FILL ME IN\n");
+const char* argp_program_bug_address = "https://github.com/CalumD/WordBrush/issues";
+const char* argp_program_version = "1.0.0";
+
+static int parse_opt(int key, char* arg, struct argp_state* state) {
+
+    Config* config = (Config*) state->input;
+    switch (key) {
+        case 'i':
+            debug("input: %s\n", arg);
+            config->input_file_path = arg;
+            break;
+        case 'o':
+            debug("output: %s\n", arg);
+            config->output_file_path = arg;
+            break;
+        case 'w':
+            debug("width: %s\n", arg);
+            config->width = strtol(arg, NULL, 10);
+            break;
+        case 'h':
+            debug("height: %s\n", arg);
+            config->height = strtol(arg, NULL, 10);
+            break;
+        case 'k':
+            debug("keyboard: true\n");
+            config->draw_background = true;
+            break;
+        case 's':
+            debug("columns: %s\n", arg);
+            config->single_file_column_count = strtol(arg, NULL, 10);
+            break;
+        case ARGP_KEY_ARG:
+            debug("argp_key_arg: %s\n", arg);
+            argz_add(&config->words, &config->args_legnth, arg);
+            config->word_count++;
+            break;
+    }
+    return 0;
 }
+
 
 Config* initialiseConfig() {
     Config* config = malloc(sizeof(Config));
+    config->successfully_initialised = false;
+    config->input_file_path = 0;
+    config->output_file_path = 0;
     config->successfully_initialised = false;
     config->draw_background = false;
     config->single_file_column_count = 0;
     config->width = 450;
     config->height = 180;
+    config->word_count = 0;
+    config->words = 0;
+    config->args_legnth = 0;
 
     return config;
 }
-
 
 /**
  * Parse the program arguments in preparation to run.
@@ -26,55 +68,29 @@ Config* initialiseConfig() {
 Config* get_program_arguments(int argc, char* argv[]) {
     Config* config = initialiseConfig();
 
+    struct argp_option options[] = {
+            {"input",    'i', "PATH", 0,       "Path to a text file to be used as word input.",                                                             0},
+            {"output",   'o', "PATH", 0,       "Path to DIRECTORY to use if in multi-file output mode, or path to FILENAME if in single-file output mode.", 0},
+            {"width",    'w', "NUM",  0,       "The width of each individual output image",                                                                 0},
+            {0,          'W', 0, OPTION_ALIAS, 0,                                                                                                           0},
+            {"height",   'h', "NUM",  0,       "The height of each individual output image",                                                                0},
+            {0,          'H', 0, OPTION_ALIAS, 0,                                                                                                           0},
+            {"keyboard", 'k', 0,      0,       "Display the keyboard in the background",                                                                    0},
+            {"keeb",     0,   0, OPTION_ALIAS, 0,                                                                                                           0},
+            {"sfo",      's', "NUM",  0,       "Number of columns per row in single-file output mode.",                                                     0},
+            {"columns",  0,   0, OPTION_ALIAS, 0,                                                                                                           0},
+            {0}
+    };
+    struct argp argp = {options, parse_opt, "[WORD INPUT]", 0, 0, 0, 0};
+
+    int args_failed = argp_parse(&argp, argc, argv, 0, 0, config);
+
     bool errored = false;
 
-    // put ':' in the starting of the string so that program can distinguish between '?' and ':'
-    int opt;
-    while ((opt = getopt(argc, argv, "k:i:o:s:hW:H:")) != -1) {
-        switch (opt) {
-            // print help output
-            case 'h':
-                display_help();
-                return config;
-                // Create singular output file with rows and columns of words
-            case 's':
-                config->single_file_column_count = strtol(optarg, NULL, 10);
-                break;
-                // Input filename
-            case 'i':
-                config->input_file_path = optarg;
-                break;
-                // Output directory (will output files to here with name ~/output_<X>.svg)
-            case 'o':
-                config->output_file_path = optarg;
-                break;
-                // Width of the virtual keyboard (aka output width scale)
-            case 'W':
-                config->width = strtol(optarg, NULL, 10);
-                break;
-                // Height of the virtual keyboard (aka output height scale)
-            case 'H':
-                config->height = strtol(optarg, NULL, 10);
-                break;
-                // Draw the keyboard underneath the line
-            case 'k':
-                config->draw_background = true;
-                break;
-                // Covering when the user makes a mistake in input.
-            case ':':
-                fprintf(stderr, "option needs a value\n");
-                errored = true;
-                break;
-            default:
-                fprintf(stderr, "unknown option: %c\n", optopt);
-                errored = true;
-                break;
-        }
+    if (args_failed) {
+        fprintf(stderr, "Something went wrong when parsing the CLI arguments.\n");
+        errored = true;
     }
-
-    // optind is for the extra arguments which are not parsed
-    config->words = argv + optind;
-    config->word_count = argc - optind;
 
     // FIXME: The output from the 'canWrite' methods are inconsistent depending on where they are called from.
     if (config->single_file_column_count > 0) {
@@ -265,17 +281,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    debug("Input Path: %s\n", config->input_file_path);
-    debug("Output Path: %s\n", config->output_file_path);
-    debug("Multi-file Output: %ld\n", config->single_file_column_count);
-    debug("Keyboard Width: %ld\n", config->width);
-    debug("Keyboard Height: %ld\n", config->height);
-    debug("Input Word Count: %ld\n", config->word_count);
-    for (int i = 0; i < config->word_count; i++) {
-        debug("cli arg word: %s\n", *(config->words + i));
-    }
-    debug("\n\n");
-
     //Execute the main purpose of the program.
     if (config->single_file_column_count > 0) {
         single_file_output_wordbrush(config);
@@ -288,7 +293,9 @@ int main(int argc, char* argv[]) {
     if (config->input_file) {
         fclose(config->input_file);
     }
-
+    if (config->words) {
+        free(config->words);
+    }
     free(config);
     return 0;
 }

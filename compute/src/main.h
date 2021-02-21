@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <libgen.h>
+#include <argz.h>
 
 typedef struct Config {
     bool successfully_initialised;
@@ -16,14 +17,15 @@ typedef struct Config {
     char* start_timestamp;
     char* stop_timestamp;
     char* output_file_path;
-    char** words;
+    char* words;
+    size_t args_legnth;
     long word_count;
     long width;
     long height;
 } Config;
 
 #include <malloc.h>
-#include <getopt.h>
+#include <argp.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/stat.h>
