@@ -8,6 +8,7 @@
 
 typedef struct Config {
     bool successfully_initialised;
+    bool draw_background;
     long single_file_column_count;
     char* input_file_path;
     FILE* input_file;

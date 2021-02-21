@@ -7,6 +7,7 @@ void display_help() {
 Config* initialiseConfig() {
     Config* config = malloc(sizeof(Config));
     config->successfully_initialised = false;
+    config->draw_background = false;
     config->single_file_column_count = 0;
     config->width = 450;
     config->height = 180;
@@ -29,7 +30,7 @@ Config* get_program_arguments(int argc, char* argv[]) {
 
     // put ':' in the starting of the string so that program can distinguish between '?' and ':'
     int opt;
-    while ((opt = getopt(argc, argv, ":i:o:s:hW:H:")) != -1) {
+    while ((opt = getopt(argc, argv, "k:i:o:s:hW:H:")) != -1) {
         switch (opt) {
             // print help output
             case 'h':
@@ -54,6 +55,10 @@ Config* get_program_arguments(int argc, char* argv[]) {
                 // Height of the virtual keyboard (aka output height scale)
             case 'H':
                 config->height = strtol(optarg, NULL, 10);
+                break;
+                // Draw the keyboard underneath the line
+            case 'k':
+                config->draw_background = true;
                 break;
                 // Covering when the user makes a mistake in input.
             case ':':

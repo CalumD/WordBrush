@@ -107,21 +107,20 @@ Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
 
 void compute_curves(Config* config, svg* svg, char* word) {
 
-
-    debug_only(
-            int key_count = 26;
-            for (int i = 0; i < key_count; i++) {
-                /*
-                 * TODO
-                 * I can't remember if modern C standards guarantee that
-                 * sequential characters are adjacent in terms of integer
-                 * value (i.e. that 'a' + 1 == 'b'). Should probably double-
-                 * check this.
-                 */
-                svg_key(svg, config, 'a' + i);
-            }
-            svg_key(svg, config, ' ')
-    );
+    if (config->draw_background) {
+        int key_count = 26;
+        for (int i = 0; i < key_count; i++) {
+            /*
+             * TODO
+             * I can't remember if modern C standards guarantee that
+             * sequential characters are adjacent in terms of integer
+             * value (i.e. that 'a' + 1 == 'b'). Should probably double-
+             * check this.
+             */
+            svg_key(svg, config, 'a' + i);
+        }
+        svg_key(svg, config, ' ');
+    }
 
     int alphaCharCount = 0;
     for (size_t i = 0; i < strlen(word); i++) {
@@ -131,12 +130,14 @@ void compute_curves(Config* config, svg* svg, char* word) {
 
     Point* key_locations = get_random_points_on_keys(config, alphaCharCount, word);
 
+    if (config->draw_background) {
+        for (int i = 0; i < alphaCharCount; i++) {
+            add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
+                       key_locations[i].y);
+        }
+    }
+
     svg_quadratic_bezier(svg, alphaCharCount, key_locations);
 
-
-    debug_only(for (int i = 0; i < alphaCharCount; i++) {
-        add_to_svg(svg, "<circle cx=\"%f\" cy=\"%f\" r=\"5\" style=\"fill:red\"/>\n", key_locations[i].x,
-                   key_locations[i].y);
-    });
     free(key_locations);
 }
