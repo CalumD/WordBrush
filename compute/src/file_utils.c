@@ -5,9 +5,11 @@ bool canWriteDirectory(char* pathToDirectory) {
     if (stat(pathToDirectory, &info) == 0) {
         if (S_ISREG(info.st_mode)) {
             return false;
+        } else if (S_ISDIR(info.st_mode)) {
+            return access(pathToDirectory, W_OK) == 0 ? true : false;
         }
     }
-    return access(pathToDirectory, W_OK) == 0 ? true : false;
+    return false;
 }
 
 bool canReadFile(char* pathToFile) {
@@ -21,7 +23,12 @@ bool canWriteFile(char* pathToFile) {
             return false;
         }
     }
-    return access(pathToFile, W_OK) == 0 ? true : false;
+    FILE* touch = fopen(pathToFile, "a");
+    if (touch) {
+        fclose(touch);
+        return true;
+    }
+    return false;
 }
 
 FILE* open_input_file(char* path) {
