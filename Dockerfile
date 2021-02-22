@@ -1,23 +1,15 @@
 FROM node:14-alpine
 
+EXPOSE 3000
+EXPOSE 8080
+
 RUN apk update && \
     apk add make gcc libc-dev
 
-EXPOSE 3000
-
-ENV WORK_DIR=/tmp/code/
-RUN mkdir -p $WORK_DIR
+ENV WORK_DIR=/wordbrush
 RUN mkdir -p $WORK_DIR/resources
 WORKDIR $WORK_DIR
 
+COPY . $WORK_DIR
 
-COPY dockerRunner.sh $WORK_DIR/dockerRunner.sh
-COPY compute $WORK_DIR/compute
-COPY frontend/src $WORK_DIR/frontend/src
-COPY frontend/package.json $WORK_DIR/frontend/src/package.json
-
-# REMOVE THIS BEFORE SHIPPING
-COPY resources $WORK_DIR/resources
-
-
-ENTRYPOINT ["./dockerRunner.sh"]
+CMD /bin/sh
