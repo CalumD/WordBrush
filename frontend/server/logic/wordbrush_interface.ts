@@ -78,8 +78,8 @@ export async function getWords(
 
         const options =
             (` -o "${wbArgs.sfo ? outputData.path + '/0.svg' : outputData.path}"` +
-                `${wbArgs.width ? ` -W ${wbArgs.width}` : ''}` +
-                `${wbArgs.height ? ` -H ${wbArgs.height}` : ''}` +
+                `${wbArgs.width ? ` -w ${wbArgs.width}` : ''}` +
+                `${wbArgs.height ? ` -h ${wbArgs.height}` : ''}` +
                 `${wbArgs.sfo ? ` -s ${wbArgs.sfo}` : ''}` +
                 `${wbArgs.keyboard ? ` -k ` : ''}` +
                 `${wbArgs.words ? ` ${wbArgs.words}` : ''}`
