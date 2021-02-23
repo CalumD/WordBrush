@@ -24,7 +24,7 @@ static int parse_opt(int key, char* arg, struct argp_state* state) {
             config->height = strtol(arg, NULL, 10);
             break;
         case 'k':
-            debug("keyboard: true\n");
+            debug("keyboard: %s\n", "true");
             config->draw_background = true;
             break;
         case 's':
