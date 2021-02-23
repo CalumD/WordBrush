@@ -5,7 +5,8 @@
   "main": "server.ts",
   "scripts": {
     "test": "test",
-    "serve": "nodemon server -e ts,js,mjs,json -x ts-node"
+    "serve": "nodemon server -e ts,js,mjs,json -x ts-node",
+    "production": ""
   },
   "repository": {
     "type": "git",
@@ -23,10 +24,16 @@
   },
   "homepage": "https://github.com/CalumD/WordBrush#readme",
   "devDependencies": {
+    "@types/body-parser": "latest",
+    "@types/express": "latest",
     "@types/fs-extra": "latest",
     "@types/node": "latest",
+    "@types/serve-favicon": "latest",
     "@types/shelljs": "latest",
-    "nodemon": "latest"
+    "@types/uuid": "latest",
+    "nodemon": "latest",
+    "ts-node": "latest",
+    "typescript": "latest"
   },
   "dependencies": {
     "corser": "latest",
@@ -36,8 +43,6 @@
     "on-headers": "latest",
     "serve-favicon": "latest",
     "shelljs": "latest",
-    "ts-node": "latest",
-    "typescript": "latest",
     "uuid": "latest",
     "winston": "latest"
   }
