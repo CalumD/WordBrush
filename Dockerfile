@@ -7,7 +7,8 @@ RUN apt-get update && \
     apt-get -q -y upgrade && \
     apt-get -q -y install make gcc zsh && \
     apt-get -q -y autoremove && \
-    npm install -g npm
+    npm install -g npm typescript serve
+
 
 ENV WORK_DIR=/wordbrush
 WORKDIR $WORK_DIR
@@ -21,10 +22,11 @@ COPY . .
 RUN cd compute && \
     mkdir bin && \
     make && \
+
     cd ../frontend/server && \
-    npm install && \
+    npm run production && \
+
     cd ../ui && \
-    npm install && \
-    npm run build
+    npm run production
 
 CMD /bin/zsh
