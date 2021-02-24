@@ -1,12 +1,12 @@
 {
   "name": "wordbrush_frontend_server",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "The Node server for the frontend of the Wordbrush project",
   "main": "server.ts",
   "scripts": {
-    "test": "test",
-    "serve": "nodemon server -e ts,js,mjs,json -x ts-node",
-    "production": ""
+    "dev": "nodemon server -e ts,js,mjs,json -x ts-node",
+    "build": "npm install && tsc && cp favicon.ico dist/",
+    "production": "npm run build && NODE_ENV=Production node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -27,10 +27,12 @@
     "@types/body-parser": "latest",
     "@types/express": "latest",
     "@types/fs-extra": "latest",
+    "@types/multer": "latest",
     "@types/node": "latest",
     "@types/serve-favicon": "latest",
     "@types/shelljs": "latest",
     "@types/uuid": "latest",
+    "body-parser": "latest",
     "nodemon": "latest",
     "ts-node": "latest",
     "typescript": "latest"

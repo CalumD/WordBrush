@@ -135,7 +135,7 @@ const setDefaults: (defaults: { component: string; }) => Logger =
             transports: [new winston.transports.Console()],
             exitOnError: false,
             handleExceptions: true,
-            level: 'verbose',
+            level: process.env.NODE_ENV === 'Production' ? 'info' : 'verbose',
             format: winston.format.combine(
                 winston.format.label({label: defaults.component}),
                 winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
