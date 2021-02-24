@@ -60,7 +60,7 @@ cmake-build-debug
 # Node stuff
 .DS_Store
 **/node_modules
-/dist
+**/dist
 
 .env.local
 .env.*.local
