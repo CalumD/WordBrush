@@ -5,6 +5,7 @@ import {RequestError} from '../errors';
 import {uuid} from '../uuid';
 import * as wb_inter from "../logic/wordbrush_interface";
 import {addToCache, tryCache} from '../logic/request_cache';
+import {FileFilterCallback} from "multer";
 
 const multer = require('multer');
 
@@ -15,7 +16,7 @@ export type Middleware =
 const getWords: Middleware = async (
     req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
-    const cacheKey = tryCache(req, res, next);
+    const cacheKey = tryCache(req, res);
     if (cacheKey === 'HIT') {
         logger.debug("Skipping new getWords() as cache HIT.")
         return next();
@@ -26,11 +27,11 @@ const getWords: Middleware = async (
 
     res.locals.data = await wb_inter.getWords({
         wbArgs: {
-            width: req.query.w,
-            height: req.query.h,
-            sfo: req.query.sfo,
-            keyboard: req.query.k ? req.query.k == 'true' : undefined,
-            words: req.query.input ? req.query.input.replace(/[,;|>&-]/g, ' ') : undefined,
+            width: req.query.w ? Number(req.query.w) : undefined,
+            height: req.query.h ? Number(req.query.h) : undefined,
+            sfo: req.query.sfo ? Number(req.query.sfo) : undefined,
+            keyboard: req.query.k ? (<string>req.query.k) === 'true' : undefined,
+            words: req.query.input ? (<string>req.query.input).replace(/[,;|>&-]/g, ' ') : undefined,
             hasInputFile: !!req.file
         },
         file: req.file,
@@ -122,7 +123,7 @@ export class WordsRouterV1 {
             bodyParser.raw({limit: '10MB'}),
             multer({
                 storage: multer.memoryStorage(),
-                fileFilter: function (req, file, cb) {
+                fileFilter: function (req: Request, file: any, cb: FileFilterCallback) {
                     if (file.originalname.endsWith(".txt") && file.mimetype.startsWith("text/")) {
                         return cb(null, true);
                     }
@@ -142,39 +143,39 @@ export class WordsRouterV1 {
         this.router.get('', getMethods);
     }
 
-    private static urlParamIntegerMatcher(input: string, forParam: string): void | RequestError {
+    private static urlParamIntegerMatcher(input: string, forParam: string): undefined | RequestError {
         if (!input.match(/^[0-9]+$/)) {
             return badQueryParam(`URL parameter for ${forParam} expected an integer, received non-integer input.`, 'invalid_size_param', input);
         }
-        return null;
+        return undefined;
     }
 
-    private static urlParamBooleanMatcher(input: string, forParam: string): void | RequestError {
+    private static urlParamBooleanMatcher(input: string, forParam: string): undefined | RequestError {
         if (input !== 'true' && input !== 'false') {
             return badQueryParam(`URL parameter for ${forParam} expected a boolean, received non-bool input.`, 'invalid_flag_param', input);
         }
-        return null;
+        return undefined;
     }
 
-    private static urlParamUUIDMatcher(input: string, forParam: string): void | RequestError {
+    private static urlParamUUIDMatcher(input: string, forParam: string): undefined | RequestError {
         if (!uuid.verify(input)) {
             return badQueryParam(`URL parameter for ${forParam} expected a valid uuid.`, 'invalid_uuid', input);
         }
-        return null;
+        return undefined;
     }
 
-    private static urlParamFilenameMatcher(input: string, forParam: string): void | RequestError {
+    private static urlParamFilenameMatcher(input: string, forParam: string): undefined | RequestError {
         if (!input.match(/^([0-9]+)(\.svg)?$/)) {
             return badQueryParam(`URL parameter for ${forParam} expected /^([0-9]+)(\\.svg)?$/.`, 'invalid_filename', input);
         }
-        return null;
+        return undefined;
     }
 
-    private static integerBoundChecker(input: Number, forParam: string, minBound: Number, maxBound: Number): void | RequestError {
+    private static integerBoundChecker(input: Number, forParam: string, minBound: Number, maxBound: Number): undefined | RequestError {
         if (input < minBound || input > maxBound) {
             return badQueryParam(`URL parameter for ${forParam} expected to be (${minBound} <= x <= ${maxBound}).`, 'invalid_size_param', input);
         }
-        return null;
+        return undefined;
     }
 
     private validateQueryParamsRequired: Middleware = (
@@ -197,7 +198,7 @@ export class WordsRouterV1 {
     ): void => {
         logger.trace('Called validateQueryParamsOptional')
         if (req.query.w) {
-            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.w, 'width');
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(<string>req.query.w, 'width');
             if (potentialError) {
                 return next(potentialError);
             }
@@ -207,7 +208,7 @@ export class WordsRouterV1 {
             }
         }
         if (req.query.h) {
-            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.h, 'height');
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(<string>req.query.h, 'height');
             if (potentialError) {
                 return next(potentialError);
             }
@@ -217,7 +218,7 @@ export class WordsRouterV1 {
             }
         }
         if (req.query.sfo) {
-            let potentialError = WordsRouterV1.urlParamIntegerMatcher(req.query.sfo, 'sfo');
+            let potentialError = WordsRouterV1.urlParamIntegerMatcher(<string>req.query.sfo, 'sfo');
             if (potentialError) {
                 return next(potentialError);
             }
@@ -227,7 +228,7 @@ export class WordsRouterV1 {
             }
         }
         if (req.query.k) {
-            let potentialError = WordsRouterV1.urlParamBooleanMatcher(req.query.k, 'keyboard');
+            let potentialError = WordsRouterV1.urlParamBooleanMatcher(<string>req.query.k, 'keyboard');
             if (potentialError) {
                 return next(potentialError);
             }

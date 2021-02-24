@@ -112,11 +112,11 @@ export interface Logger {
     shutdown: (message: string, meta?: {}) => void
 }
 
-let basicConsoleLogger;
+let basicConsoleLogger: any;
 
 const getCircularJSONStringifyReplacer = () => {
     const seen = new WeakSet();
-    return (key, value) => {
+    return (key: string, value: any) => {
         if (typeof value === "object" && value !== null) {
             if (seen.has(value)) {
                 return '[Circular reference]';

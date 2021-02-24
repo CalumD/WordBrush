@@ -49,6 +49,8 @@ class App {
             }
         );
         this.errorWare();
+
+        logger.success('Server now configured and running.');
     }
 
     private middleWare(): void {
@@ -68,9 +70,11 @@ class App {
             });
             next();
         });
+        logger.debug('Middleware loaded');
     }
 
     private mountRoutes(): void {
+        logger.debug('Loading routes');
         const defRouter: ex.Router = ex.Router();
         defRouter.get('/', (req: ex.Request, res: ex.Response): void => {
             res.json({
@@ -94,6 +98,7 @@ class App {
                     next();
                 }
             });
+        logger.debug('Routes loaded');
     }
 
     private errorWare(): void {

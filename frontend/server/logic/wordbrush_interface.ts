@@ -11,14 +11,14 @@ const APPLICATION_PATH: string = `${resolve(process.cwd() + '../../../compute/bi
 
 export type ExecOutput = {
     code: number,
-    stdOut: string,
-    stdErr: string
+    stdOut: string | undefined,
+    stdErr: string | undefined
 }
 export type WordBrushArgs = {
     width?: number,
     height?: number,
     sfo?: number,
-    words?: string[],
+    words?: string,
     keyboard?: boolean,
     hasInputFile?: boolean
 }
@@ -187,10 +187,10 @@ const output404: Function = (fileName: string, directory: string, next: NextFunc
 function execAsync(command: string, opts: {} = {}, additionalCallback?: (execOutput: ExecOutput) => void): Promise<ExecOutput> {
     return new Promise(function (resolve) {
         shell.exec(command, opts, function (code, stdout, stderr) {
-            const shellOutput = {
+            const shellOutput: ExecOutput = {
                 code: code,
-                stdOut: stdout == "" ? undefined : stdout,
-                stdErr: stderr == "" ? undefined : stderr
+                stdOut: stdout === "" ? undefined : stdout,
+                stdErr: stderr === "" ? undefined : stderr
             };
             if (code !== 0) {
                 logger.failure("Command Failed.", shellOutput);

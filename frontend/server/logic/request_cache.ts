@@ -23,7 +23,7 @@ const deleteFolder = (dirToPurge: string): void => {
     fs.rmSync(`${BASE_RESOURCES_PATH}/${dirToPurge}`, {recursive: true, force: true});
 }
 
-const tryCache = (req: Request, res: Response, next: NextFunction): string => {
+const tryCache = (req: Request, res: Response): string => {
 
     const hashResult = cache.createCacheKey(req.originalUrl, req.file);
     const cacheHIT = cache.getDirFromHash(hashResult);
@@ -42,10 +42,17 @@ const addToCache = (value: CacheEntry): void => {
     cache.put(value);
 }
 
-const shouldErrorDirRequest = (dirToCheck, next: NextFunction): boolean => {
+/**
+ * If this search for a cache directory finds something, then it used to exist, and thus must be an error uuid.
+ * If nothing was found, then there was no error and the user just searched for a dir which never existed.
+ *
+ * @param dirToCheck The uuid of the directory to check for
+ * @param next This is used to respond with an error if required.
+ */
+const shouldErrorDirRequest = (dirToCheck: string, next: NextFunction): boolean => {
     let cacheErr: CacheEntry | ErrorResponseBlock = cache.getCacheFromDir(dirToCheck);
     if (cacheErr) {
-        cacheErr = cacheErr.error;
+        cacheErr = <ErrorResponseBlock>cacheErr.error;
         logger.inform("Request made for directory of failed process " + dirToCheck);
         next(new RequestError(cacheErr))
         return true;
@@ -113,7 +120,7 @@ class RequestCacheV1 {
             if (folderAgeMins > MINS_OLD_FOR_DELETION) {
                 logger.inform(`Found result set > ${MINS_OLD_FOR_DELETION} mins old.`)
                 deleteFolder(dir);
-                this.hashToCache.delete(this.dirToHash.get(dir));
+                this.hashToCache.delete(<string>this.dirToHash.get(dir));
                 this.dirToHash.delete(dir);
                 logger.data(`${this.size()} values in the cache`);
             }
@@ -134,11 +141,11 @@ class RequestCacheV1 {
     }
 
     getDirFromHash(cacheKey: string): CacheEntry {
-        return this.hashToCache.get(cacheKey);
+        return <CacheEntry>this.hashToCache.get(cacheKey);
     }
 
     getCacheFromDir(dirOfBadRequest: string): CacheEntry {
-        return this.hashToCache.get(this.dirToHash.get(dirOfBadRequest));
+        return <CacheEntry>this.hashToCache.get(<string>this.dirToHash.get(dirOfBadRequest));
     }
 
     put(value: CacheEntry): void {
