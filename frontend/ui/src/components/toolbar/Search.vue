@@ -295,7 +295,7 @@ input.search_bar {
 }
 
 #file_upload_input:disabled ~ .file_upload_button svg {
-    opacity: 20%;
+    opacity: 0.2;
 }
 
 .file_upload_button svg {

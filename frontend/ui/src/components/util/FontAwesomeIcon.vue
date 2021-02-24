@@ -1,7 +1,7 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" :class="$props.class" :viewBox="`0 0 ${width} ${height}`">
 
-        <path fill="currentColor" :d="svgPath"/>
+        <path :fill="currentColor" :d="svgPath"/>
 
     </svg>
 </template>
@@ -34,7 +34,12 @@ export default {
             default: "fas",
             required: false
         },
-        class: String
+        class: String,
+        currentColor: {
+            type: String,
+            default: 'black',
+            required: false
+        }
     },
 
     setup(props) {

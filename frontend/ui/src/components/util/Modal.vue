@@ -175,7 +175,7 @@ export default {
 .modal-container * {
     font-size: large;
     font-weight: bold;
-    opacity: 100%;
+    opacity: 1;
 }
 
 .modal-transition-enter-from,

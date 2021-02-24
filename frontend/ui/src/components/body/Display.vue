@@ -83,7 +83,7 @@ export default {
 }
 
 .image_output h1 {
-    opacity: 20%;
+    opacity: 0.2;
     font-size: xxx-large;
 
     display: inline-block;

@@ -15,7 +15,7 @@
             @mouseleave="stopChanging"
             @mouseup="stopChanging"
             class="num_chooser_button_minus">
-            <FontAwesomeIcon icon="minus"/>
+            <FontAwesomeIcon icon="minus" :current-color="'#b40000'"/>
         </button>
         <button
             type="button"
@@ -23,7 +23,7 @@
             @mouseleave="stopChanging"
             @mouseup="stopChanging"
             class="num_chooser_button_plus">
-            <FontAwesomeIcon icon="plus"/>
+            <FontAwesomeIcon icon="plus" :current-color="'#009513'"/>
         </button>
     </label>
 </template>
@@ -149,7 +149,6 @@ button svg {
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     order: 0;
-    color: #b40000;
 }
 
 .num_chooser_input {
@@ -167,7 +166,6 @@ button svg {
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     order: 2;
-    color: #009513;
 }
 
 
