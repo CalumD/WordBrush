@@ -1,15 +1,15 @@
 #!/bin/sh
 
-echo "COMPILING APPLICATION..."
-cd compute
+echo "Updating hostname for UI->Server communication..."
+sed -i "s/localhost/$(hostname -i)/" /wordbrush/frontend/ui/src/main.js
+hostname -i
 
-mkdir bin
-make build
+echo "Booting..."
+cd /wordbrush/frontend/ui && npm run production &
+ui=$!
+cd /wordbrush/frontend/server && npm run production &
+server=$!
 
-echo "TESTING APPLICATION..."
-make test
-
-
-echo "BOOTING FRONTEND..."
-cd ../frontend
-node src/hello-world.js
+echo "Booted."
+wait $ui $server
+echo "Terminated."
