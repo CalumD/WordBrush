@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "nodemon server -e ts,js,mjs,json -x ts-node",
-    "build": "npm install && tsc && cp favicon.ico dist/",
+    "build": "npm install 2> /dev/null && tsc && cp favicon.ico dist/",
     "production": "npm run build && NODE_ENV=Production node dist/server.js"
   },
   "repository": {
