@@ -85,7 +85,7 @@ export async function getWords(
                 `${wbArgs.words ? ` ${wbArgs.words}` : ''}`
             ).replace(/[,;|>&]/g, '');
 
-        logger.debug("Calling WordBrush C code", {command: command, args: options});
+        logger.notify("Calling WordBrush C code", {command: command, args: options});
         execAsync(`${command} ${options}`, {silent: true}, (execOutput) => {
             if (execOutput.code !== 0) {
                 markExceptionDirectory(outputData.id, execOutput);
