@@ -12,7 +12,7 @@
                     <li v-if="existing_outputs.length > 0" v-for="item in existing_outputs">
                         <span>{{ displayData[item] }}</span>
                         <FontAwesomeIcon @click="getPreviousOutput(item)" class="rerun_history_icon"
-                                         icon="redo"></FontAwesomeIcon>
+                                         icon="redo" :current-color="'#af5a3a'"></FontAwesomeIcon>
                         <span @click="getPreviousOutput(item)" class="button_like">Rerun</span>
                     </li>
                     <li v-else style="max-width: 100%;">
@@ -215,7 +215,6 @@ export default {
     max-height: 100%;
     width: 10%;
     max-width: 20%;
-    color: #af5a3a;
 }
 
 .rerun_history_icon:hover {
