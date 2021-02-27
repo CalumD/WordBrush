@@ -111,7 +111,6 @@ void compute_curves(Config* config, svg* svg, char* word) {
         int key_count = 26;
         for (int i = 0; i < key_count; i++) {
             /*
-             * TODO
              * I can't remember if modern C standards guarantee that
              * sequential characters are adjacent in terms of integer
              * value (i.e. that 'a' + 1 == 'b'). Should probably double-

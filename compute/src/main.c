@@ -92,7 +92,6 @@ Config* get_program_arguments(int argc, char* argv[]) {
         errored = true;
     }
 
-    // FIXME: The output from the 'canWrite' methods are inconsistent depending on where they are called from.
     if (config->single_file_column_count > 0) {
         if (!canWriteFile(config->output_file_path)) {
             fprintf(stderr, "Cannot write that file, check destination is free - aborting.\n");
