@@ -114,13 +114,13 @@ Usage: wordbrush [OPTION...] [WORD INPUT]
 -i, --input=PATH           Path to a text file to be used as word input.
 -k, --keyboard, --keeb     Display the keyboard in the background
 -o, --output=PATH          Path to DIRECTORY to use if in multi-file output
-mode, or path to FILENAME if in single-file output
-mode.
+                           mode, or path to FILENAME if in single-file output
+                           mode.
 -s, --sfo=NUM, --columns=NUM   Number of columns per row in single-file
-output mode.
+                           output mode.
 -w, -W, --width=NUM        The width of each individual output image
 -?, --help                 Give this help list
---usage                Give a short usage message
+--usage                    Give a short usage message
 -V, --version              Print program version
 
 Mandatory or optional arguments to long options are also mandatory or optional
