@@ -1,8 +1,9 @@
 #!/bin/sh
 
-echo "Updating hostname for UI->Server communication..."
-sed -i "s/localhost/$(hostname -i)/" /wordbrush/frontend/ui/src/main.js
-hostname -i
+echo "Container ip:$(hostname -i), Backend Address to use:${BACKEND_ADDRESS}"
+echo "Updating address for UI->Server communication..."
+sed -i "s/localhost/$BACKEND_ADDRESS/" /wordbrush/frontend/ui/src/main.js
+
 
 echo "Booting..."
 cd /wordbrush/frontend/ui && npm run production &
