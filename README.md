@@ -1,4 +1,4 @@
-# [![WordBrushLogo](https://github.com/CalumD/WordBrush/blob/master/examples/WordBrush.svg)](https://github.com/CalumD/WordBrush) WordBrush
+# WordBrush [![WordBrushLogo](https://github.com/CalumD/WordBrush/blob/master/examples/WordBrush.svg)](https://github.com/CalumD/WordBrush)
 
 This project takes ASCII input and draws the resultant line, as if you were to 'swipe-to-type' that word across a
 touchscreen keyboard.
@@ -144,22 +144,22 @@ program execution. This file contains a mapping from filename --> word used to c
 
 ## Examples
 
-The base website:
+#### The base website:
 
 [![Base Web UI](https://github.com/CalumD/WordBrush/blob/master/examples/base_website.png)]()
 
-The options dropdown:
+#### The options dropdown:
 
 [![Search Options](https://github.com/CalumD/WordBrush/blob/master/examples/search_options.png)]()
 
-The base website:
+#### Previous searches dropdown:
 
 [![Past Searches](https://github.com/CalumD/WordBrush/blob/master/examples/past_searches.png)]()
 
-The base website:
+#### Example of output with colour tracing enabled:
 
 [![A Search With colour tracing enables](https://github.com/CalumD/WordBrush/blob/master/examples/coloured_output.png)]()
 
-The base website:
+#### Example of output with the keyboards drawn, and hovering over the WB logo to see the words used to create the lines:
 
 [![Keyboard background and hovering over WB logo to see words](https://github.com/CalumD/WordBrush/blob/master/examples/output_with_keeb_and_words.png)]()
