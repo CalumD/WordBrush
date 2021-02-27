@@ -1,6 +1,6 @@
 FROM node:15.9-slim
 
-RUN groupadd -r -g 999 wordbrush && useradd -r -g wordbrush -u 999 wordbrush
+RUN groupadd -r wordbrush && useradd --create-home -r -g wordbrush wordbrush
 
 EXPOSE 3000 8080
 
@@ -14,25 +14,20 @@ RUN apt-get update && \
     npm install 2> /dev/null -g npm@latest typescript serve && \
     mkdir -p resources
 
-COPY compute compute
-COPY frontend frontend
+USER wordbrush
 
-RUN chown -R wordbrush:wordbrush $WORK_DIR
+COPY --chown=wordbrush:wordbrush compute compute
+COPY --chown=wordbrush:wordbrush frontend frontend
+COPY --chown=wordbrush:wordbrush dockerRunner.sh .
 
 VOLUME $WORK_DIR/resources
 
-USER wordbrush
+RUN cd compute && \
+    mkdir bin && \
+    make && \
+    cd ../frontend/server && \
+    npm run build && \
+    cd ../ui && \
+    npm run build
 
-#RUN cd compute && \
-#    mkdir bin && \
-#    make && \
-#    cd ../frontend/server && \
-#    npm run build && \
-#    cd ../ui && \
-#    npm run build
-#
-#COPY dockerRunner.sh .
-#
-#ENTRYPOINT ["./dockerRunner.sh"]
-
-CMD /bin/zsh
+ENTRYPOINT ["./dockerRunner.sh"]
