@@ -31,7 +31,11 @@ const getWords: Middleware = async (
             height: req.query.h ? Number(req.query.h) : undefined,
             sfo: req.query.sfo ? Number(req.query.sfo) : undefined,
             keyboard: req.query.k ? (<string>req.query.k) === 'true' : undefined,
-            words: req.query.input ? (<string>req.query.input).replace(/[,;|>&-]/g, ' ') : undefined,
+            words: req.query.input
+                ? (<string>req.query.input)
+                    .replace(/[,;|>&-]/g, ' ')
+                    .replace(/['"]/g, '')
+                : undefined,
             hasInputFile: !!req.file
         },
         file: req.file,
