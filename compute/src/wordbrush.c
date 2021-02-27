@@ -84,7 +84,7 @@ Point get_random_point_on_next_key(KeyBounds current_key, KeyBounds next_key) {
 }
 
 Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
-    Point* points = malloc(sizeof(Point) * word_length);
+    Point* points = malloc(sizeof(Point) * (word_length == 1 ? 2 : word_length));
     bool is_first_char = true;
 
     for (size_t i = 0, char_index = 0; i < strlen(word); i++) {
@@ -92,6 +92,9 @@ Point* get_random_points_on_keys(Config* config, int word_length, char* word) {
             if (is_first_char) {
                 points[0] = get_random_point_on_current_key(get_key_bounds(config, word[i]));
                 is_first_char = false;
+                if (word_length == 1) {
+                    points[1] = (Point) {points[0].x + 0.5, points[0].y + 0.5};
+                }
             } else {
                 points[char_index] = get_random_point_on_next_key(
                         get_key_bounds(config, word[i - 1]),
