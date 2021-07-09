@@ -24,7 +24,10 @@ jobs:
 
     steps:
     - name: CD to correct dir
-      run: cd ./frontend/server
+      run: |
+        pwd
+        ls
+        cd ./frontend/server
     
     - name: Checkout
       uses: actions/checkout@v2
