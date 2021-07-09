@@ -60,6 +60,7 @@ jobs:
 
     - run: |
        cd compute
+       mkdir bin
        make
 
     - name: Perform CodeQL Analysis
