@@ -24,12 +24,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        working-directory: ./frontend/server
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
+        working-directory: ./frontend/server
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm run build
+  
 
 
   build-ui:
@@ -46,9 +50,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        working-directory: ./frontend/ui
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
+        working-directory: ./frontend/ui
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm run build
