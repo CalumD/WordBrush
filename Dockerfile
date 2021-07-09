@@ -1,4 +1,4 @@
-FROM node:15.9-slim
+FROM node:16.4.2-slim
 
 EXPOSE 3000 8080
 

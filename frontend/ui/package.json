@@ -1,6 +1,6 @@
 {
   "name": "wordbrush_frontend_ui",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "The Node server for the visual frontend of the WordBrush project",
   "author": {
     "name": "CalumD"
