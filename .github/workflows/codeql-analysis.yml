@@ -64,7 +64,7 @@ jobs:
        make
        cd ../frontend/server
        npm run build
-       cd ../frontend/ui
+       cd ../ui
        npm run build
 
     - name: Perform CodeQL Analysis
