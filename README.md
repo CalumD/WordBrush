@@ -1,5 +1,4 @@
-[![Build](https://github.com/CalumD/WordBrush/actions/workflows/docker-image/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml)
-
+[![Build](https://github.com/CalumD/WordBrush/workflows/docker-image/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml)
 
 # WordBrush [![WordBrushLogo](https://github.com/CalumD/WordBrush/blob/master/examples/WordBrush.svg)](https://github.com/CalumD/WordBrush)
 
