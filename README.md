@@ -1,4 +1,8 @@
-[![Build](https://github.com/CalumD/WordBrush/workflows/docker-image/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml)
+[![C CI](https://github.com/CalumD/WordBrush/actions/workflows/C%20code%20CI.yml/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/C%20code%20CI.yml)
+[![Node CI](https://github.com/CalumD/WordBrush/actions/workflows/node.js.yml/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/node.js.yml)
+[![Docker CI](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml)
+[![CodeQL Static Scan](https://github.com/CalumD/WordBrush/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/codeql-analysis.yml)
+
 
 # WordBrush [![WordBrushLogo](https://github.com/CalumD/WordBrush/blob/master/examples/WordBrush.svg)](https://github.com/CalumD/WordBrush)
 
