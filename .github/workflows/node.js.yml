@@ -23,13 +23,18 @@ jobs:
         working-directory: ./frontend/server
 
     steps:
+    - name: CD to correct dir
+    - run: cd ./frontend/server
+    
+    - name: Checkout
     - uses: actions/checkout@v2
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
-        path: ./frontend/server
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
     - run: npm run build
   
 
@@ -47,11 +52,16 @@ jobs:
         working-directory: ./frontend/ui
 
     steps:
+    - name: CD to correct dir
+    - run: cd ./frontend/ui
+
+    - name: Checkout
     - uses: actions/checkout@v2
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
-        path: ./frontend/ui
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+  
     - run: npm run build
