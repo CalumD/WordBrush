@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend/server
+        working-directory: ./frontend/server
 
     steps:
     - uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend/ui
+        working-directory: ./frontend/ui
 
     steps:
     - uses: actions/checkout@v2
