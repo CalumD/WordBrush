@@ -1,3 +1,10 @@
+[![Docker CI](https://github.com/CalumD/WordBrush/workflows/docker-image/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/docker-image.yml)
+[![C CI](https://github.com/CalumD/WordBrush/workflows/C code CI/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/C%20code%20CI.yml)
+[![Typescript CI](https://github.com/CalumD/WordBrush/workflows/node.js/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/node.js.yml)
+[![Static Scan](https://github.com/CalumD/WordBrush/workflows/codeql-analysis/badge.svg)](https://github.com/CalumD/WordBrush/actions/workflows/codeql-analysis.yml)
+
+
+
 # WordBrush [![WordBrushLogo](https://github.com/CalumD/WordBrush/blob/master/examples/WordBrush.svg)](https://github.com/CalumD/WordBrush)
 
 This project takes ASCII input and draws the resultant line, as if you were to 'swipe-to-type' that word across a
