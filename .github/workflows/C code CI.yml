@@ -17,5 +17,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: create bin
+      run: mkdir bin
     - name: make
       run: make
