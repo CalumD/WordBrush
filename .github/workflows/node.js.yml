@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: CD to correct dir
-    - run: cd ./frontend/server
+      run: cd ./frontend/server
     
     - name: Checkout
     - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
 
     steps:
     - name: CD to correct dir
-    - run: cd ./frontend/ui
+      run: cd ./frontend/ui
 
     - name: Checkout
     - uses: actions/checkout@v2
