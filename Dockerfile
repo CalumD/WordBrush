@@ -1,4 +1,4 @@
-FROM node:16.4.2-slim
+FROM node:16.13-slim
 
 EXPOSE 3000 8080
 
@@ -10,6 +10,7 @@ RUN groupadd -r wordbrush && useradd --create-home -r -g wordbrush wordbrush && 
     apt-get -qq -y upgrade && \
     apt-get -qq -y install make gcc zsh iproute2 && \
     apt-get -q -y autoremove && \
+    rm -rf /var/lib/apt/lists/* && \
     npm install 2> /dev/null -g npm@latest typescript serve && \
     chown wordbrush:wordbrush $WORK_DIR
 

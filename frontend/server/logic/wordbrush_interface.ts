@@ -127,7 +127,7 @@ export async function getResultSet(
                     throw new Error('Metadata file not finalised.');
                 }
                 resolve({outputType: metadataFile.outputType, words: metadataFile.words});
-            } catch (Err) {
+            } catch (Err: any) {
                 logger.error("Failed while getting result Set", Err);
                 return resultSet202(directory, next);
             }
